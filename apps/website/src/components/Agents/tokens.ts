@@ -27,7 +27,8 @@ export interface ShapeSpec {
   eyesY: number;
   /** where a hat sits: the middle of the top of the head */
   head: Vec;
-  /** where the hands rest */
+  /** where the hands rest: about 1 past the body's outer edge (its outline plus half its stroke), so they overlap the
+   *  outline (tests/agents.spec.ts checks this for every shape) */
   hands: { L: Vec; R: Vec };
 }
 
@@ -40,15 +41,15 @@ export const SHAPES = {
   squircle: { d: SQUIRCLE, feet: [32, 49.5], eyesY: 30.5, head: [32, 15.6], hands: { L: [9.2, 43], R: [54.8, 43] } },
   circle: {
     d: "M32 11.6A19 19 0 0 1 32 49.6A19 19 0 0 1 32 11.6Z",
-    feet: [32, 49.6], eyesY: 30.1, head: [32, 13.6], hands: { L: [9.6, 42], R: [54.4, 42] },
+    feet: [32, 49.6], eyesY: 30.1, head: [32, 13.6], hands: { L: [13.6, 42], R: [50.4, 42] },
   },
   bullet: {
     d: "M12.20 30.20A19.80 19.80 0 0 1 51.80 30.20L51.80 43.20A6.40 6.40 0 0 1 45.40 49.60L18.60 49.60A6.40 6.40 0 0 1 12.20 43.20Z",
-    feet: [32, 49.6], eyesY: 31.3, head: [32, 12.4], hands: { L: [8, 44], R: [56, 44] },
+    feet: [32, 49.6], eyesY: 31.3, head: [32, 12.4], hands: { L: [9.4, 44], R: [54.6, 44] },
   },
   pill: {
     d: "M24.70 19.40L39.30 19.40A15.10 15.10 0 0 1 39.30 49.60L24.70 49.60A15.10 15.10 0 0 1 24.70 19.40Z",
-    feet: [32, 49.6], eyesY: 32.5, head: [32, 21.4], hands: { L: [6, 44], R: [58, 44] },
+    feet: [32, 49.6], eyesY: 32.5, head: [32, 21.4], hands: { L: [9.7, 44], R: [54.3, 44] },
   },
   triangle: { d: TRIANGLE, feet: [32, 49.56], eyesY: 33.3, head: [32, 14.6], hands: { L: [9, 45], R: [55, 45] } },
 } satisfies Record<string, ShapeSpec>;
