@@ -17,10 +17,11 @@ import type { AgentAnimation, Key, Track, Vec } from "../types";
  *   5.88-6.39 s  looks ahead again; blinks at 6.31 s (shutting over 61 ms, reopening over 81 ms, at an even speed, as in the original)
  *
  * The original draws the body at 0.66 with its feet (32 49.6) at (32 63.5) of its 64x64 box, and the hands and the
- * objects at full size in that box, on top of the body (vase, apple, calculator, then the two hands). So this agent
- * is drawn at 0.66 about its feet (`body.squash`) and lifted 13.9 down to that spot (`body.lift`), and the objects and
- * both visible hands are "world" props given in the box's coordinates (see `W`), drawn in that order; `S` undoes the
- * agent's scale on their size. The rig's own hands wait
+ * objects at full size in that box, on top of the body (vase, apple, calculator, then the two hands), so the throws
+ * fit inside the box. Here the agent keeps the family's normal size and place (so it lines up with the others), and
+ * the objects and both visible hands are "world" props taken from the original's box into the agent's own space
+ * (see `W`), drawn in that order and scaled by 1/`S` to keep their size against the body. The throws therefore rise
+ * about 31 units above the top of the agent's box: leave room above it. The rig's own hands wait
  * behind the middle of the body, out of sight. The original has no behind-the-body layer: the objects come "from
  * behind its back" by fading in at the hands, beside the body, and so do they here.
  *
@@ -28,10 +29,8 @@ import type { AgentAnimation, Key, Track, Vec } from "../types";
  */
 const D = 6750;
 
-/** the scale the original draws the body at */
+/** the scale the original draws the body at (the props are scaled by 1/S to keep their size against the body) */
 const S = 0.66;
-/** how far down the feet are drawn: from the circle's (32 49.6) to the original's (32 63.5) */
-const FEET_DROP = 63.5 - 49.6;
 /** A point in the original's 64x64 box, in this agent's own space (feet (32 49.6) drawn at (32 63.5), at 0.66). */
 const W = (x: number, y: number): Vec => [+(32 + (x - 32) / S).toFixed(2), +(49.6 + (y - 63.5) / S).toFixed(2)];
 
@@ -177,7 +176,7 @@ const spin = (start: number, end: number): Track<number> => {
   return [[0, 0], [1320, 0], [SPIN_FROM, start, "linear"], [SPIN_TO, turned, "linear"], [5580, end, "linear"]];
 };
 
-/** they grow from 0.4 to full size as they come out and shrink back as they go; `S` undoes the agent's 0.66 */
+/** they grow from 0.4 to full size as they come out and shrink back as they go; scaled by 1/`S` to keep their size against the body */
 const size: Track<number> = [[0, 0.4 / S], [1020, 0.4 / S], [1620, 1 / S], [5250, 1 / S], [5850, 0.4 / S]];
 /** they fade in at the hands (1.02-1.26 s) and out again (5.58-5.85 s) */
 const fade: Track<number> = [
@@ -196,8 +195,7 @@ const HIDDEN = { path: [[0, [32, 40]]], behind: [[0, D]] } as const;
 export const juggler: AgentAnimation = {
   duration: D,
   rest: 2300,
-  // drawn at 0.66 about the feet, which sit at (32 63.5) of the box
-  body: { squash: [[0, [S, S]]], lift: [[0, FEET_DROP]] },
+  // drawn at the family's normal size and place, like every other agent; the throws arc up above the box
   eyes: {
     look: [
       // looks down at its hands (0.42-0.96 s) while the objects come out

@@ -18,8 +18,7 @@ const items = {
 };
 
 /**
- * The agent fills the box: the animation itself draws the body at 0.66 with its feet at (32 63.5), as the original
- * does, and the objects fly well above its head (up to y 10 of the box).
+ * The agent sits in its box like the others; the throws arc up to about half the box's height above it.
  *
  * It hops like the others when hovered or clicked, but only up and down (`lean: 0, squash: 0`): a hop's tilt and
  * squash turn about the feet, and would fling the world-placed objects and hands (up to 80 units above the feet) far
@@ -27,6 +26,9 @@ const items = {
  */
 const HOP = { lean: 0, squash: 0 };
 
+/** room above the box for the throws (they peak about 0.6 of the box's height above it at the preview's 110 px) */
+const ROOM = { marginTop: 72 };
+
 export default function JugglerDemo({ className }: DemoProps) {
-  return <Agent shape="circle" colour="blue" animation={juggler} items={items} reactive={HOP} className={className} />;
+  return <Agent shape="circle" colour="blue" animation={juggler} items={items} reactive={HOP} className={className} style={ROOM} />;
 }
