@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, type CSSProperties, type ReactNode } from "react";
+import { flushSync } from "react-dom";
 import { createClock, subscribe } from "./runtime";
 import { poseAt } from "./timeline";
 import { COLOURS, INK, SHAPES, STROKE, type Colour, type ShapeName } from "./tokens";
@@ -11,7 +12,8 @@ export interface AgentProps {
   animation?: AgentAnimation;
   /** how each prop named in the animation looks, drawn around its attach point (e.g. `{ hat: <Hat kind="beret" /> }`) */
   items?: Record<string, ReactNode>;
-  /** called with an event's name when the loop passes it (see `AgentAnimation.events`) */
+  /** called with an event's name when the loop passes it (see `AgentAnimation.events`); state updates made here are
+   *  rendered before that frame is drawn */
   onEvent?: (name: string) => void;
   /** show this moment (ms) still instead of playing, e.g. for a scrubber */
   time?: number;
@@ -118,7 +120,10 @@ export default function Agent({
     const io = new IntersectionObserver((entries) => {
       stop?.();
       stop = undefined;
-      if (entries.some((e) => e.isIntersecting)) stop = subscribe((dt) => show(clock.advance(dt, (e) => onEventRef.current?.(e))));
+      // an event's state changes are committed before this frame's pose is drawn, so props that depend on them (which
+      // hat is worn...) are already up to date when they appear, rather than one frame late
+      if (entries.some((e) => e.isIntersecting))
+        stop = subscribe((dt) => show(clock.advance(dt, (e) => flushSync(() => onEventRef.current?.(e)))));
     });
     io.observe(svg);
     return () => {

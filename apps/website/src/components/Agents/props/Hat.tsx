@@ -16,7 +16,7 @@ export default function Hat({ kind }: { kind: HatKind }) {
   );
   const line = { stroke: INK, strokeWidth: STROKE.prop, strokeLinejoin: "round" as const };
   return (
-    <g>
+    <g data-hat={kind}>
       <defs>
         {grad("black", "#3a3a40", "#1f1f23")}
         {grad("pink", "#ff8bc5", "#FF6AB5")}
