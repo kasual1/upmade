@@ -1,4 +1,5 @@
 import type { AgentAnimation, PropTrack, Span, Track, Vec } from "../types";
+import { SHAPES } from "../tokens";
 
 /**
  * Puts on cycling glasses ("Performance"), for the green triangle. It reaches behind its back for a pair of
@@ -6,7 +7,7 @@ import type { AgentAnimation, PropTrack, Span, Track, Vec } from "../types";
  * hand and tucks down into a racing crouch. It shakes with speed while a glint sweeps across the lenses. After 1.5 s
  * it sits up, takes them off out to the side and puts them away behind its back again. It blinks once as they go on
  * and once after they are put away.
- * Props: `glasses`, `glint0`...`glint23` (frames of the glint's sweep), `shine` (the lenses' white shine) and `hand`
+ * Props: `glasses`, `glint0`...`glint23` (frames of the glint's sweep across the lenses), `shine` (the lenses' white shine) and `hand`
  * (the one hand, which handles them). Events: `glassesOn` (wearing them: the page speeds up its star board) and
  * `glassesOff` (sitting up: the board coasts back to its normal pace).
  *
@@ -138,6 +139,8 @@ const glints: Record<string, PropTrack> = Object.fromEntries(
 
 export const cyclingGlasses: AgentAnimation = {
   duration: D,
+  // drawn at the original card's size and height: the box shows it at the family's (see `frame`)
+  frame: { scale: SHRINK, ground: SHAPES.triangle.feet[1] },
   // wearing them, crouched (the original's reduced-motion frame)
   rest: 2200,
   body: {
@@ -146,10 +149,10 @@ export const cyclingGlasses: AgentAnimation = {
     lift: shake(1),
   },
   eyes: {
-    // The original's eye scale keys: shut (.1) at .22 of the loop as the glasses settle and at .883 once they are
-    // away, closing from .209 and .872 (60 ms) and open again by .235 and .901 (82 and 98 ms). Linear there, eased
-    // here.
-    blink: { close: at(0.22 - 0.209), depth: 0.1 },
+    // The original's eye scale keys, linear like it: shut (.1) at .22 of the loop as the glasses settle and at .883
+    // once they are away, closing from .209 and .872 (60 ms) and open again by .235 and .901 (82 and 98 ms). The
+    // original scales the eyes about their middle (36.4), as a blink does.
+    blink: { close: at(0.22 - 0.209), depth: 0.1, ease: "linear" },
     blinks: [{ at: at(0.22), open: at(0.235 - 0.22) }, { at: at(0.883), open: at(0.901 - 0.883) }],
   },
   hands: {

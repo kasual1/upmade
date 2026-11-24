@@ -14,17 +14,16 @@ const stageItems = {
 };
 
 /**
- * The original draws both agents at 0.7, so each body is an <Agent> 70% of the box at its top-left corner; the
- * animations' constant body.shift and body.lift move each into its place (feet at (16.2 50) and (47.8 50), 3 up). The
- * stage (document and hands) covers the whole box on top of both, and lets the pointer through so the agents still hop
- * when hovered.
+ * Three <Agent>s fill the box, one over another: the two bodies, then the stage (document and hands), which lets the
+ * pointer through so the agents still hop when hovered. They share one frame, so both agents come out at the family's
+ * size on its usual line, the pair centred and reaching past the box on both sides.
  *
- * Both bodies' <svg> boxes sit at that corner, and an <svg> catches the pointer over the whole of its box, so the
- * circle's box (on top) would hide the triangle from the pointer. So the bodies' <svg>s let the pointer through and only
+ * An <svg> catches the pointer over the whole of its box, so the circle's box (on top) would hide the triangle from
+ * the pointer. So the bodies' <svg>s let the pointer through and only
  * their drawn bodies take it (the same as the shape-shift demo).
  */
 const BODY_CLASS = "handoff-body";
-const body = { position: "absolute" as const, left: 0, top: 0, width: "70%", height: "70%", pointerEvents: "none" as const };
+const body = { position: "absolute" as const, inset: 0, width: "100%", height: "100%", pointerEvents: "none" as const };
 
 export default function HandoffDemo({ className }: DemoProps) {
   return (

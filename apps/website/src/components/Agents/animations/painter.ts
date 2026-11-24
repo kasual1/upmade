@@ -11,14 +11,12 @@ import type { Paint } from "../props/painter/Brush";
  *
  * The original draws the painter (body, eyes, beret) at 0.62, its feet (32 49) placed at (17 51), and leans it
  * about those feet; the brush hand and the easel are full size and do not lean. The rig cannot keep a prop out of
- * the body's lean and scale, so the demo draws two agents on top of each other, both in the same box (PAINTER_BOX:
- * 0.62 of the demo, at its top left corner):
- *   - `painter`: the painter itself, moved into place by a constant body shift and lift (PAINTER_SHIFT). Its own
- *     hands wait out of sight behind its body. Its eyes squint and blink with the original's timing (`blinks`).
+ * the body's lean and scale, so the demo draws two agents on top of each other, both in the whole demo box:
+ *   - `painter`: the painter itself, drawn at 0.62 by its body scale (times the breathing) and moved into place by
+ *     a constant body shift and lift (PAINTER_SHIFT). Its own hands wait out of sight behind its body. Its eyes
+ *     squint and blink with the original's timing and linear ramps (`blinks`).
  *   - `painterStage`: an agent with no body (an empty outline, its eyes hidden) that holds the brush hand, the brush
- *     and the easel as props. They are full size in the original, so the demo draws their looks at 1/0.62 (baked
- *     into the items, not a `scale` track, which the rig rounds to 2 decimals) and the stage maps the original's
- *     coordinates into the shared box (`toBox`). Its rig hands wait out of sight behind the easel.
+ *     and the easel as full-size props, in the original's own coordinates. Its rig hands wait behind the easel.
  *   The two share one box on purpose: each agent pauses while its own box is off screen, so two different boxes
  *   would pause at different scroll positions and drift apart (the brush hand out of step with the lean).
  * Props of `painter`: `beret`. Props of `painterStage`: `brushGreen`, `brushBlue`, `brushYellow` (one is shown at a
@@ -63,10 +61,10 @@ const handPath = smil(
 /** The original's eye scale channels, as blinks (ms against the 6 s loop). The squint (eyes at .42 of their height)
  *  closes over 0.203..0.22 of the loop, holds to 0.27 and opens by 0.287, and again at 0.537 and 0.87; the slow blink
  *  (a separate channel, multiplied in, down to .08) closes over 0.083..0.097 and opens by 0.12. The two never
- *  overlap, so taking the minimum is the same as the original's product. The original is linear; the rig eases. */
-const SQUINT = { close: at(0.22) - at(0.203), hold: at(0.27) - at(0.22), open: at(0.287) - at(0.27), depth: 0.42 };
+ *  overlap, so taking the minimum is the same as the original's product. Both channels are linear, as are the blinks. */
+const SQUINT = { close: at(0.22) - at(0.203), hold: at(0.27) - at(0.22), open: at(0.287) - at(0.27), depth: 0.42, ease: "linear" } as const;
 const blinks: Blink[] = [
-  { at: at(0.097), close: at(0.097) - at(0.083), open: at(0.12) - at(0.097), hold: 0, depth: 0.08 },
+  { at: at(0.097), close: at(0.097) - at(0.083), open: at(0.12) - at(0.097), hold: 0, depth: 0.08, ease: "linear" },
   { at: at(0.22) },
   { at: at(0.553), close: at(0.553) - at(0.537) },
   { at: at(0.887), open: at(0.953) - at(0.937) },
@@ -74,23 +72,30 @@ const blinks: Blink[] = [
 
 // ---- the painter ----
 
-/** The box both agents are drawn in: 0.62 of the demo, at its top left corner. The painter is moved into place inside
- *  it by PAINTER_SHIFT, so that its feet (32 49), drawn at 0.62, land at (17 51) of the demo's 64x64 units. */
-export const PAINTER_BOX = { scale: 0.62 } as const;
-/** The painter's constant body shift and lift, in its own (box) units: ((17 51) - 0.62 x (32 49)) / 0.62. */
-const PAINTER_SHIFT: Vec = [(17 - 0.62 * 32) / 0.62, (51 - 0.62 * 49) / 0.62];
-/** A point of the original's full-size drawing, in the shared box's own 64x64 space. */
-const toBox = ([x, y]: Vec): Vec => [x / PAINTER_BOX.scale, y / PAINTER_BOX.scale];
+/** The size the original draws the painter at. */
+const SIZE = 0.62;
+/** The rig scales and leans the body about its feet F (32 49.6), the original about (32 49): F + shift + SIZE x
+ *  ((32 49) - F) must land at (17 51), so the shift is (17 51) + SIZE x (0 .6) - F. (The lean's pivot then sits .37
+ *  below the original's, under .05 units of drift at the -8 deg lean.) */
+const FEET: Vec = [32, 49.6];
+const PAINTER_SHIFT: Vec = [17 - FEET[0], 51 + SIZE * (FEET[1] - 49) - FEET[1]];
+/** the painter and its stage are drawn at the original card's size; both layers take the same frame */
+const FRAME = { scale: SIZE, ground: FEET[1] + PAINTER_SHIFT[1] };
 
-/** The painter's breathing: 1.02 wide and .98 tall, and back, every 2 s (the rig's `breathe` only scales the height,
- *  once per 3 s here). */
-const breathe: Track<Vec> = Array.from({ length: D / 1000 + 1 }, (_, n) => [n * 1000, (n % 2 ? [1.02, 0.98] : [1, 1]) as Vec] as const);
+/** The painter's size times its breathing: 1.02 wide and .98 tall, and back, every 2 s (the rig's `breathe` only
+ *  scales the height, once per 3 s here). */
+const breathe: Track<Vec> = Array.from(
+  { length: D / 1000 + 1 },
+  (_, n) => [n * 1000, (n % 2 ? [SIZE * 1.02, SIZE * 0.98] : [SIZE, SIZE]) as Vec] as const,
+);
 
 export const painter: AgentAnimation = {
   duration: D,
+  // drawn at the original card's size and height: the box shows it at the family's (see `frame`)
+  frame: FRAME,
   // the original holds its first frame with reduced motion (the feature icons are designed to read as a still there)
   rest: 0,
-  // placed in the shared box (see PAINTER_BOX) by a constant shift and lift, so its feet (32 49) land at (17 51)
+  // drawn at 0.62 (the squash) and placed by a constant shift and lift, so its feet (32 49) land at (17 51)
   body: { shift: [[0, PAINTER_SHIFT[0]]], lift: [[0, PAINTER_SHIFT[1]]], lean, squash: breathe },
   eyes: { look, blinks, blink: SQUINT },
   // out of sight behind the body: the original painter has no hands of its own (the brush hand is the stage's)
@@ -109,8 +114,8 @@ export const painter: AgentAnimation = {
 /** The whole original drawing sits 1 up. */
 const UP = -1;
 const PAINT_SPANS: Record<Paint, Span> = { green: [0, 2000], blue: [2000, 4000], yellow: [4000, D] };
-/** The brush hand's path, 1 up and in the box (mapping is affine, so linear keys still trace the same path). */
-const handOffset: Track<Vec> = handPath.map(([t, [x, y], e]) => [t, toBox([x, y + UP]), e] as const);
+/** The brush hand's path, 1 up. */
+const handOffset: Track<Vec> = handPath.map(([t, [x, y], e]) => [t, [x, y + UP] as Vec, e] as const);
 /** A brush loaded with one paint, in the hand and tilted 40 deg towards the canvas, shown while that paint is on. */
 const brush = (paint: Paint): PropTrack => ({
   attach: "world",
@@ -119,10 +124,12 @@ const brush = (paint: Paint): PropTrack => ({
   visible: [PAINT_SPANS[paint]],
 });
 /** Where the stage's unused rig hands wait: (41 30) of the full drawing, under the easel's canvas. */
-const PARKED = toBox([41, 30]);
+const PARKED: Vec = [41, 30];
 
 export const painterStage: AgentAnimation = {
   duration: D,
+  // drawn at the original card's size and height: the box shows it at the family's (see `frame`)
+  frame: FRAME,
   rest: 0,
   // no body: an empty outline (nothing is stroked for a zero-length path with butt caps) and no eyes
   body: { outline: [[0, "M0 0Z"]] },
@@ -138,6 +145,6 @@ export const painterStage: AgentAnimation = {
     brushBlue: brush("blue"),
     brushYellow: brush("yellow"),
     hand: { attach: "world", offset: handOffset },
-    easel: { attach: "world", offset: [[0, toBox([0, UP])]] },
+    easel: { attach: "world", offset: [[0, [0, UP]]] },
   },
 };

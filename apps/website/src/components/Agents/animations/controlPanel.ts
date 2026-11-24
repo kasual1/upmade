@@ -194,6 +194,8 @@ const BUTTON: Vec = [32, 50.2];
 
 export const controlPanel: AgentAnimation = {
   duration: D,
+  // drawn at the original card's size and height: the box shows it at the family's (see `frame`)
+  frame: { scale: 0.8, ground: FEET[1] + 4 + 0.5 * 0.8 },
   rest: 0,
   body: {
     // squared off while the first press holds the button down, round again with the fourth
@@ -202,9 +204,9 @@ export const controlPanel: AgentAnimation = {
     lift: TIMES.map((t) => [t, liftAt(t), "linear"] as const),
   },
   eyes: {
-    // the original's two blinks: the eyes squash to .08 tall from .051 to .06 of the loop and open again by .076
-    // (.81 and .826 for the second), so 79 ms shut and 141 ms open
-    blink: { close: at(0.06) - at(0.051), open: at(0.076) - at(0.06), depth: 0.08 },
+    // the original's two blinks: the eyes squash linearly to .08 tall from .051 to .06 of the loop and open again
+    // by .076 (.81 and .826 for the second), so 79 ms closing and 141 ms opening
+    blink: { close: at(0.06) - at(0.051), open: at(0.076) - at(0.06), depth: 0.08, ease: "linear" },
     blinks: [at(0.06), at(0.81)],
   },
   // the original has a single hand, a prop (see above); both of the rig's wait behind the body

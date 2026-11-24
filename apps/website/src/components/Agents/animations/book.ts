@@ -1,13 +1,13 @@
 import { sample } from "../timeline";
 import { SHAPES } from "../tokens";
-import type { AgentAnimation, PropTrack, Span, Track, Vec } from "../types";
+import type { AgentAnimation, Blink, PropTrack, Span, Track, Vec } from "../types";
 
 /**
  * Speed-reads a book, for the orange triangle: it sits behind an open indigo book, eyes darting along the lines,
  * flicking three pages over with its right hand; then it squints, scratching its head, glances down again, and reads
  * and flicks three more pages before a last few glances along the lines.
  * Props (all drawn by the demo): `book`, the page frames `page0`..`page15` and the hands `handL`, `handR`.
- * The squint and the two blinks are rig blinks with the original's timing and depth. Event: `turn` as each page starts to turn.
+ * The squint and the two blinks are linear rig blinks with the original's timing and depth. Event: `turn` as each page starts to turn.
  *
  * Ported from the landing page's SMIL agent (4.8 s loop, every channel linear). Its keyTimes and values are kept as
  * they are in the original (the `smil()` strings below) so they can be checked against it.
@@ -20,6 +20,8 @@ import type { AgentAnimation, PropTrack, Span, Track, Vec } from "../types";
  */
 const D = 4800;
 const at = (f: number) => Math.round(f * D);
+/** The exact time of a SMIL keyTime, unrounded, so the keyframe tracks and blinks land where the original's do. */
+const ex = (f: number) => f * D;
 const SCALE = 0.78;
 const FEET = SHAPES.triangle.feet;
 
@@ -28,7 +30,7 @@ function smil(values: string, keyTimes: string): Track<Vec> {
   const ts = keyTimes.split(";").map(Number);
   return values.split(";").map((v, n) => {
     const [x, y = 0] = v.trim().split(/\s+/).map(Number);
-    return [at(ts[n]), [x, y] as Vec, "linear"] as const;
+    return [ex(ts[n]), [x, y] as Vec, "linear"] as const;
   });
 }
 const ys = (track: Track<Vec>): Track<number> => track.map(([t, v, e]) => [t, v[1], e] as const);
@@ -66,11 +68,11 @@ export const PAGE_SX = Array.from({ length: PAGE_FRAMES }, (_, k) => 1 - (2 * (k
  *  "1;1;.62;.62;1;1;.08;1;1;.08;1;1" at keyTimes "0;.283;.304;.396;.417;.45;.463;.479;.887;.9;.921;1". So: a squint
  *  narrowing to .62 over .283-.304 (1358-1459 ms), held to .396 (1901), widening by .417 (2002); and two blinks
  *  shut to .08 at .463 (2222, from .45 = 2160, open by .479 = 2299) and at .9 (4320, from .887 = 4258, open by
- *  .921 = 4421). The rig eases each change with a smoothstep where the original is linear. */
-const blinks = [
-  { at: at(0.304), close: at(0.304) - at(0.283), hold: at(0.396) - at(0.304), open: at(0.417) - at(0.396), depth: 0.62 },
-  { at: at(0.463), open: at(0.479) - at(0.463) },
-  { at: at(0.9), open: at(0.921) - at(0.9) },
+ *  .921 = 4421). All three are linear blinks (ease "linear"), like the original's keyframes. */
+const blinks: Blink[] = [
+  { at: ex(0.304), close: ex(0.304) - ex(0.283), hold: ex(0.396) - ex(0.304), open: ex(0.417) - ex(0.396), depth: 0.62, ease: "linear" },
+  { at: ex(0.463), open: ex(0.479) - ex(0.463) },
+  { at: ex(0.9), open: ex(0.921) - ex(0.9) },
 ];
 
 // ---- placing the props ----
@@ -107,6 +109,8 @@ const pageFrame = (k: number): PropTrack =>
 
 export const book: AgentAnimation = {
   duration: D,
+  // drawn at the original card's size and height: the box shows it at the family's (see `frame`)
+  frame: { scale: SCALE, ground: FEET[1] + BASE_LIFT },
   // reading, between the first page turns and the squint
   rest: at(0.23),
   body: {
@@ -119,7 +123,7 @@ export const book: AgentAnimation = {
   eyes: {
     look,
     // the two blinks close in 62 ms to .08; the squint gives its own shape
-    blink: { close: at(0.463) - at(0.45), depth: 0.08 },
+    blink: { close: ex(0.463) - ex(0.45), depth: 0.08, ease: "linear" },
     blinks,
   },
   hands: {

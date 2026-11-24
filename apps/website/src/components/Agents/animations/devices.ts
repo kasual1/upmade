@@ -19,11 +19,12 @@ import type { AgentAnimation, PropTrack, Span, Track, Vec } from "../types";
  * How that maps onto the rig:
  * - The rig's body is centred at x 32, the original's at 25, so everything here is drawn 7 to the right (the body's
  *   middle at x 32) and a constant body.shift of -7 moves the whole agent, props included, back onto the original.
- * - The shrink is a constant body squash of 0.85 (constant, because the rig writes the squash with two decimals:
- *   breathing through it would step in visible 1% jumps), and the hop is the lift.
+ * - The shrink is a constant body squash of 0.85, and the hop is the lift.
  * - The breathing is baked into the body outline instead: the original's own triangle path, scaled (1.02 x 0.98)
- *   about (32 49) on its spline, sampled every 40 ms. The eyes breathe with it in the original, so the breathing's
- *   pull on them (their middle moves about .25 down at the peak) is added to their look.
+ *   about (32 49) on its spline, sampled every 40 ms. (Breathing through the squash would breathe the props too,
+ *   and a prop's scale is a single number, so it could not be undone on them.) The eyes breathe with the body in the
+ *   original: their size breathes as eyes.scale (about their lower ends), and the difference between that pivot
+ *   and the original's (32 49), plus the breathing's pull on the look itself, is added to their look.
  * - The rig squashes and lifts its props with the body, so the devices and the hand are "world" props placed so that
  *   the squash and lift put them back where they are in the original; they are drawn 1/0.85 bigger (props/devices),
  *   so their scale tracks are the original's own. The rig's two hands wait out of sight behind the body.
@@ -41,6 +42,8 @@ const GEAR_SHIFT: Vec = [1 - 3.5 - SHIFT, -5];
 const PIVOT_BODY: Vec = [32, 49];
 /** The middle of the eyes (what the original's blink scales about), in the body's own units. */
 const EYES_MID: Vec = [32, SHAPES.triangle.eyesY + 3.1];
+/** The lower middle of the eyes (what the rig's eyes.scale scales about). */
+const EYES_LOW: Vec = [32, SHAPES.triangle.eyesY + 6.2];
 
 /** The original's triangle (very slightly different from the family token at the bottom corners). */
 const OUTLINE =
@@ -141,14 +144,21 @@ const outlineAt = (t: number) => {
   return OUTLINE.replace(/(\d+\.\d+) (\d+\.\d+)/g, () => {
     const [x, y] = breathed([v[n], v[n + 1]], s);
     n += 2;
-    return `${x.toFixed(2)} ${y.toFixed(2)}`;
+    return `${x.toFixed(3)} ${y.toFixed(3)}`;
   });
 };
-/** The look, inside the breathing as in the original: the eyes' middle and their offset both breathe. */
+/** How open the original's eyes are (its blink keys, linear): shut to .08 at .447 and .847 of the loop. */
+const OPEN = keys([0, 0.433, 0.447, 0.47, 0.833, 0.847, 0.87, 1], [1, 1, 0.08, 1, 1, 0.08, 1, 1]);
+/**
+ * The look, inside the breathing as in the original. The original maps a point p of the (blinked) eyes to
+ * P + s(l + c + o(p - c) - P) (P the breathing's pivot, c the blink's, o the openness, l the look); the rig to
+ * look + c + o(B + s(p - B) - c) (B the eyes' lower middle, s = eyes.scale). They agree when
+ * look = s l + (1 - s)(P - c + o(c - B)).
+ */
 const lookAt = (t: number): Vec => {
-  const s = breathe(t), l = vec(LOOK, t);
-  const m = breathed([EYES_MID[0] + l[0], EYES_MID[1] + l[1]], s);
-  return [m[0] - EYES_MID[0], m[1] - EYES_MID[1]];
+  const s = breathe(t), l = vec(LOOK, t), o = num(OPEN, t);
+  const off = (n: 0 | 1) => s[n] * l[n] + (1 - s[n]) * (PIVOT_BODY[n] - EYES_MID[n] + o * (EYES_MID[n] - EYES_LOW[n]));
+  return [off(0), off(1)];
 };
 
 /** A point of the original drawing (already moved here), placed so that the rig's squash and lift put it back. */
@@ -163,7 +173,7 @@ const timesOf = (...ks: Keys[]) => {
 };
 /** Every STEP ms, plus every key of the original, so its corners are hit exactly. */
 const BREATH_FRAMES = (() => {
-  const set = new Set(timesOf(LOOK));
+  const set = new Set(timesOf(LOOK, OPEN));
   for (let t = 0; t <= D; t += STEP) set.add(t);
   return [...set].sort((a, b) => a - b);
 })();
@@ -196,6 +206,8 @@ const device = (k: Keys, pivot: Vec): PropTrack => ({
 
 export const devices: AgentAnimation = {
   duration: D,
+  // drawn at the original card's size and height: the box shows it at the family's (see `frame`)
+  frame: { scale: SHRINK, ground: FEET[1] + SET_DOWN },
   // holding the phone, looking at it
   rest: 300,
   body: {
@@ -206,9 +218,11 @@ export const devices: AgentAnimation = {
   },
   eyes: {
     look: track(BREATH_FRAMES, lookAt),
+    // the eyes breathe with the body (1.02 x .98), as in the original
+    scale: track(BREATH_FRAMES, breathe),
     // the original's two blinks (holding the tablet, then the laptop): scale y 1 to .08 over .433 to .447 of the
-    // loop (84 ms), straight back open by .47 (138 ms); the same from .833 to .847 to .87
-    blink: { close: 84, open: 138, depth: 0.08 },
+    // loop (84 ms), straight back open by .47 (138 ms), linearly; the same from .833 to .847 to .87
+    blink: { close: 84, open: 138, depth: 0.08, ease: "linear" },
     blinks: [0.447 * D, 0.847 * D],
   },
   hands: {

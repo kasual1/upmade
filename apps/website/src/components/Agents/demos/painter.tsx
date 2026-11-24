@@ -1,40 +1,37 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState } from "react";
 import Agent from "../Agent";
 import Beret from "../props/painter/Beret";
 import Brush from "../props/painter/Brush";
 import Hand from "../props/painter/Hand";
 import Easel from "../props/painter/Easel";
-import { painter, painterStage, PAINTER_BOX } from "../animations/painter";
+import { painter, painterStage } from "../animations/painter";
 import type { DemoProps } from "./types";
 
 export const label = "Painter";
 export const order = 60;
 
 const painterItems = { beret: <Beret /> };
-/** The stage's props are full size in the original, so in the painter's 0.62 box they are drawn at 1/0.62. */
-const full = (look: ReactNode) => <g transform={`scale(${1 / PAINTER_BOX.scale})`}>{look}</g>;
 const stageItems = {
-  brushGreen: full(<Brush paint="green" />),
-  brushBlue: full(<Brush paint="blue" />),
-  brushYellow: full(<Brush paint="yellow" />),
-  hand: full(<Hand />),
-  easel: full(<Easel />),
+  brushGreen: <Brush paint="green" />,
+  brushBlue: <Brush paint="blue" />,
+  brushYellow: <Brush paint="yellow" />,
+  hand: <Hand />,
+  easel: <Easel />,
 };
 
 /**
- * The original draws the painter at 0.62, so both agents take 62% of the box, at its top left corner (PAINTER_BOX);
- * the painter's own body shift and lift put its feet where the original has them. The stage draws the full-size
- * brush hand, brush and easel at 1/0.62 inside that same box, so both agents come on and off screen together and
- * stay in step; it lets the pointer through to the painter so the painter still hops when hovered. Until both agents
- * have drawn their first pose the box is hidden, so the server-rendered page does not flash the stage's default body
- * (a circle with eyes and hands) or the painter's hands.
+ * Both agents fill the demo's box, one on top of the other: the painter (drawn at 0.62 by its own body scale) and
+ * the stage with the full-size brush hand, brush and easel. Sharing the box, they come on and off screen together
+ * and stay in step; the stage lets the pointer through to the painter so the painter still hops when hovered. Both
+ * share the animations' frame, so the painter comes out at the family's size and the easel reaches past the box. Until both agents have drawn their first pose the box is hidden, so the
+ * server-rendered page does not flash the stage's default body (a circle with eyes and hands) or the painter's hands.
  */
 const layer = {
   position: "absolute",
   left: 0,
   top: 0,
-  width: `${PAINTER_BOX.scale * 100}%`,
-  height: `${PAINTER_BOX.scale * 100}%`,
+  width: "100%",
+  height: "100%",
 } as const;
 
 export default function PainterDemo({ className }: DemoProps) {
