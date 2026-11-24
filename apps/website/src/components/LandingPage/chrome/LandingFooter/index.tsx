@@ -1,30 +1,78 @@
 import type { ReactNode } from "react";
+import Link from "@docusaurus/Link";
+import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
+import { useThemeConfig } from "@docusaurus/theme-common";
+import { usePreferredFramework } from "../../../../utils/frameworkPreference";
 import BrandLogo from "../../../Brand/BrandLogo";
+import { toLandingColumns, type FooterColumnLike, type LandingFooterLink } from "./links";
 import styles from "./styles.module.css";
 
 export interface LandingFooterProps {
   /** the line under the logo */
   tagline?: string;
+  /** the right-hand text of the meta line */
+  license?: string;
+}
+
+const DEFAULT_TAGLINE = "Build infinite canvas experiences in minutes.";
+const DEFAULT_LICENSE = "Open source under the MIT License";
+
+function FooterLink({ link }: { link: LandingFooterLink }): ReactNode {
+  if (link.kind === "internal") {
+    return (
+      <Link to={link.to} className={styles.link}>
+        {link.label}
+      </Link>
+    );
+  }
+  return (
+    <a href={link.href} target="_blank" rel={link.rel} className={styles.link}>
+      {link.label}
+    </a>
+  );
 }
 
 /**
- * STUB (M3; M8 owns it): the landing pages' footer from the design (.foot): the logo with the pink agent, a tagline,
- * the link columns and the meta line. Not rendered anywhere yet. M8 implements it (columns from
- * themeConfig.footer.links) and has the swizzled theme/Footer render it on pages whose LandingPageContext says
- * `footer: "landing"` (useLandingPage()).
+ * The landing pages' footer from the design (.foot, L517-524): the logo with the pink agent and a tagline, the link
+ * columns of themeConfig.footer.links (the one source, shared with the Docusaurus footer) and the meta line. Rendered
+ * by the swizzled theme/Footer, instead of the Docusaurus footer, on pages whose config says `footer: "landing"`.
  */
-export default function LandingFooter({ tagline = "Build infinite canvas experiences in minutes." }: LandingFooterProps): ReactNode {
+export default function LandingFooter({ tagline = DEFAULT_TAGLINE, license = DEFAULT_LICENSE }: LandingFooterProps): ReactNode {
+  const { footer } = useThemeConfig();
+  const { siteConfig } = useDocusaurusContext();
+  // The Documentation links follow the visitor's framework after mount (React on the server and at hydration).
+  const framework = usePreferredFramework();
+  const columns = toLandingColumns((footer?.links ?? []) as readonly FooterColumnLike[], framework);
+  // Fixed at build time in docusaurus.config.ts, so the server and the client agree on it.
+  const year = siteConfig.customFields?.copyrightYear;
+
   return (
-    <footer className={styles.footer}>
-      <div className={styles.inner}>
+    <footer className={styles.foot}>
+      <div className={styles.card}>
         <div className={styles.brand}>
-          <BrandLogo size={52} />
+          <BrandLogo size={52} textSize={30} className={styles.logo} />
           <p className={styles.tagline}>{tagline}</p>
         </div>
+        {columns.length > 0 && (
+          <div className={styles.cols}>
+            {columns.map((column) => (
+              <nav key={column.title} className={styles.col} aria-label={column.title}>
+                <h3 className={styles.heading}>{column.title}</h3>
+                <ul className={styles.list}>
+                  {column.links.map((link) => (
+                    <li key={`${link.label} ${link.kind === "internal" ? link.to : link.href}`}>
+                      <FooterLink link={link} />
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            ))}
+          </div>
+        )}
       </div>
       <div className={styles.meta}>
-        <span>Copyright © {new Date().getFullYear()} Upmade</span>
-        <span>Open source under the MIT License</span>
+        <span>{typeof year === "number" || typeof year === "string" ? `Copyright © ${year} Upmade` : "Copyright © Upmade"}</span>
+        <span>{license}</span>
       </div>
     </footer>
   );

@@ -9,6 +9,7 @@ import {
   subscribeToPreferredFramework,
   type Framework,
 } from "@site/src/utils/frameworkPreference";
+import { toDocusaurusFooterItem } from "@site/src/components/LandingPage/chrome/LandingFooter/links";
 
 type Props = WrapperProps<typeof LinksType>;
 
@@ -43,6 +44,11 @@ export default function LinksWrapper(props: Props): ReactNode {
     links: [
       brandSection,
       ...props.links.map((section: any) => {
+        // The Community column's external {label, href, rel?} items open in a new tab with their own rel, as the raw
+        // HTML the config used to hold. Other columns keep Docusaurus' own rendering (external-link icon, default rel).
+        if (section.title === 'Community' && Array.isArray(section.items)) {
+          return { ...section, items: section.items.map(toDocusaurusFooterItem) };
+        }
         if (section.title !== 'Documentation') return section;
         return {
           ...section,

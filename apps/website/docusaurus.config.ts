@@ -9,6 +9,9 @@ import { APP_URL, SITE_URL } from "./site-urls.mjs";
 import { REPO_URL, SOCIAL_LINKS } from "./src/components/Brand/links";
 
 const SITE_BASE_URL = process.env.Docusaurus_BASE_URL || "/";
+// The footers' copyright year, fixed at build time (customFields.copyrightYear), so the server and client render the
+// same year.
+const COPYRIGHT_YEAR = new Date().getFullYear();
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
 const USE_RSPACK = IS_PRODUCTION || process.platform !== "win32";
 const DEFAULT_DEMO_BASE_URLS = IS_PRODUCTION
@@ -64,6 +67,7 @@ const config: Config = {
   customFields: {
     demoBaseUrls: DEMO_BASE_URLS,
     appUrl: APP_URL,
+    copyrightYear: COPYRIGHT_YEAR,
   },
   clientModules: [require.resolve("./src/clientModules/pageTransition.ts")],
   themes: ["@docusaurus/theme-mermaid"],
@@ -373,13 +377,12 @@ const config: Config = {
         },
         {
           title: 'Community',
-          // Raw HTML so each opens in a new tab with its own rel (Mastodon's `me` verifies the profile).
-          items: SOCIAL_LINKS.map(({ label, href, rel }) => ({
-            html: `<a href="${href}" target="_blank" rel="${rel}" class="footer__link-item">${label}</a>`,
-          })),
+          // `rel` is a custom field: theme/Footer/Links renders these in a new tab with that rel (Mastodon's `me`
+          // verifies the profile) and without Docusaurus' external-link icon; the landing footer honours it too.
+          items: SOCIAL_LINKS.map(({ label, href, rel }) => ({ label, href, rel })),
         },
       ],
-      copyright: `<span class="footer__meta"><span class="footer__meta-item">Copyright © ${new Date().getFullYear()} Upmade</span></span>`,
+      copyright: `<span class="footer__meta"><span class="footer__meta-item">Copyright © ${COPYRIGHT_YEAR} Upmade</span></span>`,
     },
   } satisfies Preset.ThemeConfig,
   headTags: [

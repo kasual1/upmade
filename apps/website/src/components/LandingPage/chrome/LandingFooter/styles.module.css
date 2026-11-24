@@ -1,37 +1,149 @@
-/* stub styles (M8 replaces them with the design's .foot) */
-.footer {
+/* The landing footer of the Infinite landing page design (.foot, .foot-card, .foot-brand, .foot-logo, .foot-cols,
+   .foot-col, .foot-meta; L517-524 and their CSS). It sits outside <main data-lp-page>, so it resets the site's
+   global type rules itself (typography.css sizes and colours p and h3; Infima colours and underlines links and gives
+   lists margins): every rule here is a class, which beats those element selectors. */
+
+.foot {
   border-top: 1px solid var(--lp-divider);
-  padding: 72px var(--lp-gutter-right) 40px var(--lp-gutter-left);
+  padding-block: 72px 40px;
+  padding-left: var(--lp-gutter-left);
+  padding-right: var(--lp-gutter-right);
   background: var(--lp-paper);
   color: var(--lp-ink);
+  font-size: 14px;
+  line-height: normal;
+  -webkit-font-smoothing: antialiased;
 }
 
-.inner,
-.meta {
+.card {
   max-width: var(--lp-w-content);
   margin: 0 auto;
+  padding: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: 48px;
 }
 
 .brand {
   display: grid;
   gap: 14px;
+  align-content: start;
   justify-items: start;
+}
+
+/* BrandLogo at 52px with 30px text (.foot-logo); the design pulls the footer's agent 6px towards each side. */
+.logo > svg:first-child {
+  margin: 0 -6px;
 }
 
 .tagline {
   margin: 0;
-  max-width: 28ch;
   font-size: var(--lp-fs-body);
   line-height: 1.55;
   color: var(--lp-soft);
+  max-width: 28ch;
+}
+
+.cols {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 32px;
+}
+
+.col {
+  min-width: 0;
+}
+
+.heading {
+  margin: 0 0 14px;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: normal;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--lp-ink);
+  /* Infima lets headings break inside words; "DOCUMENTATION" is a hair wider than its 320px column, so it may run
+     into the column gap instead, as in the design. */
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.list > li {
+  margin: 0;
+}
+
+.link {
+  font-size: var(--lp-fs-nav);
+  font-weight: 500;
+  color: var(--lp-text-strong);
+  text-decoration: none;
+  background-image: linear-gradient(var(--lp-pink), var(--lp-pink));
+  background-size: 0 2.5px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition:
+    background-size 0.25s,
+    color 0.15s;
+  padding-bottom: 2px;
+}
+
+.link:hover {
+  color: var(--lp-ink);
+  text-decoration: none;
+  background-size: 100% 2.5px;
+}
+
+.logo:focus-visible,
+.link:focus-visible {
+  outline: 2px solid var(--lp-hand);
+  outline-offset: 3px;
+  border-radius: 2px;
 }
 
 .meta {
+  max-width: var(--lp-w-content);
+  margin: 56px auto 0;
   display: flex;
-  flex-wrap: wrap;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 8px 24px;
-  margin-top: 56px;
+  padding: 0;
   font-size: var(--lp-fs-small);
   color: var(--lp-meta);
+}
+
+@media (max-width: 960px) {
+  .card {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+}
+
+@media (max-width: 620px) {
+  .foot {
+    padding-block: 56px 32px;
+  }
+
+  .meta {
+    margin-top: 40px;
+  }
+
+  .cols {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link {
+    transition: none;
+  }
 }
