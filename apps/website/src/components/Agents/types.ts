@@ -46,12 +46,34 @@ export interface PropTrack {
   opacity?: Track<number>;
 }
 
+/**
+ * One blink. The eyes close over `close` ms, stay shut (at `depth`) for `hold` ms from `at`, then reopen over
+ * `open` ms. A shallow `depth` with a long `hold` makes a squint.
+ */
+export interface Blink {
+  /** when the eyes are fully shut, in ms */
+  at: number;
+  /** ms to close (default 45) */
+  close?: number;
+  /** ms to reopen (default 45) */
+  open?: number;
+  /** ms held shut after `at` (default 0) */
+  hold?: number;
+  /** how open the eyes are while shut: 0 closed, 1 open (default .1) */
+  depth?: number;
+}
+
+/** The parts of a blink an animation can set once for all its blinks. */
+export type BlinkShape = Omit<Blink, "at">;
+
 export interface AgentAnimation {
   /** the loop's length in ms */
   duration: number;
   body?: {
     /** vertical offset, negative is up (a hop) */
     lift?: Track<number>;
+    /** horizontal offset, negative is left (a shake, a step aside, or a fixed placement) */
+    shift?: Track<number>;
     /** rotation in degrees about the feet */
     lean?: Track<number>;
     /** [scaleX, scaleY] about the feet, for squash and stretch */
@@ -68,8 +90,10 @@ export interface AgentAnimation {
   eyes?: {
     /** where the eyes look, as an offset of the pupils */
     look?: Track<Vec>;
-    /** times of quick blinks */
-    blinks?: readonly number[];
+    /** blinks: a time (the moment the eyes are shut, using the `blink` shape) or a blink of its own shape */
+    blinks?: readonly (number | Blink)[];
+    /** the shape of this animation's blinks when a blink doesn't give its own (default: 45 ms each way to .1) */
+    blink?: BlinkShape;
     /** when the eyes are closed happily (^ ^) */
     happy?: readonly Span[];
     /** when the eyes are not drawn at all (e.g. while the body is a cursor) */
@@ -88,7 +112,7 @@ export interface AgentAnimation {
 /** Everything the rig needs to draw one moment of an animation. */
 export interface Pose {
   /** `outline` is set only when the animation changes the body's outline */
-  body: { lift: number; lean: number; scale: Vec; outline?: string };
+  body: { lift: number; shift: number; lean: number; scale: Vec; outline?: string };
   eyes: { look: Vec; open: number; happy: boolean; hidden: boolean; blush: number };
   hands: Record<HandName, { at: Vec; behind: boolean }>;
   props: Record<string, { visible: boolean; behind: boolean; at: Vec; rotate: number; scale: number; opacity: number }>;

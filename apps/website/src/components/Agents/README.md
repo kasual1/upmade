@@ -33,6 +33,10 @@ import { Agent, Hat, hatSwap } from "@site/src/components/Agents";
 2. Props move with a hand (`attach: "R"`), on the head (`attach: "head"`) or freely (`attach: "world"`). To put a
    hand or a prop behind the body, give it `behind` spans, and switch layers only while it is clear of the body
    (above the head or out to the side), or it will visibly pop through.
-3. Fire `events` at the moments the page should react to, and handle them with `onEvent`.
-4. Export it from `animations/index.ts` (every export there is checked by `tests/agents.spec.ts`) and add a
+3. Blinks are times (`blinks: [700, 3900]`) or blinks of their own shape
+   (`{ at: 1200, close: 100, hold: 300, open: 160, depth: .42 }` is a slow squint); `eyes.blink` sets the shape for
+   the plain times. `body.shift` moves the whole agent sideways (a shake, a step, or a fixed placement), as `lift`
+   does vertically.
+4. Fire `events` at the moments the page should react to, and handle them with `onEvent`.
+5. Export it from `animations/index.ts` (every export there is checked by `tests/agents.spec.ts`) and add a
    `demos/myThing.tsx` exporting `label` and a default component; `/agent` lists it automatically. To inspect one moment, pass `time={ms}` to `<Agent>`; it then shows that moment still.

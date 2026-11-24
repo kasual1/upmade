@@ -63,10 +63,10 @@ function findParts(svg: SVGSVGElement): Parts {
 /** Writes a pose into the rig's SVG (attributes only, so it can run every frame without React re-rendering). */
 function applyPose(parts: Parts, pose: Pose, shape: ShapeName) {
   const [fx, fy] = SHAPES[shape].feet;
-  const { lift, lean, scale } = pose.body;
+  const { lift, shift, lean, scale } = pose.body;
   parts.body.setAttribute(
     "transform",
-    `translate(0 ${f(lift)}) rotate(${f(lean)} ${fx} ${fy}) translate(${fx} ${fy}) scale(${f(scale[0])} ${f(scale[1])}) translate(${-fx} ${-fy})`,
+    `translate(${f(shift)} ${f(lift)}) rotate(${f(lean)} ${fx} ${fy}) translate(${fx} ${fy}) scale(${f(scale[0])} ${f(scale[1])}) translate(${-fx} ${-fy})`,
   );
   if (pose.body.outline) parts.outline.setAttribute("d", pose.body.outline);
   parts.gaze.setAttribute("transform", `translate(${f(pose.eyes.look[0])} ${f(pose.eyes.look[1])})`);

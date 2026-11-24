@@ -2,7 +2,7 @@
  * Pure functions from an animation and a time to a pose: no DOM, no clock, so they are easy to test and to
  * scrub through in the preview page.
  */
-import type { AgentAnimation, Ease, HandName, Key, Pose, Span, Track, Vec } from "./types";
+import type { AgentAnimation, Blink, BlinkShape, Ease, HandName, Key, Pose, Span, Track, Vec } from "./types";
 import { SHAPES, type ShapeName } from "./tokens";
 
 const EASES: Record<Ease, (u: number) => number> = {
@@ -48,13 +48,32 @@ export function sample(track: Track<number | Vec | string> | undefined, t: numbe
 
 export const within = (spans: readonly Span[] | undefined, t: number) => !!spans?.some(([a, b]) => t >= a && t < b);
 
-/** How open the eyes are (1 open, .1 shut) at time t, with a quick blink of `len` ms around each blink time. */
-export function openness(blinks: readonly number[] | undefined, t: number, len = 90): number {
-  for (const b of blinks ?? []) {
-    const d = Math.abs(t - b);
-    if (d < len / 2) return 0.1 + 0.9 * (d / (len / 2));
+export const BLINK: Required<BlinkShape> = { close: 45, open: 45, hold: 0, depth: 0.1 };
+
+/** A blink with every field filled in from the animation's `blink` shape and the defaults. */
+export function blinkOf(b: number | Blink, shape?: BlinkShape): Required<Blink> {
+  return { ...BLINK, ...shape, ...(typeof b === "number" ? { at: b } : b) };
+}
+
+/**
+ * How open the eyes are (1 open) at time t. Each blink eases shut over `close` ms, holds at `depth` for `hold` ms
+ * and eases open over `open` ms. Blinks near the ends of the loop wrap round it when `duration` is given.
+ */
+export function openness(blinks: readonly (number | Blink)[] | undefined, t: number, shape?: BlinkShape, duration?: number): number {
+  let open = 1;
+  for (const raw of blinks ?? []) {
+    const b = blinkOf(raw, shape);
+    for (const at of duration ? [b.at - duration, b.at, b.at + duration] : [b.at]) {
+      let u: number;   // 0 shut, 1 open
+      if (t < at - b.close || t > at + b.hold + b.open) continue;
+      if (t < at) u = (at - t) / b.close;
+      else if (t <= at + b.hold) u = 0;
+      else u = (t - at - b.hold) / b.open;
+      const smooth = u * u * (3 - 2 * u);
+      open = Math.min(open, b.depth + (1 - b.depth) * smooth);
+    }
   }
-  return 1;
+  return open;
 }
 
 /** One moment of an animation, for a given body shape. t is wrapped into the loop. */
@@ -84,13 +103,14 @@ export function poseAt(anim: AgentAnimation, t: number, shape: ShapeName = "squi
   return {
     body: {
       lift: sample(anim.body?.lift, t, 0),
+      shift: sample(anim.body?.shift, t, 0),
       lean: sample(anim.body?.lean, t, 0),
       scale: [squash[0], squash[1] * breathe],
       ...(anim.body?.outline ? { outline: sample(anim.body.outline, t, spec.d) } : {}),
     },
     eyes: {
       look: sample(anim.eyes?.look, t, [0, 0] as Vec),
-      open: openness(anim.eyes?.blinks, t),
+      open: openness(anim.eyes?.blinks, t, anim.eyes?.blink, anim.duration),
       happy: within(anim.eyes?.happy, t),
       hidden: within(anim.eyes?.hidden, t),
       blush: sample(anim.eyes?.blush, t, 0),
@@ -123,11 +143,18 @@ export function validate(anim: AgentAnimation): string[] {
       if (a < 0 || b > anim.duration) issues.push(`${label}: span [${a}, ${b}] is outside the loop`);
     });
   keys("body.lift", anim.body?.lift);
+  keys("body.shift", anim.body?.shift);
   keys("body.lean", anim.body?.lean);
   keys("body.squash", anim.body?.squash);
   keys("body.outline", anim.body?.outline);
   keys("eyes.look", anim.eyes?.look);
   keys("eyes.blush", anim.eyes?.blush);
+  anim.eyes?.blinks?.forEach((raw) => {
+    const b = blinkOf(raw, anim.eyes?.blink);
+    if (b.at < 0 || b.at > anim.duration) issues.push(`eyes.blinks: blink at ${b.at} ms is outside the loop`);
+    if (b.close <= 0 || b.open <= 0 || b.hold < 0) issues.push(`eyes.blinks: blink at ${b.at} ms needs close and open > 0 and hold >= 0`);
+    if (b.depth < 0 || b.depth > 1) issues.push(`eyes.blinks: blink at ${b.at} ms has depth ${b.depth} outside 0..1`);
+  });
   spans("eyes.happy", anim.eyes?.happy);
   spans("eyes.hidden", anim.eyes?.hidden);
   for (const h of ["L", "R"] as const) {

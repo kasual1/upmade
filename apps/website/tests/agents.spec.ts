@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { eventsBetween, poseAt, sample, validate } from "../src/components/Agents/timeline";
+import { eventsBetween, openness, poseAt, sample, validate } from "../src/components/Agents/timeline";
 import * as animations from "../src/components/Agents/animations";
 import { bouquetReveal, hatSwap, idle } from "../src/components/Agents/animations";
 import { SHAPES } from "../src/components/Agents/tokens";
@@ -82,5 +82,43 @@ describe("reactions", () => {
     expect(new Set(hops.map((h) => h.kind))).toEqual(new Set(["single", "double", "wiggle"]));
     const peaks = hops.map((h) => Math.min(...Array.from({ length: 50 }, (_, k) => hopAt(h, (h.duration * k) / 50)!.lift)));
     expect(new Set(peaks.map((p) => p.toFixed(1))).size).toBeGreaterThan(20);
+  });
+});
+
+describe("blinks", () => {
+  it("a plain time blinks for 45 ms each way down to .1", () => {
+    expect(openness([1000], 1000)).toBeCloseTo(0.1);
+    expect(openness([1000], 954)).toBe(1);
+    expect(openness([1000], 1046)).toBe(1);
+    expect(openness([1000], 1022.5)).toBeCloseTo(0.55);
+  });
+
+  it("a blink can close fast, hold and reopen slowly, at its own depth", () => {
+    const b = { at: 1000, close: 80, hold: 200, open: 160, depth: 0.42 };
+    expect(openness([b], 919)).toBe(1);
+    expect(openness([b], 1000)).toBeCloseTo(0.42);
+    expect(openness([b], 1150)).toBeCloseTo(0.42);
+    expect(openness([b], 1280)).toBeGreaterThan(0.42);
+    expect(openness([b], 1361)).toBe(1);
+  });
+
+  it("the animation's blink shape applies to plain times, and blinks wrap round the loop", () => {
+    const anim = { duration: 2000, eyes: { blinks: [1980], blink: { open: 100 } } };
+    expect(poseAt(anim, 1980).eyes.open).toBeCloseTo(0.1);
+    expect(poseAt(anim, 40).eyes.open).toBeLessThan(1);   // 60 ms into the 100 ms reopen, past the loop's end
+    expect(poseAt(anim, 90).eyes.open).toBe(1);
+  });
+
+  it("validate catches bad blinks", () => {
+    expect(validate({ duration: 1000, eyes: { blinks: [{ at: 1200 }, { at: 500, close: 0 }, { at: 600, depth: 2 }] } })).toHaveLength(3);
+  });
+});
+
+describe("shift", () => {
+  it("moves the body sideways", () => {
+    const anim = { duration: 1000, body: { shift: [[0, 0], [1000, -8, "linear"]] as const } };
+    expect(poseAt(anim, 500).body.shift).toBeCloseTo(-4);
+    expect(poseAt({ duration: 1000 }, 500).body.shift).toBe(0);
+    expect(validate({ duration: 1000, body: { shift: [[0, 0], [1200, 1]] } })).toHaveLength(1);
   });
 });
