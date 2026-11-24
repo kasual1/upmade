@@ -1,0 +1,27 @@
+/* The slot is the agent's box: the caller sizes it (width and height, or a size class); the demo fills it. */
+.slot {
+  position: relative;
+  display: block;
+  /* reach padding (the `reach` prop) adds room around the box instead of shrinking the agent */
+  box-sizing: content-box;
+}
+
+/* the demo's own root (its <svg>, or the wrapper <div> of a demo that stacks agents) */
+.demo {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* the inner wrapper holds the demo; it is what the ready gate hides */
+.layer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* composite agents until mounted: their layers are positioned by script, so the server HTML hides them (shown again
+   by the <noscript> rule in index.tsx when scripts are off) */
+.pending {
+  visibility: hidden;
+}
