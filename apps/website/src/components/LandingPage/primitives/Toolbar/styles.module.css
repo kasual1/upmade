@@ -1,0 +1,114 @@
+/* The design's .toolbar / .tool / .tb-pill (the upmade-toolbar look). */
+.toolbar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  padding: 8px;
+  background: var(--lp-paper);
+  border: 1px solid var(--lp-toolbar-line);
+  border-radius: var(--lp-r-m);
+  box-shadow: var(--lp-shadow-toolbar);
+}
+
+.tool {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  border: 0;
+  border-radius: var(--lp-r-tool);
+  background: none;
+  color: var(--lp-ink);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color 0.12s,
+    color 0.25s ease 0.05s,
+    transform 0.18s var(--lp-spring);
+}
+
+.tool svg {
+  display: block;
+  width: 24px;
+  height: 24px;
+}
+
+.tool:hover {
+  background: var(--lp-hover);
+}
+
+.tool:active {
+  background: var(--lp-press);
+  transform: scale(0.9);
+}
+
+.tool.selected,
+.tool.selected:hover {
+  background: transparent;
+  color: var(--lp-on-ink);
+}
+
+/* before the pill is placed (server HTML, before hydration) the selected tool paints the pill's colour itself */
+.toolbar:not([data-pill-placed]) .tool.selected {
+  background: var(--lp-ink);
+}
+
+.tool:focus-visible {
+  outline: 2.5px solid var(--lp-hand);
+  outline-offset: 2px;
+}
+
+/* the selection: one ink pill sliding from tool to tool */
+.pill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 0;
+  border-radius: var(--lp-r-tool);
+  background: var(--lp-ink);
+  pointer-events: none;
+  transition:
+    transform 0.4s var(--lp-ease-slide),
+    width 0.4s var(--lp-ease-slide);
+}
+
+.instant {
+  transition: none;
+}
+
+@media (max-width: 620px) {
+  .toolbar {
+    gap: 2px;
+    padding: 6px;
+    border-radius: var(--lp-r-s);
+  }
+
+  .tool {
+    width: 36px;
+    height: 36px;
+    padding: 7px;
+    border-radius: 10px;
+  }
+
+  .tool svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .pill {
+    border-radius: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tool,
+  .pill {
+    transition: none;
+  }
+}

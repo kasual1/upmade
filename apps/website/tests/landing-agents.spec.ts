@@ -111,10 +111,20 @@ describe("AgentSlot (server render)", () => {
   });
 
   it("hides composite agents until mounted, with a <noscript> reveal", () => {
-    for (const agent of ["handoff", "devices"] as const) {
+    for (const agent of ["painter", "devices"] as const) {
       const out = html({ agent });
       expect(out, agent).toContain("<noscript><style>");
       expect(out, agent).toMatch(/<\/noscript><div class="[^"]*pending[^"]*"/);
+    }
+  });
+
+  it("leaves client-only agents out of the server HTML (their <style> cannot hydrate after minification)", () => {
+    for (const agent of ["handoff", "shapeShift"] as const) {
+      expect(LANDING_AGENTS[agent].clientOnly, agent).toBe(true);
+      const out = html({ agent, className: "size" });
+      expect(out, agent).toMatch(/^<div class="[^"]*size[^"]*" data-agent-slot="" data-agent="[^"]+" aria-hidden="true"><div class="[^"]*"><\/div><\/div>$/);
+      expect(out, agent).not.toContain("<noscript>");
+      expect(out, agent).not.toContain("<style>");
     }
   });
 

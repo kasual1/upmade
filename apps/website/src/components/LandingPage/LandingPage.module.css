@@ -1,0 +1,5 @@
+.main {
+  position: relative;
+  /* clip, not hidden: no horizontal scroll at 320px, and the agents' vertical reach is kept (no scroll container) */
+  overflow-x: clip;
+}

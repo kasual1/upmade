@@ -1,0 +1,34 @@
+/* Overrides AgentSlot's position:relative (the attribute raises the weight above its .slot class): the corner agent
+   hangs off its frame's corner. */
+.corner[data-agent-slot] {
+  position: absolute;
+  z-index: 3;
+  bottom: calc(-1 * var(--corner-dy));
+  width: var(--corner-px);
+  height: var(--corner-px);
+  pointer-events: none;
+}
+
+.bl {
+  left: calc(-1 * var(--corner-dx));
+}
+
+.br {
+  right: calc(-1 * var(--corner-dx));
+}
+
+@media (max-width: 620px) {
+  .corner[data-agent-slot] {
+    bottom: calc(-1 * var(--corner-dy-phone));
+    width: var(--corner-px-phone);
+    height: var(--corner-px-phone);
+  }
+
+  .bl {
+    left: calc(-1 * var(--corner-dx-phone));
+  }
+
+  .br {
+    right: calc(-1 * var(--corner-dx-phone));
+  }
+}

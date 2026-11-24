@@ -1,0 +1,47 @@
+.media {
+  min-width: 0;
+}
+
+.gutterLeft {
+  padding: 0 0 var(--gutter-bottom) var(--gutter-side);
+}
+
+.gutterRight {
+  padding: 0 var(--gutter-side) var(--gutter-bottom) 0;
+}
+
+/* the corner agent is positioned against the frame, not the gutter */
+.anchor {
+  position: relative;
+}
+
+.frame {
+  position: relative;
+  max-width: 100%;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.panel,
+.window {
+  border: var(--lp-stroke) solid var(--lp-ink);
+  border-radius: var(--lp-r-frame);
+}
+
+.panel {
+  background: var(--lp-panel);
+}
+
+.window {
+  background: var(--lp-grad-window);
+}
+
+@media (max-width: 620px) {
+  .gutterLeft {
+    padding: 0 0 var(--gutter-bottom-phone) var(--gutter-side-phone);
+  }
+
+  .gutterRight {
+    padding: 0 var(--gutter-side-phone) var(--gutter-bottom-phone) 0;
+  }
+}

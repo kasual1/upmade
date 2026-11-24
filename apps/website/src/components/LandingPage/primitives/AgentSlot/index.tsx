@@ -38,6 +38,8 @@ const NOSCRIPT_REVEAL = `.${styles.pending}{visibility:visible!important}`;
  *   sizes the slot.
  * - Composite agents (several stacked <Agent>s, and devices) are hidden until mounted, so the server-rendered layers
  *   never flash misaligned; a <noscript> rule shows them when scripts are off.
+ * - `clientOnly` agents (agents.ts) render nothing inside the box until mounted, because their server HTML cannot
+ *   hydrate; the box keeps its size, so nothing shifts.
  * - Decorative unless labelled: `aria-hidden` on the slot, or, with a label, `role="img"` with that label and the
  *   demo itself hidden from assistive technology (the demos set labels of their own, which would otherwise win or
  *   be read twice; the toolCycle demo's changes with every tool).
@@ -47,7 +49,10 @@ export default function AgentSlot<K extends AgentKey>({ agent, label, className,
   const composite = "composite" in entry && entry.composite === true;
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
-  const pending = composite && !mounted;
+  const clientOnly = "clientOnly" in entry && entry.clientOnly === true;
+  // client-only demos are left out of the server HTML (see agents.ts), so there is nothing to reveal without scripts
+  const pending = composite && !mounted && !clientOnly;
+  const showDemo = mounted || !clientOnly;
   const name = label === true ? entry.label : label;
   const { Component } = entry;
   return (
@@ -58,13 +63,11 @@ export default function AgentSlot<K extends AgentKey>({ agent, label, className,
       data-agent={agent}
       {...(name ? { role: "img", "aria-label": name } : { "aria-hidden": true })}
     >
-      {pending && (
-        <noscript>
-          <style>{NOSCRIPT_REVEAL}</style>
-        </noscript>
-      )}
+      {/* as raw HTML: with scripts on, a <noscript>'s content is text to the browser, so a React <style> child
+          would not match it on hydration */}
+      {pending && <noscript dangerouslySetInnerHTML={{ __html: `<style>${NOSCRIPT_REVEAL}</style>` }} />}
       <div className={clsx(styles.layer, pending && styles.pending)} aria-hidden={name ? true : undefined}>
-        <Component className={styles.demo} />
+        {showDemo && <Component className={styles.demo} />}
       </div>
     </div>
   );

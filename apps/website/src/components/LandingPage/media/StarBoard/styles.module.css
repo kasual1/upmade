@@ -1,0 +1,27 @@
+/* stub styles (M6a replaces them) */
+.root {
+  height: 100%;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  height: 100%;
+  padding: 40px;
+  align-content: center;
+  transform: rotate(-8deg);
+}
+
+.star {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  border: 2px solid var(--lp-ink);
+  border-radius: 10px;
+  background: var(--lp-grad-key);
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+}

@@ -82,6 +82,8 @@ const config: Config = {
           changefreq: "weekly",
           priority: 0.5,
           filename: "sitemap.xml",
+          // the /landing-next/ preview of the new "/" (deleted at the cutover) stays out of search engines
+          ignorePatterns: ["/landing-next", "/landing-next/**"],
         },
         theme: {
           customCss: [
@@ -92,6 +94,8 @@ const config: Config = {
             require.resolve("./src/css/hero.css"),
             require.resolve("./src/css/buttons.css"),
             require.resolve("./src/css/general.css"),
+            // the --lp-* tokens of the config-driven landing pages (scoped to html.landing-page)
+            require.resolve("./src/components/LandingPage/tokens.css"),
             require.resolve("./src/css/footer.css"),
           ],
         },

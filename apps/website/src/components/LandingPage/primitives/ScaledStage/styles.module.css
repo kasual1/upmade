@@ -1,0 +1,17 @@
+.stage {
+  --k: 1;
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* the content at its virtual size, scaled about the stage's centre */
+.layer {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--stage-w);
+  height: var(--stage-h);
+  transform: translate(-50%, -50%) scale(var(--k));
+  transform-origin: 50% 50%;
+}

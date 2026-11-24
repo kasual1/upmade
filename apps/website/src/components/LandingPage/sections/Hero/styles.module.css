@@ -1,0 +1,91 @@
+/* stub styles (M7 replaces them with the design's hero) */
+.hero {
+  position: relative;
+  padding-bottom: 56px;
+}
+
+.top {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: var(--lp-w-wide);
+  margin: 0 auto;
+  padding: 22px var(--lp-gutter-right) 0 var(--lp-gutter-left);
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  font-size: var(--lp-fs-nav);
+  font-weight: 500;
+}
+
+.navLink {
+  display: inline-flex;
+  align-items: center;
+}
+
+.copy {
+  display: grid;
+  justify-items: center;
+  gap: 20px;
+  max-width: var(--lp-w-copy);
+  margin: 0 auto;
+  padding: 88px 20px 0;
+  text-align: center;
+}
+
+.title {
+  max-width: 12em;
+  font-size: var(--lp-fs-h1);
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+  font-weight: 700;
+  text-wrap: balance;
+}
+
+.subtitle {
+  max-width: 34em;
+  font-size: var(--lp-fs-lead);
+  line-height: 1.55;
+  color: var(--lp-soft);
+}
+
+.agent {
+  width: clamp(150px, 15vw, 190px);
+  height: clamp(150px, 15vw, 190px);
+  margin: 30px 0 24px;
+}
+
+.ctas {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+@media (min-width: 700px) {
+  .subtitle {
+    max-width: none;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 620px) {
+  .hidePhone {
+    display: none;
+  }
+
+  .copy {
+    padding-top: 56px;
+  }
+
+  .agent {
+    width: 128px;
+    height: 128px;
+    margin: 16px 0 12px;
+  }
+}

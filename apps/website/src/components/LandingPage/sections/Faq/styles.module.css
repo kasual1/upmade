@@ -1,0 +1,32 @@
+/* stub styles (M5 replaces them with the design's .faq) */
+.inner {
+  display: grid;
+  gap: 48px;
+}
+
+.list {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+.item {
+  border: var(--lp-stroke) solid var(--lp-ink);
+  border-radius: var(--lp-r-card);
+  background: var(--lp-grad-card);
+  padding: 20px 24px;
+}
+
+.question {
+  font-size: var(--lp-fs-body-l);
+  line-height: 1.35;
+  font-weight: 650;
+}
+
+.answer p {
+  margin-top: 10px;
+  max-width: 62ch;
+  font-size: var(--lp-fs-body);
+  line-height: 1.65;
+  color: var(--lp-text-strong);
+}

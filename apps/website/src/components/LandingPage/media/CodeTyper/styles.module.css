@@ -1,0 +1,59 @@
+/* stub styles (M6c replaces them) */
+.window {
+  display: flex;
+  flex-direction: column;
+  min-height: 300px;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 50px;
+  padding: 0 18px;
+  border-bottom: var(--lp-stroke-s) solid var(--lp-ink);
+}
+
+.bar i {
+  display: block;
+  width: 13px;
+  height: 13px;
+  border: 2px solid var(--lp-ink);
+  border-radius: 50%;
+}
+
+.dotPink {
+  background: var(--lp-pink);
+}
+
+.dotYellow {
+  background: var(--lp-yellow);
+}
+
+.dotGreen {
+  background: var(--lp-green);
+}
+
+.file {
+  margin-left: 10px;
+  padding: 2px 10px;
+  border: 2px solid var(--lp-ink);
+  border-radius: 9px;
+  background: var(--lp-paper);
+  font-size: 12.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.code {
+  flex: 1;
+  margin: 0;
+  padding: 24px 20px 28px;
+  border-radius: 0;
+  background: none;
+  color: var(--lp-code-light-fg);
+  font-size: 14px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

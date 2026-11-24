@@ -1,0 +1,27 @@
+/* the design's .showcase-in */
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: var(--lp-space-m);
+  align-items: center;
+}
+
+.reversed {
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+}
+
+.reversed .media {
+  order: 2;
+}
+
+@media (max-width: 960px) {
+  .grid,
+  .reversed {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+
+  .reversed .media {
+    order: 0;
+  }
+}

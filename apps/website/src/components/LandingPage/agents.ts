@@ -55,6 +55,13 @@ export interface LandingAgentEntry {
    * hides it until mounted, so the server-rendered layers never show misaligned or all at once
    */
   composite?: boolean;
+  /**
+   * render the demo only after mounting (an empty box on the server): the demo renders a <style> tag whose text the
+   * build's HTML minifier rewrites (`[data-part="body"]` → `[data-part=body]`), so its server HTML cannot hydrate
+   * (React error #418, which /agent shows too). Drop the flag once the demo stops injecting the tag (plan §3.5: one
+   * global `[data-agent-slot] [data-part=body]` rule)
+   */
+  clientOnly?: boolean;
 }
 
 /** The entry of family.tsx's `demos` list with this key (the five shapes, idling). */
@@ -99,12 +106,14 @@ export const LANDING_AGENTS = {
     label: "Two agents passing a document to each other",
     reach: r(0, 0.18, 0, 0.21),
     composite: true,
+    clientOnly: true,
   },
   shapeShift: {
     Component: ShapeShiftDemo,
     label: "An agent changing shape from a circle to a triangle to a square",
     reach: r(0, 0, 0, 0),
     composite: true,
+    clientOnly: true,
   },
   controlPanel: {
     Component: ControlPanelDemo,

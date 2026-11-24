@@ -1,0 +1,178 @@
+/*
+ * Design tokens of the config-driven landing pages (src/components/LandingPage), from the "Infinite landing page"
+ * design. Loaded sitewide through customCss (after general.css), but everything here is scoped:
+ *
+ * - The tokens are custom properties on html.landing-page and all use the --lp- prefix, so they collide with
+ *   neither Infima's --ifm-* nor the legacy landing's --landing-* tokens. /agentic shares the html class but never
+ *   reads --lp-*, so defining them there changes nothing.
+ * - Rules that change rendering (colour scheme, text size adjust, element resets) only apply to pages rendered by
+ *   <LandingPage>, which marks its <main> with data-lp-page. The legacy "/" and /agentic are unaffected.
+ *
+ * Module CSS uses these tokens and never hex values. Values stay in px on purpose: the site sets html{font-size:20px},
+ * so rem would not match the design.
+ *
+ * Breakpoints (max-width, written as literals in the modules and mirrored in breakpoints.ts as BP):
+ *   960px  grids go to two columns, showcases stack (media first; the reversed order resets)
+ *   700px  the hero subtitle stays on one line from 700px up and may wrap below
+ *   620px  phone sizes: agents, toolbar, paddings, type; the feature grid has one column
+ *
+ * Colour scheme: the landing pages are light only (dark mode is a non-goal). Every colour is a token, so a dark set
+ * can be added later by redefining these under a dark selector.
+ */
+
+html.landing-page {
+  /* ---- colours (the design's :root) ---- */
+  --lp-ink: #0a0a0a;
+  --lp-soft: #5c5c5c;
+  --lp-line: #e4e4e7;
+  --lp-paper: #ffffff;
+  --lp-hand: #4a7dff; /* focus ring on controls */
+  --lp-pink: #ff6ab5;
+  --lp-pink-light: #ff8bc5;
+  --lp-chip: #f4f4f5;
+  --lp-chip-h: #ececee;
+  --lp-hair: rgba(10, 10, 10, 0.08);
+  --lp-blue: #6fc3ff;
+  --lp-green: #4ade80;
+  --lp-yellow: #ffd60a;
+  --lp-on-ink: #ffffff; /* text on --lp-ink */
+
+  /* ---- colours the design hard-codes, promoted to tokens ---- */
+  --lp-divider: #ededef; /* section top borders */
+  --lp-panel: #f7f7f4; /* media frame grounds */
+  --lp-text-strong: #3f3f3b; /* FAQ answers, footer links */
+  --lp-meta: #6e6e68; /* footer meta line; the design's #7a7a74 darkened to pass AA at 13.5px (plan decision 3) */
+  --lp-focus-art: #8fd0ff; /* focus ring on the ink-outlined "art style" controls (FAQ, slider knob) */
+  --lp-toolbar-line: #ebebeb;
+  --lp-hover: hsl(0 0% 0% / 4.3%); /* toolbar tool hover */
+  --lp-press: hsl(0 0% 0% / 8.6%); /* toolbar tool press */
+  --lp-key-shade: rgba(10, 10, 10, 0.08); /* inset bottom shade of art-style keys and buttons */
+
+  /* gradients of the agent family's art style */
+  --lp-grad-pink: linear-gradient(#ff8bc5, #ff6ab5 65%);
+  --lp-grad-key: linear-gradient(#ffffff, #f1f1ee 65%);
+  --lp-grad-window: linear-gradient(#ffffff, #fafaf8);
+  --lp-grad-card: linear-gradient(#ffffff, #fafaf8);
+  --lp-grad-card-open: linear-gradient(#fff4fa, #ffeaf4);
+  --lp-grad-display: linear-gradient(#e9f5ff, #cdebff);
+  --lp-grad-calc: linear-gradient(#ffffff, #f1f1ee);
+
+  /* code on a dark ground (the DOM source of the DOM canvas demo) */
+  --lp-code-dark-bg: #0a0a0a;
+  --lp-code-dark-fg: #e8e8e3;
+  --lp-code-dark-tag: #ff8bc5;
+  --lp-code-dark-attr: #8fd0ff;
+  --lp-code-dark-string: #ffdf40;
+  --lp-code-dark-punct: #6b6b66;
+  --lp-code-dark-value: #4ade80;
+  --lp-code-dark-line-number: #4a4a46;
+  --lp-code-dark-highlight: rgba(255, 106, 181, 0.14);
+  --lp-code-dark-flash: rgba(255, 106, 181, 0.5);
+
+  /* code on a light ground (the code typer's window) */
+  --lp-code-light-fg: #0a0a0a;
+  --lp-code-light-line-number: #b4b4ae;
+  --lp-code-light-keyword: #d6338c;
+  --lp-code-light-string: #1f9d55;
+  --lp-code-light-tag: #1c7ed6;
+  --lp-code-light-decorator: #c27c00;
+  --lp-code-light-caret: #ff6ab5;
+
+  /* ---- shadows ---- */
+  --lp-lift: 0 1px 2px rgba(16, 16, 24, 0.05), 0 6px 16px rgba(16, 16, 24, 0.07);
+  --lp-float: 0 1px 2px rgba(16, 16, 24, 0.04), 0 14px 36px rgba(16, 16, 24, 0.12);
+  --lp-shadow-btn-dark: 0 1px 2px rgba(16, 16, 24, 0.2), 0 8px 20px rgba(16, 16, 24, 0.16);
+  --lp-shadow-toolbar: 0 1px 2px rgba(16, 16, 24, 0.04), 0 8px 24px rgba(16, 16, 24, 0.07);
+  --lp-shadow-toggle: 0 1px 2px rgba(16, 16, 24, 0.08), 0 2px 6px rgba(16, 16, 24, 0.06);
+
+  /* ---- motion ---- */
+  --lp-spring: cubic-bezier(0.3, 1.5, 0.5, 1);
+  --lp-spring2: cubic-bezier(0.3, 1.6, 0.5, 1);
+  --lp-ease-slide: cubic-bezier(0.32, 0.72, 0, 1); /* the toolbar pill */
+  --lp-ease-open: cubic-bezier(0.2, 0.7, 0.2, 1); /* the FAQ answer */
+
+  /* ---- type ---- */
+  --lp-font-body: "Inter Variable", Inter, ui-sans-serif, system-ui, sans-serif;
+  --lp-font-mono: "JetBrains Mono Variable", "JetBrains Mono", ui-monospace, Menlo, monospace; /* via data-font="mono" */
+  --lp-fs-h1: clamp(40px, 5.4vw, 68px);
+  --lp-fs-h2: clamp(32px, 4vw, 48px);
+  --lp-fs-h3: 26px;
+  --lp-fs-h3-phone: 23px;
+  --lp-fs-lead: 19px; /* hero subtitle */
+  --lp-fs-body-l: 18px; /* showcase and FAQ intro copy, FAQ questions */
+  --lp-fs-body: 16.5px; /* feature copy, FAQ answers, footer tagline */
+  --lp-fs-btn: 17px;
+  --lp-fs-btn-s: 16px;
+  --lp-fs-nav: 15.5px;
+  --lp-fs-small: 13.5px; /* footer meta */
+  --lp-fs-toggle: 13px;
+  --lp-fs-micro: 11px; /* badges */
+
+  /* ---- spacing ---- */
+  --lp-space-xl: 120px; /* features top */
+  --lp-space-l: 112px; /* showcases, FAQ */
+  --lp-space-m: 80px; /* stacked showcases (≤960px), grid gaps */
+  --lp-space-s: 64px; /* grid column gap */
+  --lp-space-phone: 72px; /* section padding on phones */
+  --lp-gutter-left: max(24px, env(safe-area-inset-left, 0px));
+  --lp-gutter-right: max(24px, env(safe-area-inset-right, 0px));
+
+  /* ---- widths ---- */
+  --lp-w-content: 1180px; /* features, showcases, footer */
+  --lp-w-wide: 1400px; /* the hero header */
+  --lp-w-narrow: 820px; /* the FAQ */
+  --lp-w-copy: 640px; /* the hero copy */
+
+  /* ---- radii ---- */
+  --lp-r-s: 14px; /* buttons */
+  --lp-r-m: 16px; /* the toolbar */
+  --lp-r-tool: 12px; /* toolbar tools and pill */
+  --lp-r-frame: 28px; /* media frames */
+  --lp-r-card: 22px; /* FAQ cards */
+  --lp-r-pill: 999px;
+
+  /* ---- outlines of the art style ---- */
+  --lp-stroke: 3px;
+  --lp-stroke-s: 2.5px;
+}
+
+/* Only on pages rendered by <LandingPage> (its <main data-lp-page>): forced light, and no text inflation by mobile
+   browsers, which would break the fixed-size media stages (see ScaledStage). */
+html.landing-page:has(main[data-lp-page]) {
+  color-scheme: light;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Resets inside <main data-lp-page> against the site's global type rules (typography.css sizes and colours p, h1-h3;
+   Infima colours links). The :where() keeps them at the weight of a bare element selector (or a:hover for links),
+   so they beat the global rules by coming later and module classes (and their :hover rules) beat them. */
+:where([data-lp-page]) {
+  font-size: 16px;
+  color: var(--lp-ink);
+  background: var(--lp-paper);
+}
+
+:where([data-lp-page]) :is(p, h1, h2, h3) {
+  margin: 0;
+  color: inherit;
+  font-size: inherit;
+}
+
+/* two rules, not :is(a, a:hover): :is() takes its heaviest argument's weight, which would beat module classes on
+   links that are not hovered. Module classes beat `a`; module :hover rules beat `a:hover` (and Infima's). */
+:where([data-lp-page]) a,
+:where([data-lp-page]) a:hover {
+  color: inherit;
+  text-decoration: none;
+}
+
+:where([data-lp-page]) button {
+  font: inherit;
+  color: inherit;
+}
+
+:where([data-lp-page]) :focus-visible {
+  outline: 2.5px solid var(--lp-hand);
+  outline-offset: 3px;
+}

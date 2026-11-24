@@ -1,0 +1,37 @@
+/* stub styles (M8 replaces them with the design's .foot) */
+.footer {
+  border-top: 1px solid var(--lp-divider);
+  padding: 72px var(--lp-gutter-right) 40px var(--lp-gutter-left);
+  background: var(--lp-paper);
+  color: var(--lp-ink);
+}
+
+.inner,
+.meta {
+  max-width: var(--lp-w-content);
+  margin: 0 auto;
+}
+
+.brand {
+  display: grid;
+  gap: 14px;
+  justify-items: start;
+}
+
+.tagline {
+  margin: 0;
+  max-width: 28ch;
+  font-size: var(--lp-fs-body);
+  line-height: 1.55;
+  color: var(--lp-soft);
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 24px;
+  margin-top: 56px;
+  font-size: var(--lp-fs-small);
+  color: var(--lp-meta);
+}

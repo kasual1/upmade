@@ -1,0 +1,43 @@
+/* The design's .toggle. */
+.toggle {
+  display: inline-flex;
+  gap: 2px;
+  padding: 4px;
+  border-radius: var(--lp-r-pill);
+  background: var(--lp-chip);
+  font-size: var(--lp-fs-toggle);
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.item,
+.item:hover {
+  text-decoration: none;
+}
+
+.item {
+  padding: 6px 14px;
+  border-radius: var(--lp-r-pill);
+  color: var(--lp-soft);
+  transition: color 0.15s;
+}
+
+.item[aria-current="page"],
+.item[aria-current="page"]:hover {
+  color: var(--lp-ink);
+}
+
+.item[aria-current="page"] {
+  background: var(--lp-paper);
+  box-shadow: var(--lp-shadow-toggle);
+}
+
+.item:not([aria-current]):hover {
+  color: var(--lp-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item {
+    transition: none;
+  }
+}
