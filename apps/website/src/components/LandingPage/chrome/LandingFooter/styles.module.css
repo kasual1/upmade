@@ -31,9 +31,11 @@
   justify-items: start;
 }
 
-/* BrandLogo at 52px with 30px text (.foot-logo); the design pulls the footer's agent 6px towards each side. */
+/* BrandLogo at 52px with 30px text (.foot-logo). The design pulls the footer's agent 6px towards each side; on the
+   text side that leaves the agent's hand touching the "u", so there it keeps no pull (about 6px between hand and
+   text, 11px between body and text). */
 .logo > svg:first-child {
-  margin: 0 -6px;
+  margin: 0 0 0 -6px;
 }
 
 .tagline {
