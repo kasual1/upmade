@@ -19,8 +19,12 @@ export interface AgentProps {
   /** show this moment (ms) still instead of playing, e.g. for a scrubber */
   time?: number;
   paused?: boolean;
-  /** hops (a different random hop each time) when the pointer comes onto it or it is clicked; on by default */
-  reactive?: boolean;
+  /**
+   * hops (a different random hop each time) when the pointer comes onto it or it is clicked; on by default. Pass
+   * `{ lean, squash, lift }` factors to tone the hop down, e.g. `{ lean: 0, squash: 0 }` for an agent whose props
+   * reach far from its feet, where tilting and squashing about the feet would fling them about.
+   */
+  reactive?: boolean | HopStyle;
   /** its eyes follow the pointer while it moves nearby, on top of the animation's own glances */
   followPointer?: boolean;
   /** describes the agent to screen readers; without it the agent is decorative */
@@ -117,6 +121,13 @@ const IDLE: AgentAnimation = { duration: 1000 };
  * An agent from the Upmade family: one of the body shapes in one of the colours, with eyes and two hands, playing
  * a declarative animation. Plays only while on screen; shows `animation.rest` still with reduced motion.
  */
+/** How strongly a hop moves the agent: factors for its height, tilt and squash (1 = as rolled). */
+export interface HopStyle {
+  lift?: number;
+  lean?: number;
+  squash?: number;
+}
+
 export default function Agent({
   shape = "squircle",
   colour = "pink",
@@ -138,8 +149,11 @@ export default function Agent({
   const spec = SHAPES[shape];
   const [light, base] = COLOURS[colour];
   const propNames = Object.keys(animation.props ?? {});
+  // compared by value, so an inline `reactive={{ lean: 0 }}` doesn't restart the animation on every render
+  const hopKey = typeof reactive === "object" ? JSON.stringify(reactive) : String(reactive);
 
   useEffect(() => {
+    const hopStyle: HopStyle = typeof reactive === "object" ? reactive : {};
     const svg = svgRef.current;
     if (!svg) return;
     const parts = findParts(svg);
@@ -170,9 +184,10 @@ export default function Agent({
       }
       const h = hop && hopAt(hop.hop, performance.now() - hop.start);
       if (h) {
-        pose.body.lift += h.lift;
-        pose.body.lean += h.lean;
-        pose.body.scale = [pose.body.scale[0] * h.scale[0], pose.body.scale[1] * h.scale[1]];
+        const k = { lift: hopStyle.lift ?? 1, lean: hopStyle.lean ?? 1, squash: hopStyle.squash ?? 1 };
+        pose.body.lift += h.lift * k.lift;
+        pose.body.lean += h.lean * k.lean;
+        pose.body.scale = [pose.body.scale[0] * (1 + (h.scale[0] - 1) * k.squash), pose.body.scale[1] * (1 + (h.scale[1] - 1) * k.squash)];
         pose.eyes.open = Math.min(pose.eyes.open, h.open);
       } else hop = null;
       applyPose(parts, pose, shape);
@@ -229,7 +244,7 @@ export default function Agent({
       stop?.();
       unbind();
     };
-  }, [animation, shape, time, paused, reactive, followPointer, propNames.join()]);
+  }, [animation, shape, time, paused, hopKey, followPointer, propNames.join()]);
 
   const hand = (name: HandName, layer: "behind" | "front") => (
     <g key={`${name}-${layer}`} data-hand={name} data-layer={layer} transform={`translate(${spec.hands[name][0]} ${spec.hands[name][1]})`}>
