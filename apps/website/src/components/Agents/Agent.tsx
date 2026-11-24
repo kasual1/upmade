@@ -21,6 +21,8 @@ export interface AgentProps {
   paused?: boolean;
   /** hops (a different random hop each time) when the pointer comes onto it or it is clicked; on by default */
   reactive?: boolean;
+  /** its eyes follow the pointer while it moves nearby, on top of the animation's own glances */
+  followPointer?: boolean;
   /** describes the agent to screen readers; without it the agent is decorative */
   label?: string;
   className?: string;
@@ -32,6 +34,8 @@ const f = (n: number) => n.toFixed(2);
 
 interface Parts {
   body: SVGGElement;
+  outline: SVGPathElement;
+  blush: SVGGElement;
   gaze: SVGGElement;
   eyes: SVGGElement;
   happy: SVGGElement;
@@ -42,6 +46,8 @@ function findParts(svg: SVGSVGElement): Parts {
   const one = (part: string) => svg.querySelector<SVGGElement>(`[data-part="${part}"]`)!;
   return {
     body: one("body"),
+    outline: svg.querySelector<SVGPathElement>('[data-part="outline"]')!,
+    blush: one("blush"),
     gaze: one("gaze"),
     eyes: one("eyes"),
     happy: one("happy"),
@@ -62,7 +68,10 @@ function applyPose(parts: Parts, pose: Pose, shape: ShapeName) {
     "transform",
     `translate(0 ${f(lift)}) rotate(${f(lean)} ${fx} ${fy}) translate(${fx} ${fy}) scale(${f(scale[0])} ${f(scale[1])}) translate(${-fx} ${-fy})`,
   );
+  if (pose.body.outline) parts.outline.setAttribute("d", pose.body.outline);
   parts.gaze.setAttribute("transform", `translate(${f(pose.eyes.look[0])} ${f(pose.eyes.look[1])})`);
+  parts.gaze.style.display = pose.eyes.hidden ? "none" : "";
+  parts.blush.style.opacity = f(pose.eyes.hidden ? 0 : pose.eyes.blush);
   const cy = SHAPES[shape].eyesY + 3.1;
   parts.eyes.setAttribute("transform", `translate(0 ${cy}) scale(1 ${f(pose.eyes.open)}) translate(0 ${-cy})`);
   parts.eyes.style.display = pose.eyes.happy ? "none" : "";
@@ -76,7 +85,10 @@ function applyPose(parts: Parts, pose: Pose, shape: ShapeName) {
       const pr = pose.props[p.name];
       const on = !!pr && pr.visible && pr.behind === p.behind;
       p.el.style.display = on ? "" : "none";
-      if (pr) p.el.setAttribute("transform", `translate(${f(pr.at[0])} ${f(pr.at[1])}) rotate(${f(pr.rotate)}) scale(${f(pr.scale)})`);
+      if (pr) {
+        p.el.setAttribute("transform", `translate(${f(pr.at[0])} ${f(pr.at[1])}) rotate(${f(pr.rotate)}) scale(${f(pr.scale)})`);
+        p.el.style.opacity = pr.opacity < 1 ? f(Math.max(0, pr.opacity)) : "";
+      }
     }
   }
 }
@@ -96,6 +108,7 @@ export default function Agent({
   time,
   paused = false,
   reactive = true,
+  followPointer = false,
   label,
   className,
   style,
@@ -115,10 +128,28 @@ export default function Agent({
     const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     const still = time !== undefined || paused || reduce;
 
+    // the eyes ease towards the pointer while it moves nearby, and back to the animation's own gaze when it rests
+    const gaze = { x: 0, y: 0, tx: 0, ty: 0, last: -1e9 };
+    const onPointer = (e: PointerEvent) => {
+      const r = svg.getBoundingClientRect();
+      const dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2), reach = 240;
+      gaze.tx = Math.max(-1, Math.min(1, dx / reach)) * 2.2;
+      gaze.ty = Math.max(-1, Math.min(1, dy / reach)) * 1.6;
+      gaze.last = performance.now();
+    };
+    const follow = followPointer && !reduce;
+    if (follow) window.addEventListener("pointermove", onPointer, { passive: true });
+
     // a hop plays on top of whatever the animation is doing
     let hop: { hop: Hop; start: number } | null = null;
     const show = (t: number) => {
       const pose = poseAt(animation, t, shape);
+      if (follow) {
+        const resting = performance.now() - gaze.last > 2500;
+        gaze.x += ((resting ? 0 : gaze.tx) - gaze.x) * 0.18;
+        gaze.y += ((resting ? 0 : gaze.ty) - gaze.y) * 0.18;
+        pose.eyes.look = [pose.eyes.look[0] + gaze.x, pose.eyes.look[1] + gaze.y];
+      }
       const h = hop && hopAt(hop.hop, performance.now() - hop.start);
       if (h) {
         pose.body.lift += h.lift;
@@ -149,12 +180,19 @@ export default function Agent({
     const unbind = () => {
       body.removeEventListener("pointerenter", startHop);
       body.removeEventListener("click", startHop);
+      window.removeEventListener("pointermove", onPointer);
       stopHop?.();
     };
 
     if (still) {
       show(time ?? animation.rest ?? 0);
-      return unbind;
+      if (!follow) return unbind;
+      // a still agent still follows the pointer with its eyes
+      const stopGaze = subscribe(() => show(time ?? animation.rest ?? 0));
+      return () => {
+        unbind();
+        stopGaze();
+      };
     }
     const clock = createClock(animation);
     show(0);
@@ -173,7 +211,7 @@ export default function Agent({
       stop?.();
       unbind();
     };
-  }, [animation, shape, time, paused, reactive, propNames.join()]);
+  }, [animation, shape, time, paused, reactive, followPointer, propNames.join()]);
 
   const hand = (name: HandName, layer: "behind" | "front") => (
     <g key={`${name}-${layer}`} data-hand={name} data-layer={layer} transform={`translate(${spec.hands[name][0]} ${spec.hands[name][1]})`}>
@@ -206,7 +244,11 @@ export default function Agent({
       <g data-part="body">
         {propNames.map((n) => prop(n, "behind"))}
         {HANDS.map((h) => hand(h, "behind"))}
-        <path d={spec.d} fill={`url(#${gradient})`} stroke={INK} strokeWidth={STROKE.body} strokeLinejoin="round" />
+        <path data-part="outline" d={spec.d} fill={`url(#${gradient})`} stroke={INK} strokeWidth={STROKE.body} strokeLinejoin="round" />
+        <g data-part="blush" style={{ opacity: 0 }}>
+          <ellipse cx={20.6} cy={y + 9} rx={3.6} ry={2.1} fill="#FF7E9F" />
+          <ellipse cx={43.4} cy={y + 9} rx={3.6} ry={2.1} fill="#FF7E9F" />
+        </g>
         {/* data-part="gaze", not data-look: the landing pages' pointer-following eyes script drives every [data-look] */}
         <g data-part="gaze">
           <g data-part="eyes">

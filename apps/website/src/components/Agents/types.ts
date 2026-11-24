@@ -42,6 +42,8 @@ export interface PropTrack {
   visible?: readonly Span[];
   /** when it is drawn behind the body */
   behind?: readonly Span[];
+  /** fades it (1 opaque, 0 invisible) */
+  opacity?: Track<number>;
 }
 
 export interface AgentAnimation {
@@ -56,6 +58,12 @@ export interface AgentAnimation {
     squash?: Track<Vec>;
     /** a gentle breathing scale (amount, e.g. .012) */
     breathe?: number;
+    /**
+     * the body outline over time, for agents that change shape (into a cursor, a circle...). Keys are SVG path strings;
+     * between two keys with the same commands the numbers are interpolated, otherwise the outline switches at the key.
+     * Without it the agent keeps its shape's outline.
+     */
+    outline?: Track<string>;
   };
   eyes?: {
     /** where the eyes look, as an offset of the pupils */
@@ -64,6 +72,10 @@ export interface AgentAnimation {
     blinks?: readonly number[];
     /** when the eyes are closed happily (^ ^) */
     happy?: readonly Span[];
+    /** when the eyes are not drawn at all (e.g. while the body is a cursor) */
+    hidden?: readonly Span[];
+    /** blushing cheeks under the eyes (0 none, 1 full) */
+    blush?: Track<number>;
   };
   hands?: Partial<Record<HandName, HandTrack>>;
   props?: Record<string, PropTrack>;
@@ -75,8 +87,9 @@ export interface AgentAnimation {
 
 /** Everything the rig needs to draw one moment of an animation. */
 export interface Pose {
-  body: { lift: number; lean: number; scale: Vec };
-  eyes: { look: Vec; open: number; happy: boolean };
+  /** `outline` is set only when the animation changes the body's outline */
+  body: { lift: number; lean: number; scale: Vec; outline?: string };
+  eyes: { look: Vec; open: number; happy: boolean; hidden: boolean; blush: number };
   hands: Record<HandName, { at: Vec; behind: boolean }>;
-  props: Record<string, { visible: boolean; behind: boolean; at: Vec; rotate: number; scale: number }>;
+  props: Record<string, { visible: boolean; behind: boolean; at: Vec; rotate: number; scale: number; opacity: number }>;
 }

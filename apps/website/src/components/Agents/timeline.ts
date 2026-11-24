@@ -14,17 +14,33 @@ const EASES: Record<Ease, (u: number) => number> = {
 
 const lerp = (a: number, b: number, u: number) => a + (b - a) * u;
 
+const NUM = /-?\d*\.?\d+(?:e-?\d+)?/gi;
+
+/** Interpolates two SVG path strings number by number when they have the same commands; otherwise switches at u = 1. */
+export function lerpPath(a: string, b: string, u: number): string {
+  const na = a.match(NUM) ?? [], nb = b.match(NUM) ?? [];
+  if (na.length !== nb.length || a.replace(NUM, "#") !== b.replace(NUM, "#")) return u < 1 ? a : b;
+  let k = 0;
+  return a.replace(NUM, () => {
+    const v = lerp(parseFloat(na[k]), parseFloat(nb[k]), u);
+    k++;
+    return String(Math.round(v * 100) / 100);
+  });
+}
+
 /** The value of a track at time t: eased between the keys around t, held before the first and after the last. */
 export function sample(track: Track<number> | undefined, t: number, fallback: number): number;
+export function sample(track: Track<string> | undefined, t: number, fallback: string): string;
 export function sample(track: Track<Vec> | undefined, t: number, fallback: Vec): Vec;
-export function sample(track: Track<number | Vec> | undefined, t: number, fallback: number | Vec): number | Vec {
+export function sample(track: Track<number | Vec | string> | undefined, t: number, fallback: number | Vec | string): number | Vec | string {
   if (!track || track.length === 0) return fallback;
   if (t <= track[0][0]) return track[0][1];
   for (let n = 1; n < track.length; n++) {
-    const [t1, b, ease = "inOut"] = track[n] as Key<number | Vec>;
+    const [t1, b, ease = "inOut"] = track[n] as Key<number | Vec | string>;
     if (t > t1) continue;
     const [t0, a] = track[n - 1];
     const u = t1 > t0 ? EASES[ease]((t - t0) / (t1 - t0)) : 1;
+    if (typeof a === "string") return lerpPath(a, b as string, u);
     return typeof a === "number" ? lerp(a, b as number, u) : [lerp(a[0], (b as Vec)[0], u), lerp(a[1], (b as Vec)[1], u)];
   }
   return track[track.length - 1][1];
@@ -62,11 +78,23 @@ export function poseAt(anim: AgentAnimation, t: number, shape: ShapeName = "squi
       at: [anchor[0] + offset[0], anchor[1] + offset[1]],
       rotate: sample(p.rotate, t, 0),
       scale: sample(p.scale, t, 1),
+      opacity: sample(p.opacity, t, 1),
     };
   }
   return {
-    body: { lift: sample(anim.body?.lift, t, 0), lean: sample(anim.body?.lean, t, 0), scale: [squash[0], squash[1] * breathe] },
-    eyes: { look: sample(anim.eyes?.look, t, [0, 0] as Vec), open: openness(anim.eyes?.blinks, t), happy: within(anim.eyes?.happy, t) },
+    body: {
+      lift: sample(anim.body?.lift, t, 0),
+      lean: sample(anim.body?.lean, t, 0),
+      scale: [squash[0], squash[1] * breathe],
+      ...(anim.body?.outline ? { outline: sample(anim.body.outline, t, spec.d) } : {}),
+    },
+    eyes: {
+      look: sample(anim.eyes?.look, t, [0, 0] as Vec),
+      open: openness(anim.eyes?.blinks, t),
+      happy: within(anim.eyes?.happy, t),
+      hidden: within(anim.eyes?.hidden, t),
+      blush: sample(anim.eyes?.blush, t, 0),
+    },
     hands,
     props,
   };
@@ -97,8 +125,11 @@ export function validate(anim: AgentAnimation): string[] {
   keys("body.lift", anim.body?.lift);
   keys("body.lean", anim.body?.lean);
   keys("body.squash", anim.body?.squash);
+  keys("body.outline", anim.body?.outline);
   keys("eyes.look", anim.eyes?.look);
+  keys("eyes.blush", anim.eyes?.blush);
   spans("eyes.happy", anim.eyes?.happy);
+  spans("eyes.hidden", anim.eyes?.hidden);
   for (const h of ["L", "R"] as const) {
     keys(`hands.${h}`, anim.hands?.[h]?.path);
     spans(`hands.${h}.behind`, anim.hands?.[h]?.behind);
@@ -107,6 +138,7 @@ export function validate(anim: AgentAnimation): string[] {
     keys(`props.${name}.offset`, p.offset);
     keys(`props.${name}.rotate`, p.rotate);
     keys(`props.${name}.scale`, p.scale);
+    keys(`props.${name}.opacity`, p.opacity);
     spans(`props.${name}.visible`, p.visible);
     spans(`props.${name}.behind`, p.behind);
   }
