@@ -53,3 +53,33 @@ describe("animations", () => {
     }
   });
 });
+
+describe("reactions", () => {
+  // a small seeded generator, so the random hops are repeatable here
+  const seeded = (seed: number) => () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
+
+  it("every hop starts and ends at rest, and is over after its duration", async () => {
+    const { randomHop, hopAt } = await import("../src/components/Agents/reactions");
+    const random = seeded(7);
+    for (let n = 0; n < 200; n++) {
+      const hop = randomHop(random);
+      const start = hopAt(hop, 0)!, end = hopAt(hop, hop.duration - 0.001)!;
+      for (const p of [start, end]) {
+        expect(Math.abs(p.lift)).toBeLessThan(0.05);
+        expect(Math.abs(p.lean)).toBeLessThan(0.05);
+        expect(Math.abs(p.scale[0] - 1)).toBeLessThan(0.01);
+      }
+      expect(hopAt(hop, hop.duration)).toBeNull();
+      expect(validate({ duration: hop.duration, body: { lift: hop.lift, lean: hop.lean, squash: hop.squash } })).toEqual([]);
+    }
+  });
+
+  it("hops vary: all three kinds come up, with different heights and tilts", async () => {
+    const { randomHop, hopAt } = await import("../src/components/Agents/reactions");
+    const random = seeded(42);
+    const hops = Array.from({ length: 60 }, () => randomHop(random));
+    expect(new Set(hops.map((h) => h.kind))).toEqual(new Set(["single", "double", "wiggle"]));
+    const peaks = hops.map((h) => Math.min(...Array.from({ length: 50 }, (_, k) => hopAt(h, (h.duration * k) / 50)!.lift)));
+    expect(new Set(peaks.map((p) => p.toFixed(1))).size).toBeGreaterThan(20);
+  });
+});

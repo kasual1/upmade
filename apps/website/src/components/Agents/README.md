@@ -20,6 +20,7 @@ import { Agent, Hat, hatSwap } from "@site/src/components/Agents";
 | `timeline.ts` | Pure functions: `sample()`, `poseAt(animation, t, shape)`, `eventsBetween()`, `validate()` |
 | `runtime.ts` | One shared `requestAnimationFrame` loop for every agent, and a looping clock that reports events |
 | `Agent.tsx` | Draws the rig once and writes each frame's pose into it (no React re-render per frame); plays only while on screen; holds `animation.rest` with reduced motion |
+| `reactions.ts` | Random hops (single, double or a mid-air wiggle, each with its own height, speed, tilt and squash) that `<Agent>` plays on top of its animation when hovered or clicked; turn them off with `reactive={false}` |
 | `props/` | Things agents handle (`Hat`, `Bouquet`), drawn around (0 0) in the same style |
 | `animations/` | The animations, as data |
 

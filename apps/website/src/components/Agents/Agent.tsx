@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, type CSSProperties, type ReactNode } from "react";
 import { flushSync } from "react-dom";
+import { hopAt, randomHop, type Hop } from "./reactions";
 import { createClock, subscribe } from "./runtime";
 import { poseAt } from "./timeline";
 import { COLOURS, INK, SHAPES, STROKE, type Colour, type ShapeName } from "./tokens";
@@ -18,6 +19,8 @@ export interface AgentProps {
   /** show this moment (ms) still instead of playing, e.g. for a scrubber */
   time?: number;
   paused?: boolean;
+  /** hops (a different random hop each time) when the pointer comes onto it or it is clicked; on by default */
+  reactive?: boolean;
   /** describes the agent to screen readers; without it the agent is decorative */
   label?: string;
   className?: string;
@@ -92,6 +95,7 @@ export default function Agent({
   onEvent,
   time,
   paused = false,
+  reactive = true,
   label,
   className,
   style,
@@ -108,11 +112,49 @@ export default function Agent({
     const svg = svgRef.current;
     if (!svg) return;
     const parts = findParts(svg);
-    const show = (t: number) => applyPose(parts, poseAt(animation, t, shape), shape);
     const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-    if (time !== undefined || paused || reduce) {
+    const still = time !== undefined || paused || reduce;
+
+    // a hop plays on top of whatever the animation is doing
+    let hop: { hop: Hop; start: number } | null = null;
+    const show = (t: number) => {
+      const pose = poseAt(animation, t, shape);
+      const h = hop && hopAt(hop.hop, performance.now() - hop.start);
+      if (h) {
+        pose.body.lift += h.lift;
+        pose.body.lean += h.lean;
+        pose.body.scale = [pose.body.scale[0] * h.scale[0], pose.body.scale[1] * h.scale[1]];
+        pose.eyes.open = Math.min(pose.eyes.open, h.open);
+      } else hop = null;
+      applyPose(parts, pose, shape);
+    };
+    let stopHop: (() => void) | undefined;
+    const startHop = () => {
+      if (hop) return;   // one at a time
+      hop = { hop: randomHop(), start: performance.now() };
+      if (still) {
+        // nothing else is ticking: run frames just for the hop
+        stopHop?.();
+        stopHop = subscribe(() => {
+          show(time ?? animation.rest ?? 0);
+          if (!hop) stopHop?.();
+        });
+      }
+    };
+    const body = parts.body;
+    if (reactive && !reduce) {
+      body.addEventListener("pointerenter", startHop);
+      body.addEventListener("click", startHop);
+    }
+    const unbind = () => {
+      body.removeEventListener("pointerenter", startHop);
+      body.removeEventListener("click", startHop);
+      stopHop?.();
+    };
+
+    if (still) {
       show(time ?? animation.rest ?? 0);
-      return;
+      return unbind;
     }
     const clock = createClock(animation);
     show(0);
@@ -129,8 +171,9 @@ export default function Agent({
     return () => {
       io.disconnect();
       stop?.();
+      unbind();
     };
-  }, [animation, shape, time, paused, propNames.join()]);
+  }, [animation, shape, time, paused, reactive, propNames.join()]);
 
   const hand = (name: HandName, layer: "behind" | "front") => (
     <g key={`${name}-${layer}`} data-hand={name} data-layer={layer} transform={`translate(${spec.hands[name][0]} ${spec.hands[name][1]})`}>
