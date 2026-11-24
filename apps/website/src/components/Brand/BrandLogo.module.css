@@ -18,12 +18,14 @@
   text-decoration: none;
 }
 
-/* The agent's drawing has empty space around the body, so it is pulled towards the text. */
+/* The agent's drawing has empty space around the body, so it is pulled outwards on the left (the design's -6px at
+   38px). On the text side it is not pulled in: the design's -3px left the agent's right hand almost touching the "u"
+   (1.7px); without it there are about 5px between hand and text and 9px between body and text. */
 .agent {
   flex: none;
   width: var(--brand-agent-size, 38px);
   height: var(--brand-agent-size, 38px);
-  margin: 0 calc(var(--brand-agent-size, 38px) * -0.08) 0 calc(var(--brand-agent-size, 38px) * -0.158);
+  margin: 0 0 0 calc(var(--brand-agent-size, 38px) * -0.158);
 }
 
 .word b {

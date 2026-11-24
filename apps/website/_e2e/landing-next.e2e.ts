@@ -258,6 +258,8 @@ test.describe('/landing-next/ (new landing page preview)', () => {
     });
     await expect(html).toHaveClass(/landing-nav-visible/);
     await expect(navbar).toBeVisible();
+    // the navbar shows the landing pages' logo (the pink agent and "upmade.io"), not the docs brand
+    await expect(navbar.locator('.navbar__inner a.navbar__brand[aria-label="upmade.io home"] [data-part="outline"]')).toHaveCount(1);
     await page.evaluate(() => window.scrollTo(0, 0));
     await expect(html).not.toHaveClass(/landing-nav-visible/);
     await expect(navbar).toBeHidden();
