@@ -128,8 +128,9 @@ export const handoff: AgentAnimation = {
   // drawn in this order, as in the original: the document, then the triangle's hand, then the circle's on top
   props: {
     doc: { attach: "world", offset: docPath },
-    triangleHand: { attach: "world", offset: triangleHand },
-    circleHand: { attach: "world", offset: circleHand },
+    // at the agents' size (the frame zooms this stage by 1 / SCALE), like every agent's hands
+    triangleHand: { attach: "world", offset: triangleHand, scale: [[0, SCALE]] },
+    circleHand: { attach: "world", offset: circleHand, scale: [[0, SCALE]] },
   },
   events: [[1800, "toCircle"], [D, "toTriangle"]],
 };

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Agent from "../Agent";
 import Beret from "../props/painter/Beret";
 import Brush from "../props/painter/Brush";
-import Hand from "../props/painter/Hand";
+import Hand from "../props/Hand";
 import Easel from "../props/painter/Easel";
 import { painter, painterStage } from "../animations/painter";
 import type { DemoProps } from "./types";
@@ -15,7 +15,7 @@ const stageItems = {
   brushGreen: <Brush paint="green" />,
   brushBlue: <Brush paint="blue" />,
   brushYellow: <Brush paint="yellow" />,
-  hand: <Hand />,
+  hand: <Hand colour="violet" />,
   easel: <Easel />,
 };
 

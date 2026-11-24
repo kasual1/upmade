@@ -2,7 +2,7 @@ import { useState } from "react";
 import Agent from "../Agent";
 import Button from "../props/controlPanel/Button";
 import Gloss from "../props/controlPanel/Gloss";
-import Hand from "../props/controlPanel/Hand";
+import Hand from "../props/Hand";
 import Panel from "../props/controlPanel/Panel";
 import Tint from "../props/controlPanel/Tint";
 import { controlPanel, GLOSS_X, SQUARE, TINT_PATHS } from "../animations/controlPanel";

@@ -81,13 +81,18 @@ function ballAt(k: number, tau: number): [number, number, number] {
   return [x, y - SIT, k * 120 + SPIN * (tau - TAU0) * BEAT];
 }
 
+/** the typewriter is held up at 1.3 (it comes closer); the hand typing on it is drawn at 1 / that, so it stays an
+ *  ordinary hand's size */
+const TYPER_SCALE = 1.3;
+export const TYPER_HAND = 1 / TYPER_SCALE;
+
 const TURNS: Turn[] = [
   { name: "rest", tool: "cursor", dur: 3.6 },   // looks left, looks right, then blinks twice
   { name: "brush", tool: "pen", use: 2.3, behind: [42, 40, -30, 0.7], out: [59, 40, 12, 1], hold: [52.4, 41.5, 0, 1] },
   { name: "eraser", tool: "eraser", use: 1.67, behind: [40, 37, -10, 0.7], out: [62, 40, 0, 1], hold: [52.4, 41.5, 0, 1] },
   { name: "arrow", tool: "arrow", dur: 3.8 },
   { name: "juggle", tool: "shapeRectangle", use: 3, behind: [38, 42, -10, 0.7], out: [60, 43, 0, 1] },
-  { name: "typer", tool: "type", use: 2.6, behind: [38, 38, 0, 0.7], out: [78, 44, 0, 1], hold: [45, 46.5, 0, 1.3] },
+  { name: "typer", tool: "type", use: 2.6, behind: [38, 38, 0, 0.7], out: [78, 44, 0, 1], hold: [45, 46.5, 0, TYPER_SCALE] },
   { name: "photo", tool: "image", use: 1.9, behind: [34, 42, -8, 0.75], out: [64.5, 42, 8, 1], hold: [55, 43, 6, 1] },
 ];
 {

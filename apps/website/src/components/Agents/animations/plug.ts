@@ -215,7 +215,8 @@ const UNSHRINK: Track<number> = [[0, 1 / SHRINK]];
 const handTrack = (side: Side): PropTrack => ({
   attach: "world",
   offset: frames.map((t) => [t, unsquash(world(pose(side, t / D).at)), "linear"] as const),
-  scale: UNSHRINK,
+  // at the agent's own size, like every agent's hands (the body's squash and the frame cancel out)
+  scale: [[0, 1]],
   behind: BEHIND,
 });
 /** A connector or its prongs/holes: on the hand, turned with the connector's angle. */

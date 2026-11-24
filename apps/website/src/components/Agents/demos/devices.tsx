@@ -1,5 +1,5 @@
 import Agent from "../Agent";
-import Hand from "../props/devices/Hand";
+import Hand from "../props/Hand";
 import { Laptop, Phone, Tablet } from "../props/devices/Devices";
 import { devices } from "../animations/devices";
 import type { DemoProps } from "./types";

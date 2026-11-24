@@ -1,7 +1,7 @@
 import Agent from "../Agent";
 import Apple from "../props/juggler/Apple";
 import Calculator from "../props/juggler/Calculator";
-import Hand from "../props/juggler/Hand";
+import Hand from "../props/Hand";
 import Vase from "../props/juggler/Vase";
 import { juggler } from "../animations/juggler";
 import type { DemoProps } from "./types";
@@ -13,8 +13,8 @@ const items = {
   vase: <Vase />,
   apple: <Apple />,
   calculator: <Calculator />,
-  handR: <Hand />,
-  handL: <Hand />,
+  handR: <Hand colour="blue" />,
+  handL: <Hand colour="blue" />,
 };
 
 /**

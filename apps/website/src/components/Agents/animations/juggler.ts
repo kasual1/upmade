@@ -176,7 +176,8 @@ const SHOWN = [[1000, 5860]] as const;
 
 const object = (offset: Track<Vec>, rotate: Track<number>) =>
   ({ attach: "world", offset, rotate, scale: size, opacity: fade, visible: SHOWN }) as const;
-const hand = (offset: Track<Vec>) => ({ attach: "world", offset, scale: [[0, 1 / S]] }) as const;
+/** the hands at the agent's own size, like every agent's hands */
+const hand = (offset: Track<Vec>) => ({ attach: "world", offset }) as const;
 
 /** where the rig's own hands wait: behind the middle of the body */
 const HIDDEN = { path: [[0, [32, 40]]], behind: [[0, D]] } as const;

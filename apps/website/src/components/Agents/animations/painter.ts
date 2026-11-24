@@ -144,7 +144,8 @@ export const painterStage: AgentAnimation = {
     brushGreen: brush("green"),
     brushBlue: brush("blue"),
     brushYellow: brush("yellow"),
-    hand: { attach: "world", offset: handOffset },
+    // at the painter's size (the frame zooms this stage by 1 / SIZE), like every agent's hand
+    hand: { attach: "world", offset: handOffset, scale: [[0, SIZE]] },
     easel: { attach: "world", offset: [[0, [0, UP]]] },
   },
 };

@@ -1,6 +1,6 @@
 import Agent from "../Agent";
 import Document from "../props/handoff/Document";
-import Hand from "../props/handoff/Hand";
+import Hand from "../props/Hand";
 import { handoff, handoffCircle, handoffTriangle } from "../animations/handoff";
 import type { DemoProps } from "./types";
 

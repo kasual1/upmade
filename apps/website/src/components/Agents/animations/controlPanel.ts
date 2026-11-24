@@ -189,7 +189,12 @@ const tintPink = (k: number): PropTrack => ({
 
 /** The props' origins in the original's drawing (see props/controlPanel). */
 const PANEL: Vec = [32, 56];
-const handProp = fullSize((t) => sample(hand, t, [48.5, 52]));
+/** The hand: at the agent's own size at rest (0.8, its frame), like every agent's hand, and it stays that size while
+ *  the body grows. */
+const handProp: PropTrack = {
+  ...fullSize((t) => sample(hand, t, [48.5, 52])),
+  scale: TIMES.map((t) => [t, 0.8 / sample(scale, t, 0.8), "linear"] as const),
+};
 const BUTTON: Vec = [32, 50.2];
 
 export const controlPanel: AgentAnimation = {

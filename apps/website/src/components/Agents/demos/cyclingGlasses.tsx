@@ -1,6 +1,6 @@
 import Agent from "../Agent";
 import Glasses, { Glint, Shine } from "../props/cyclingGlasses/Glasses";
-import Hand from "../props/cyclingGlasses/Hand";
+import Hand from "../props/Hand";
 import { cyclingGlasses, cyclingGlassesGlint } from "../animations/cyclingGlasses";
 import type { DemoProps } from "./types";
 
