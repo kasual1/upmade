@@ -19,7 +19,7 @@ import {
 import { createSectionSignal } from "../src/components/LandingPage/hooks/useSectionSignal";
 import { stageScale } from "../src/components/LandingPage/primitives/ScaledStage";
 import { cornerGutterBottom, cornerOverhang, FREE_BELOW } from "../src/components/LandingPage/primitives/MediaFrame";
-import { CORNER_SIZES } from "../src/components/LandingPage/primitives/CornerAgent";
+import { CORNER_OVERLAP, CORNER_SIZES, cornerOffset } from "../src/components/LandingPage/primitives/CornerAgent";
 import { LANDING_AGENTS } from "../src/components/LandingPage/agents";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
@@ -87,19 +87,42 @@ describe("ScaledStage scale", () => {
 });
 
 describe("MediaFrame corner room", () => {
-  it("measures the overhang from the corner sizes and the agent's reach", () => {
+  it("measures the overhang from the corner offset and the agent's reach", () => {
     const o = cornerOverhang({ key: "juggler", corner: "bl", size: "l" });
     const { l } = CORNER_SIZES;
-    expect(o.side).toBe(l.dx + Math.ceil(LANDING_AGENTS.juggler.reach.left * l.px));
-    expect(o.sidePhone).toBe(l.phone.dx + Math.ceil(LANDING_AGENTS.juggler.reach.left * l.phone.px));
-    expect(o.bottom).toBe(l.dy);
+    const wide = cornerOffset("juggler", "bl", l.px), phone = cornerOffset("juggler", "bl", l.phone.px);
+    expect(o.side).toBe(wide.dx + Math.ceil(LANDING_AGENTS.juggler.reach.left * l.px));
+    expect(o.sidePhone).toBe(phone.dx + Math.ceil(LANDING_AGENTS.juggler.reach.left * l.phone.px));
+    expect(o.bottom).toBe(wide.dy);
+  });
+
+  it.each([
+    ["juggler", "bl", "l"],
+    ["frameworkSign", "br", "m"],
+    ["cyclingGlasses", "bl", "s"],
+  ] as const)("places %s so its body overlaps the frame's corner by CORNER_OVERLAP", (key, corner, size) => {
+    const body = LANDING_AGENTS[key].body!;
+    for (const px of [CORNER_SIZES[size].px, CORNER_SIZES[size].phone.px]) {
+      const { dx, dy } = cornerOffset(key, corner, px);
+      const outer = corner === "bl" ? body.left : body.right;
+      // how far the body's outer side and bottom get past the frame's side and bottom edge
+      const pastSide = dx - outer * px, pastBottom = dy - body.bottom * px;
+      const w = (1 - body.left - body.right) * px, h = (1 - body.top - body.bottom) * px;
+      expect(pastSide).toBeCloseTo(CORNER_OVERLAP.x * w, 0);
+      expect(pastBottom).toBeCloseTo(CORNER_OVERLAP.y * h, 0);
+      expect(pastSide).toBeGreaterThan(0);
+      expect(pastBottom).toBeGreaterThan(0);
+    }
   });
 
   it("keeps room below only past FREE_BELOW, or the design's minimum", () => {
     const corner = { key: "cyclingGlasses", corner: "bl", size: "s" } as const;
-    expect(cornerOverhang(corner).bottom).toBeLessThanOrEqual(FREE_BELOW);
-    expect(cornerGutterBottom(corner)).toEqual({ bottom: 0, bottomPhone: 0 });
-    expect(cornerGutterBottom(corner, { bottom: 34, bottomPhone: 28 })).toEqual({ bottom: 34, bottomPhone: 28 });
+    const o = cornerOverhang(corner);
+    expect(cornerGutterBottom(corner)).toEqual({
+      bottom: Math.max(0, o.bottom - FREE_BELOW),
+      bottomPhone: Math.max(0, o.bottomPhone - FREE_BELOW),
+    });
+    expect(cornerGutterBottom(corner, { bottom: 200, bottomPhone: 150 })).toEqual({ bottom: 200, bottomPhone: 150 });
   });
 });
 

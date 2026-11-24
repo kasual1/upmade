@@ -99,6 +99,12 @@ export function validateLandingConfig(config: LandingPageConfig, ctx: ValidateCo
     for (const { key, where } of agentRefs(section)) {
       if (!agentKeys.has(key)) errors.push(`${owner}: ${where} "${key}" is not an agent in LandingPage/agents.ts`);
     }
+    if (section.type === "showcase" && section.cornerAgent) {
+      const entry = (LANDING_AGENTS as Record<string, { body?: unknown }>)[section.cornerAgent.key];
+      if (entry && !entry.body) {
+        errors.push(`${owner}: corner agent "${section.cornerAgent.key}" needs \`body\` insets in LandingPage/agents.ts (it is placed by its body)`);
+      }
+    }
     if (section.type === "showcase" && !mediaKeys.has(section.media.key)) {
       errors.push(`${owner}: media "${section.media.key}" is not in the media registry`);
     }

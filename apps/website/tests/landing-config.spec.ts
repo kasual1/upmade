@@ -103,6 +103,12 @@ describe('validateLandingConfig rules', () => {
     expect(errors.some((e) => e.includes('cornerAgent "nope" is not an agent'))).toBe(true);
   });
 
+  test('a corner agent without body insets', () => {
+    const bad = { ...showcase, cornerAgent: { ...showcase.cornerAgent!, key: 'squircle' } } as unknown as SectionConfig;
+    const errors = validateLandingConfig(withSections(real.map((s) => (s === showcase ? bad : s))), ctx);
+    expect(errors.some((e) => e.includes('corner agent "squircle" needs `body` insets'))).toBe(true);
+  });
+
   test('an unknown feature agent', () => {
     const bad = { ...features, items: [{ ...features.items[0], agent: { key: 'nope' } }] } as unknown as SectionConfig;
     const errors = validateLandingConfig(withSections(real.map((s) => (s === features ? bad : s))), ctx);

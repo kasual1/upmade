@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import clsx from "clsx";
 import { LANDING_AGENTS, type AgentKey } from "../../agents";
-import CornerAgent, { CORNER_SIZES, DEFAULT_CORNER_SIZE, type CornerSizeKey } from "../CornerAgent";
+import CornerAgent, { CORNER_SIZES, DEFAULT_CORNER_SIZE, cornerOffset, type CornerSizeKey } from "../CornerAgent";
 import styles from "./styles.module.css";
 
 export interface MediaFrameCorner {
@@ -46,20 +46,18 @@ export const FREE_BELOW = 36;
 
 /**
  * How far a corner agent's drawing gets past the frame: sideways on its corner's side and down, i.e. the box offset
- * (`dx`, `dy`) plus the agent's measured reach (agents.ts), wide and at 620px and below.
+ * (`dx`, `dy`, see CornerAgent's cornerOffset) plus the agent's measured reach (agents.ts), wide and at 620px and below.
  */
 export function cornerOverhang(corner: MediaFrameCorner): FrameGutter {
   const size = CORNER_SIZES[corner.size ?? DEFAULT_CORNER_SIZE];
   const reach = LANDING_AGENTS[corner.key].reach;
   const sideReach = corner.corner === "bl" ? reach.left : reach.right;
-  const side = (px: number, dx: number) => Math.max(0, dx + Math.ceil(sideReach * px));
-  const bottom = (px: number, dy: number) => Math.max(0, dy + Math.ceil(reach.bottom * px));
-  return {
-    side: side(size.px, size.dx),
-    bottom: bottom(size.px, size.dy),
-    sidePhone: side(size.phone.px, size.phone.dx),
-    bottomPhone: bottom(size.phone.px, size.phone.dy),
+  const at = (px: number) => {
+    const { dx, dy } = cornerOffset(corner.key, corner.corner, px);
+    return { side: Math.max(0, dx + Math.ceil(sideReach * px)), bottom: Math.max(0, dy + Math.ceil(reach.bottom * px)) };
   };
+  const wide = at(size.px), phone = at(size.phone.px);
+  return { side: wide.side, bottom: wide.bottom, sidePhone: phone.side, bottomPhone: phone.bottom };
 }
 
 /**

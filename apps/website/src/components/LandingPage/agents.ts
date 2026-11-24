@@ -62,6 +62,11 @@ export interface LandingAgentEntry {
    * global `[data-agent-slot] [data-part=body]` rule)
    */
   clientOnly?: boolean;
+  /**
+   * where the agent's body (its outline) is drawn inside its box at rest, as fractions of the box (top, right,
+   * bottom, left insets): needed for a corner agent, which is placed by its body, not its box (see CornerAgent)
+   */
+  body?: AgentReach;
 }
 
 /** The entry of family.tsx's `demos` list with this key (the five shapes, idling). */
@@ -83,6 +88,11 @@ const r = (top: number, right: number, bottom: number, left: number): AgentReach
  * compared it with the demo's box (the figure's first element), and kept the maximum per side. The values here are
  * those maxima rounded up to 0.01 and floored at 0. They do not include the hover hop (a few % more upwards).
  * Re-measure with scripts/measure-agent-reach.mjs when the agents change.
+ */
+/**
+ * The corner agents' `body` insets were measured on /landing-next/ (production build of a34bf8cf, reduced motion so
+ * each shows its rest pose): the bounding rect of the agent's [data-part="outline"] against its box, at 1440 and
+ * 390 px wide (the same fractions at both sizes). Re-measure when the agents stream changes these demos.
  */
 export const LANDING_AGENTS = {
   // the five shapes idling (family.tsx); the squircle is the pink logo agent's look
@@ -133,16 +143,19 @@ export const LANDING_AGENTS = {
     Component: JugglerDemo,
     label: "An agent juggling a vase, an apple and a calculator",
     reach: r(0.71, 0.1, 0, 0.1),
+    body: r(0.181, 0.203, 0.225, 0.203),
   },
   frameworkSign: {
     Component: FrameworkSignDemo,
     label: "An agent holding up a sign that switches between React, Vue and Angular",
     reach: r(0.58, 0.12, 0, 0.02),
+    body: r(0.211, 0.326, 0.227, 0.03),
   },
   cyclingGlasses: {
     Component: CyclingGlassesDemo,
     label: "An agent putting on cycling glasses and crouching for speed",
     reach: r(0, 0.14, 0, 0),
+    body: r(0.26, 0.209, 0.224, 0.204),
   },
 
   // the other /agent demos, not used by a page yet
