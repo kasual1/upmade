@@ -23,7 +23,7 @@ function HatSwapDemo() {
       }}
     >
       <span>
-        Wearing: {HAT_KINDS[worn]}. The <code>swap</code> and <code>putOn</code> events drive the hats; a landing section would switch its theme
+        Wearing: <span className={styles.slot}>{HAT_KINDS[worn]}</span>. The <code>swap</code> and <code>putOn</code> events drive the hats; a landing section would switch its theme
         on <code>putOn</code>.
       </span>
     </AgentPreview>

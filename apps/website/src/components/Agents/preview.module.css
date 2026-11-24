@@ -1,5 +1,6 @@
-/* the /agent preview page only; the landing pages keep their own styles */
-.page{max-width:1100px;margin:0 auto;padding:56px 24px 96px;font-family:"Inter Variable",Inter,ui-sans-serif,system-ui,sans-serif;color:#0A0A0A}
+/* the /agent preview page only; the landing pages keep their own styles. Nothing here may change size while the
+   agents play: the page takes the full width, and changing labels sit in fixed-width slots. */
+.page{box-sizing:border-box;width:100%;max-width:1100px;margin:0 auto;padding:56px 24px 96px;font-family:"Inter Variable",Inter,ui-sans-serif,system-ui,sans-serif;color:#0A0A0A}
 .page h1{margin:0 0 8px;font-size:40px;letter-spacing:-.03em}
 .page h2{margin:48px 0 16px;font-size:24px;letter-spacing:-.02em}
 .lead{margin:0;max-width:62ch;color:#5C5C5C;font-size:17px;line-height:1.6}
@@ -10,9 +11,10 @@
 .caption{min-width:0;display:grid;gap:8px;overflow-wrap:anywhere;font-size:14px;color:#5C5C5C}
 .caption strong{color:#0A0A0A;font-size:15px}
 .controls{display:flex;align-items:center;gap:8px}
-.button{flex:none;padding:4px 12px;border:2px solid #0A0A0A;border-radius:999px;background:#fff;font:600 13px inherit;cursor:pointer}
+.button{flex:none;width:72px;padding:4px 0;text-align:center;border:2px solid #0A0A0A;border-radius:999px;background:#fff;font:600 13px inherit;cursor:pointer}
 .range{flex:1;min-width:0;accent-color:#0A0A0A}
 .time{flex:none;width:52px;text-align:right;font-variant-numeric:tabular-nums;font-size:12px}
 .row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
 .swatch{display:inline-block;width:12px;height:12px;border:2px solid #0A0A0A;border-radius:50%;vertical-align:-2px;margin-right:6px}
 .caption code{white-space:normal}
+.slot{display:inline-block;min-width:6.5ch;font-family:var(--ifm-font-family-monospace,ui-monospace,monospace);font-size:.92em}
