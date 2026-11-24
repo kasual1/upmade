@@ -1,4 +1,4 @@
-import type { AgentAnimation, Track, Vec } from "../types";
+import type { AgentAnimation, BlinkShape, Track, Vec } from "../types";
 
 /**
  * Two agents handing a document back and forth (the "Realtime collaboration" feature on infinite.html), in a 3.6 s
@@ -11,7 +11,8 @@ import type { AgentAnimation, Track, Vec } from "../types";
  *
  * The original draws the hands and the document at full size, on top of both bodies (document, then the triangle's
  * hand, then the circle's), so this is three animations for three <Agent>s, laid over one another in that order:
- *   - `handoffTriangle` and `handoffCircle`: the two bodies (eyes, glances, blink, hop), drawn at 0.7. Their rig hands
+ *   - `handoffTriangle` and `handoffCircle`: the two bodies (eyes, glances, blink, hop), drawn at 0.7 and put in place
+ *     with a constant body.shift and body.lift (in their own space). Their rig hands
  *     wait behind the middle of their own bodies, out of sight: the visible hands are the stage's props.
  *   - `handoff`: a full-size "stage" with no body (an empty outline, its eyes hidden) holding the document and both
  *     visible hands as world props, in the box's coordinates. Its rig hands ride under the document, which covers
@@ -21,8 +22,17 @@ import type { AgentAnimation, Track, Vec } from "../types";
 const D = 3600;
 /** the whole drawing sits 3 up */
 const UP = -3;
-/** the agents' bodies are drawn at 0.7, so a hop of 2 in the box is 2 / 0.7 in the agent's own space */
-const HOP = -2 / 0.7;
+/** the agents' bodies are drawn at 0.7 (each <Agent> is 70% of the box, its top-left at the box's), so a length in
+ *  the box is that / 0.7 in the agent's own space */
+const SCALE = 0.7;
+/** a hop of 2 in the box */
+const HOP = -2 / SCALE;
+/** Each body's place, in its own (0.7-scale) space: its feet (32 49) go to (feetX 50) of the box, moved 3 up. */
+const placeX = (feetX: number) => (feetX - SCALE * 32) / SCALE;
+const PLACE_Y = (50 + UP - SCALE * 49) / SCALE;
+
+/** The original's blink: the eyes scale to .08 over 0.022 of the loop (79.2 ms) and back over 0.039 (140.4 ms). */
+const BLINK: BlinkShape = { close: 0.022 * D, open: 0.039 * D, depth: 0.08 };
 
 /** The original's triangle, which differs a little from tokens' TRIANGLE at its two bottom corners (its bottom edge is
  *  at 49.60, not 49.56); set as a one-key outline track so the body is exactly the original's. */
@@ -51,15 +61,18 @@ const triangleHand = smil("22.7 53.1;22.7 53.1;25.4 51.1;28.1 53.1;24 52.5;24 52
 const circleHand = smil("35.9 53.1;40 52.5;40 52.5;41.3 53.1;41.3 53.1;38.6 51.1;35.9 53.1", "0;0.083;0.389;0.5;0.833;0.917;1", UP);
 
 /** The triangle: hops as the document arrives back (0-0.28 s); looks down at the document (1 1.4), then, as it
- *  leaves, up after it (1.2 .2); blinks at 2.48 s. Its rig hands wait behind its body. */
+ *  leaves, up after it (1.2 .2); blinks at 2.48 s (79 ms shut, 140 ms open again). Its rig hands wait behind its body. */
 export const handoffTriangle: AgentAnimation = {
   duration: D,
   rest: 600,
   body: {
     outline: [[0, TRIANGLE_ORIGINAL]],
-    lift: [[0, 0], [22, 0, "linear"], [140, HOP, "linear"], [281, 0, "linear"]],
+    shift: [[0, placeX(16.2)]],
+    // the hop: keyTimes 0;0.006;0.039;0.078
+    lift: [[0, PLACE_Y], [0.006 * D, PLACE_Y, "linear"], [0.039 * D, PLACE_Y + HOP, "linear"], [0.078 * D, PLACE_Y, "linear"]],
   },
-  eyes: { look: smil("1 1.4;1 1.4;1.2 .2;1.2 .2;1 1.4", "0;0.333;0.5;0.833;1"), blinks: [2480] },
+  // shut at 0.689 of the loop
+  eyes: { look: smil("1 1.4;1 1.4;1.2 .2;1.2 .2;1 1.4", "0;0.333;0.5;0.833;1"), blinks: [0.689 * D], blink: BLINK },
   hands: {
     L: { path: [[0, [32, 40]]], behind: [[0, D]] },
     R: { path: [[0, [32, 40]]], behind: [[0, D]] },
@@ -71,8 +84,13 @@ export const handoffTriangle: AgentAnimation = {
 export const handoffCircle: AgentAnimation = {
   duration: D,
   rest: 600,
-  body: { lift: [[0, 0], [1800, 0, "linear"], [1919, HOP, "linear"], [2059, 0, "linear"]] },
-  eyes: { look: smil("-1.2 .2;-1.2 .2;-1 1.4;-1 1.4;-1.2 .2", "0;0.333;0.5;0.833;1"), blinks: [680] },
+  body: {
+    shift: [[0, placeX(47.8)]],
+    // the hop: keyTimes 0;0.5;0.533;0.572
+    lift: [[0, PLACE_Y], [0.5 * D, PLACE_Y, "linear"], [0.533 * D, PLACE_Y + HOP, "linear"], [0.572 * D, PLACE_Y, "linear"]],
+  },
+  // shut at 0.189 of the loop
+  eyes: { look: smil("-1.2 .2;-1.2 .2;-1 1.4;-1 1.4;-1.2 .2", "0;0.333;0.5;0.833;1"), blinks: [0.189 * D], blink: BLINK },
   hands: {
     L: { path: [[0, [32, 31]]], behind: [[0, D]] },
     R: { path: [[0, [32, 31]]], behind: [[0, D]] },

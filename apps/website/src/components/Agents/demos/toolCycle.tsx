@@ -2,9 +2,9 @@ import { useState, type ReactNode } from "react";
 import Agent from "../Agent";
 import Hand from "../props/toolCycle/Hand";
 import Paint from "../props/toolCycle/Paint";
-import { Eyes, Smile, Tongue } from "../props/toolCycle/Face";
+import { Smile, Tongue } from "../props/toolCycle/Face";
 import { Arrow, Brush, Eraser, Photo, Shape, TypewriterBase, TypewriterCarriage } from "../props/toolCycle/Tools";
-import { EYE_FRAMES, EYE_STEPS, PAINT_FRAMES, toolCycle } from "../animations/toolCycle";
+import { PAINT_FRAMES, toolCycle } from "../animations/toolCycle";
 import type { DemoProps } from "./types";
 
 export const label = "Tool cycle";
@@ -13,7 +13,6 @@ export const order = 150;
 /** How each prop of the animation looks, named as in animations/toolCycle.ts. */
 const items: Record<string, ReactNode> = {
   ...Object.fromEntries(Array.from({ length: PAINT_FRAMES }, (_, k) => [`paint${k + 1}`, <Paint upTo={(k + 1) / PAINT_FRAMES} />])),
-  ...Object.fromEntries(Array.from({ length: EYE_FRAMES }, (_, k) => [`eyes${k + 1}`, <Eyes sy={(k + 1) / EYE_STEPS} />])),
   smile: <Smile />,
   tongue: <Tongue />,
   arrow: <Arrow />,

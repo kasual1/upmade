@@ -17,8 +17,8 @@ import type { AgentAnimation, PropTrack, Span, Track, Vec } from "../types";
  * group moved by (-3.5 0): they neither shrink, breathe nor hop. The original has a single hand (no left hand).
  *
  * How that maps onto the rig:
- * - The rig can only lift the body, not move it sideways, so the whole drawing here is the original moved right by 7
- *   (the body's middle at x 32 instead of 25); the demo shifts the agent back left by 7/64 of its width.
+ * - The rig's body is centred at x 32, the original's at 25, so everything here is drawn 7 to the right (the body's
+ *   middle at x 32) and a constant body.shift of -7 moves the whole agent, props included, back onto the original.
  * - The shrink is a constant body squash of 0.85 (constant, because the rig writes the squash with two decimals:
  *   breathing through it would step in visible 1% jumps), and the hop is the lift.
  * - The breathing is baked into the body outline instead: the original's own triangle path, scaled (1.02 x 0.98)
@@ -33,8 +33,10 @@ const D = 6000;
 const STEP = 40;
 const SHRINK = 0.85;
 const FEET = SHAPES.triangle.feet;
-/** Where the original's device group (moved by (1 -5) and (-3.5 0)) lands here, with the 7 to the right. */
-const GEAR_SHIFT: Vec = [1 - 3.5 + 7, -5];
+/** The body's shift: the original's body sits 7 left of the rig's middle. */
+const SHIFT = -7;
+/** Where the original's device group (moved by (1 -5) and (-3.5 0)) lands here, before the shift's -7. */
+const GEAR_SHIFT: Vec = [1 - 3.5 - SHIFT, -5];
 /** The point the original's body is shrunk and breathes about, in the body's own units. */
 const PIVOT_BODY: Vec = [32, 49];
 /** The middle of the eyes (what the original's blink scales about), in the body's own units. */
@@ -198,12 +200,15 @@ export const devices: AgentAnimation = {
   rest: 300,
   body: {
     squash: [[0, [SHRINK, SHRINK]]],
+    shift: [[0, SHIFT]],
     lift: track(timesOf(HOP), liftAt),
     outline: track(BREATH_FRAMES, outlineAt),
   },
   eyes: {
     look: track(BREATH_FRAMES, lookAt),
-    // the original's two blinks are shut at .447 and .847 of the loop (holding the tablet, then the laptop)
+    // the original's two blinks (holding the tablet, then the laptop): scale y 1 to .08 over .433 to .447 of the
+    // loop (84 ms), straight back open by .47 (138 ms); the same from .833 to .847 to .87
+    blink: { close: 84, open: 138, depth: 0.08 },
     blinks: [0.447 * D, 0.847 * D],
   },
   hands: {

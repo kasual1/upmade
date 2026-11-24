@@ -6,8 +6,8 @@ import type { AgentAnimation, PropTrack, Span, Track, Vec } from "../types";
  * Speed-reads a book, for the orange triangle: it sits behind an open indigo book, eyes darting along the lines,
  * flicking three pages over with its right hand; then it squints, scratching its head, glances down again, and reads
  * and flicks three more pages before a last few glances along the lines.
- * Props (all drawn by the demo): `book`, the page frames `page0`..`page15`, the eye frames `eye0`, `eye1`... (for the
- * squint and the blinks) and the hands `handL`, `handR`. Event: `turn` as each page starts to turn.
+ * Props (all drawn by the demo): `book`, the page frames `page0`..`page15` and the hands `handL`, `handR`.
+ * The squint and the two blinks are rig blinks with the original's timing and depth. Event: `turn` as each page starts to turn.
  *
  * Ported from the landing page's SMIL agent (4.8 s loop, every channel linear). Its keyTimes and values are kept as
  * they are in the original (the `smil()` strings below) so they can be checked against it.
@@ -62,45 +62,16 @@ export const PAGE_FRAMES = 16;
 /** The width of each page frame: the squeeze at the middle of its slot of the turn. */
 export const PAGE_SX = Array.from({ length: PAGE_FRAMES }, (_, k) => 1 - (2 * (k + 0.5)) / PAGE_FRAMES);
 
-/** The eyes' height (a vertical scale about their middle), as in the original: they narrow to .62 for the squint
- *  (.283 to .304), hold, widen again (.396 to .417), and blink twice, shutting to .08 at .463 and .9 (closing in
- *  ~62 ms, opening in ~77 ms and ~100 ms). */
-const eyeHeight = ys(smil("1 1;1 1;1 .62;1 .62;1 1;1 1;1 .08;1 1;1 1;1 .08;1 1;1 1",
-  "0;0.283;0.304;0.396;0.417;0.45;0.463;0.479;0.887;0.9;0.921;1"));
-/** The rig's eyes can only blink, and only with its own fixed 90 ms blink, so wherever the eyes are not fully open
- *  they are hidden and a frame of narrowed eyes stands in: each change is cut into slots of about one display frame
- *  (16 ms), each showing the height at the slot's middle (rounded to .02, so frames are shared); the held squint is
- *  one slot. */
-const EYE_SLOT = 16;
-const eyeSlots: Array<{ sy: number; span: Span }> = [];
-for (let n = 1; n < eyeHeight.length; n++) {
-  const [t0, v0] = eyeHeight[n - 1], [t1, v1] = eyeHeight[n];
-  if (v0 === 1 && v1 === 1) continue;
-  const count = v0 === v1 ? 1 : Math.max(1, Math.round((t1 - t0) / EYE_SLOT));
-  for (let k = 0; k < count; k++) {
-    const sy = Math.round((v0 + ((v1 - v0) * (k + 0.5)) / count) * 50) / 50;
-    if (sy < 1) eyeSlots.push({ sy, span: [Math.round(t0 + ((t1 - t0) * k) / count), Math.round(t0 + ((t1 - t0) * (k + 1)) / count)] });
-  }
-}
-/** The heights of the eye frames `eye0`, `eye1`... (the demo draws one `Squint` per height). */
-export const EYE_SY = [...new Set(eyeSlots.map((e) => e.sy))].sort((a, b) => b - a);
-/** Eye frame k is shown in every slot of its height; it sits in the body's own (scaled) space, like the rig's eyes,
- *  and moves with the gaze. */
-const eyeFrame = (k: number): PropTrack => ({
-  attach: "world",
-  offset: look,
-  visible: eyeSlots.filter((e) => e.sy === EYE_SY[k]).map((e) => e.span),
-});
-/** While any eye frame shows, the rig's eyes are hidden (the slots run back to back within each change). */
-const EYES_HIDDEN: Span[] = eyeSlots
-  .map((e) => e.span)
-  .sort((a, b) => a[0] - b[0])
-  .reduce<Span[]>((out, [a, b]) => {
-    const last = out[out.length - 1];
-    if (last && a <= last[1]) out[out.length - 1] = [last[0], Math.max(last[1], b)];
-    else out.push([a, b]);
-    return out;
-  }, []);
+/** The original scales the eyes' height about their middle (as the rig's openness does), linearly: values
+ *  "1;1;.62;.62;1;1;.08;1;1;.08;1;1" at keyTimes "0;.283;.304;.396;.417;.45;.463;.479;.887;.9;.921;1". So: a squint
+ *  narrowing to .62 over .283-.304 (1358-1459 ms), held to .396 (1901), widening by .417 (2002); and two blinks
+ *  shut to .08 at .463 (2222, from .45 = 2160, open by .479 = 2299) and at .9 (4320, from .887 = 4258, open by
+ *  .921 = 4421). The rig eases each change with a smoothstep where the original is linear. */
+const blinks = [
+  { at: at(0.304), close: at(0.304) - at(0.283), hold: at(0.396) - at(0.304), open: at(0.417) - at(0.396), depth: 0.62 },
+  { at: at(0.463), open: at(0.479) - at(0.463) },
+  { at: at(0.9), open: at(0.921) - at(0.9) },
+];
 
 // ---- placing the props ----
 
@@ -147,16 +118,16 @@ export const book: AgentAnimation = {
   },
   eyes: {
     look,
-    // no rig blinks: the squint and the two blinks are drawn by the eye frames (see eyeHeight)
-    hidden: EYES_HIDDEN,
+    // the two blinks close in 62 ms to .08; the squint gives its own shape
+    blink: { close: at(0.463) - at(0.45), depth: 0.08 },
+    blinks,
   },
   hands: {
     L: { path: [[0, [28, 40]]], behind: [[0, D]] },
     R: { path: [[0, [36, 40]]], behind: [[0, D]] },
   },
-  // drawn in this order: eye frames, pages, then the book over the pages' feet, then the hands over the book
+  // drawn in this order: pages, then the book over the pages' feet, then the hands over the book
   props: {
-    ...Object.fromEntries(EYE_SY.map((_, k) => [`eye${k}`, eyeFrame(k)])),
     ...Object.fromEntries(PAGE_SX.map((_, k) => [`page${k}`, pageFrame(k)])),
     book: fullSize(SPINE),
     handL: fullSize(HAND_L),

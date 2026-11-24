@@ -288,7 +288,9 @@ export const plug: AgentAnimation = {
   eyes: {
     // the original's look, frame by frame, with the breathing's small move of the eyes
     look: frames.map((t) => [t, lookAt(t), "linear"] as const),
-    // the original's two blinks close by .115 and .735 of the loop
+    // the original's two blinks: shut at .115 and .735 of the loop, closing from .1 / .72 and open again by .14 / .76
+    // (66 ms to close, 110 ms to open), down to .08
+    blink: { close: 0.015 * D, open: 0.025 * D, depth: 0.08 },
     blinks: [0.115 * D, 0.735 * D],
   },
   hands: {

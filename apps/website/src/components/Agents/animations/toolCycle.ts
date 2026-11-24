@@ -1,5 +1,5 @@
 import { SHAPES } from "../tokens";
-import type { AgentAnimation, Key, PropTrack, Span, Vec } from "../types";
+import type { AgentAnimation, Blink, Key, PropTrack, Span, Vec } from "../types";
 
 /**
  * The hero agent of infinite.html: the pink squircle cycles through the canvas tools in the toolbar's order, each one
@@ -129,12 +129,6 @@ const erTip: Vec = (() => {   // the rubber's edge, seen from the hand
 
 /** The paint stroke is shown in this many frames while it is drawn (`paint1`..`paint<n>`, the last is the whole line). */
 export const PAINT_FRAMES = 24;
-/**
- * The squashed-eye frames: `eyes<k>` (k = 1..EYE_FRAMES) are the eyes at k/EYE_STEPS of their height. They draw the
- * narrowed eyes, the eyes closing into the smile and every blink (the original's blinks are slower than the rig's).
- */
-export const EYE_STEPS = 20;
-export const EYE_FRAMES = EYE_STEPS - 1;
 
 // ---- the idle SMIL glances and blinks of the agent template ----
 const GL_T = [0, 0.25, 0.28, 0.5, 0.53, 0.8, 1], GL_V: Vec[] = [[0, 0], [0, 0], [1.5, 0], [1.5, 0], [-1.3, 0.3], [-1.3, 0.3], [0, 0]];
@@ -144,12 +138,7 @@ function glance(since: number): Vec {
   return [0, 0];
 }
 // its 8 s blinking loop (a scale of the eyes, linear between these keys): one blink, then a double blink
-const BL_T = [0, 0.42, 0.435, 0.46, 0.88, 0.893, 0.912, 0.925, 0.945, 1], BL_V = [1, 1, 0.08, 1, 1, 0.08, 1, 0.08, 1, 1];
-function smilBlink(since: number): number {
-  const u = (since % 8) / 8;
-  for (let k = 1; k < BL_T.length; k++) if (u <= BL_T[k]) return BL_V[k - 1] + (BL_V[k] - BL_V[k - 1]) * ((u - BL_T[k - 1]) / (BL_T[k] - BL_T[k - 1]));
-  return 1;
-}
+const BL_T = [0, 0.42, 0.435, 0.46, 0.88, 0.893, 0.912, 0.925, 0.945, 1], BL_V = [1, 1, 0.08, 1, 1, 0.08, 1, 0.08, 1, 1], BL_DUR = 8;
 // the rest's look-around: where the eyes look, and its two blinks (each 150 ms, down to 0.08)
 const GAZE: [number, number][] = [[0, 0], [0.35, 0], [0.65, -3.6], [1.1, -3.6], [1.45, 3.6], [1.9, 3.6], [2.15, 0]], REST_BLINKS = [2.38, 2.7];
 
@@ -164,7 +153,6 @@ interface Frame {
   props: Record<string, Placed | undefined>;
   look: Vec;       // the whole face's offset (concentrating, looking around)
   glance: Vec;     // plus the eyes' own idle glances
-  eyesSy: number;  // how open the eyes are (squashed while concentrating or smiling, and blinking)
   tongue: { opacity: number; scale: number };
   smile: number;   // the smile's opacity
   paint: { prog: number; opacity: number };
@@ -179,8 +167,8 @@ function simulate() {
   // the state the original keeps in the DOM between frames
   let lineDrawn = false, prog = 0, paintOp = 0;
   let focused = 0, gazeOn = false, smileV = 0;
-  let look: Vec = [0, 0], eyesSy = 1, browsOp = 0, tongueS = 0.4, smileOp = 0;
-  let glanceFrom: number | null = 0, blinkFrom: number | null = 0;
+  let look: Vec = [0, 0], browsOp = 0, tongueS = 0.4, smileOp = 0;
+  let glanceFrom: number | null = 0;
   let th = 24, gr = 0, toss: Vec = [0, 0], carriageX = -4.5, typeHandY = 0;
   let balls: [number, number, number][] = BUNDLE.map((b) => [b[0], b[1], 0]);
   let lastTurn = -1, now = 0;
@@ -189,20 +177,17 @@ function simulate() {
     f = c01(f);
     if (f === focused) return;
     if (f > 0 && !focused) glanceFrom = null;
-    look = [-1.9 * f, 1.5 * f];
-    eyesSy = 1 - 0.3 * f;
+    look = [-1.9 * f, 1.5 * f];   // (and the eyes narrow to 0.7: see BLINKS)
     browsOp = Math.min(1, f * 2);
     tongueS = 0.4 + 0.6 * ez(f);   // it pokes out as the agent focuses
-    if (f === 0) { look = [0, 0]; eyesSy = 1; glanceFrom = now; }
+    if (f === 0) { look = [0, 0]; glanceFrom = now; }
     focused = f;
   };
   const setSmile = (v: number) => {
     v = c01(v);
     if (Math.abs(v - smileV) < 0.001) return;
     smileV = v;
-    smileOp = c01((v - 0.25) / 0.6);   // the arcs and blush appear as the open eyes close
-    if (focused || gazeOn) return;
-    eyesSy = v > 0 ? 1 - ez(v) : 1;
+    smileOp = c01((v - 0.25) / 0.6);   // the arcs and blush appear as the open eyes close (see BLINKS)
   };
   const gazeAt = (s: number) => {
     let x = 0;
@@ -211,13 +196,12 @@ function simulate() {
       if (s < t1) { x = x0 + (x1 - x0) * ez(Math.max(0, (s - t0) / (t1 - t0))); break; }
       x = x1;
     }
-    if (!gazeOn) { gazeOn = true; glanceFrom = null; blinkFrom = null; }   // no random blinks while it looks around
+    if (!gazeOn) { gazeOn = true; glanceFrom = null; }   // no idle glances (or blinks, see BLINKS) while it looks around
     look = [x, 0];
-    eyesSy = REST_BLINKS.reduce((o, c) => Math.min(o, 1 - 0.92 * Math.max(0, 1 - Math.abs(s - c) / 0.075)), 1);   // its own two blinks
   };
   const gazeOff = () => {
     if (!gazeOn) return;
-    gazeOn = false; look = [0, 0]; eyesSy = 1; glanceFrom = now; blinkFrom = now;
+    gazeOn = false; look = [0, 0]; glanceFrom = now;
   };
   const resetTool = (t: Turn) => {
     if (t.name === "typer") { carriageX = -4.5; typeHandY = 0; }
@@ -412,7 +396,6 @@ function simulate() {
         props,
         look,
         glance: glanceFrom === null ? [0, 0] : glance(now - glanceFrom),
-        eyesSy: eyesSy * (blinkFrom === null ? 1 : smilBlink(now - blinkFrom)),   // the template's blinks scale the eyes on top
         tongue: { opacity: browsOp, scale: tongueS },
         smile: smileOp,
         paint: { prog: paintOp > 0 ? prog : 0, opacity: paintOp },
@@ -426,6 +409,54 @@ function rotated(deg: number, x: number, y: number): [number, number] {
   const a = (deg * Math.PI) / 180;
   return [Math.cos(a) * x - Math.sin(a) * y, Math.sin(a) * x + Math.cos(a) * y];
 }
+
+// ---- how open the eyes are: everything that squashes them, as blinks ----
+/**
+ * A blink eases (smoothstep), where the original's squashes are linear or `ez` ramps. So a ramp from `t0` to `t1` (s)
+ * becomes the smoothstep that is closest to it: for a linear ramp it starts 0.13 of the ramp's length early and lasts
+ * 1.26 of it; for `ez` it starts 0.17 late and lasts 0.66 (off by 0.03 of the eyes' height at most, against 0.1 for a
+ * smoothstep over the ramp itself). The quick blinks are linear Vs down to 0.08 and back: each is two blinks shut at
+ * the V's own moment (overlapping blinks take the lesser openness), a wide shallow one (1.12 times the V's times, down
+ * to 0.2) and a narrow one (0.53 times, down to the V's 0.08), which together are off by 0.026 at most (one blink of
+ * the V's own times is off by 0.1, the flat bottom of the smoothstep).
+ */
+const FIT = { linear: [-0.13, 1.26], ez: [0.17, 0.66] } as const;
+function squash(close: [number, number], open: [number, number], depth: number, curve: keyof typeof FIT): Blink {
+  const [a, k] = FIT[curve], wc = close[1] - close[0], wo = open[1] - open[0];
+  const at = close[1] - a * wc, from = open[0] + a * wo;   // when it is shut, and starts to open again
+  return { at: ms(at), close: ms(k * wc), hold: ms(from - at), open: ms(k * wo), depth };
+}
+const ms = (s: number) => Math.round(s * 1000);
+const VEE = [[1.12, 0.2], [0.53, 0.08]] as const;
+/** a V blink: shut at `at`, closing over `close` and opening over `open` (s) */
+const vee = (at: number, close: number, open: number): Blink[] =>
+  VEE.map(([k, depth]) => ({ at: ms(at), close: ms(k * close), open: ms(k * open), depth }));
+const BLINKS: Blink[] = (() => {
+  const out: Blink[] = [];
+  // the rest's look-around blinks twice, each a 150 ms V down to 0.08
+  for (const c of REST_BLINKS) out.push(...vee(START[0] + c, 0.075, 0.075));
+  // painting: the eyes narrow to 0.7 (1 - 0.3 f) as the focus f ramps up 0.2..0.45 s into the use, stay narrowed till
+  // the brush has lifted off (1.38 s) and widen again over 0.35 s
+  const B = START[1] + OUT;
+  out.push(squash([B + 0.2, B + 0.45], [B + 1.38, B + 1.73], 0.7, "linear"));
+  // erasing: after the 0.42 s toss, focused 0.08..0.3 s into the swipe, until its strike is through (0.7 s), then 0.3 s back
+  const E = START[2] + OUT + 0.42;
+  out.push(squash([E + 0.08, E + 0.3], [E + 0.7, E + 1], 0.7, "linear"));
+  // the photo: closed into the smile (1 - ez) from 0.28 to 0.7 s as it comes out (OUT * 0.4 .. OUT), shut while it
+  // shows it, open again over the first 0.36 s of putting it away (IN * 0.6)
+  const P = START[6], PU = P + OUT + TURNS[6].use!;
+  out.push(squash([P + OUT * 0.4, P + OUT], [PU, PU + IN * 0.6], 0, "ez"));
+  // the template's 8 s SMIL blinking, restarted as the look-around ends (0.4 s before the rest turn does) and stopped by
+  // the next look-around; its keyframes give each blink's close and open
+  const from = START[0] + TURNS[0].dur! - 0.4;
+  for (let n = 0; from + n * BL_DUR < CYCLE; n++)
+    BL_V.forEach((v, k) => {
+      if (v !== 0.08) return;
+      const at = from + n * BL_DUR + BL_T[k] * BL_DUR;
+      if (at < CYCLE) out.push(...vee(at, (BL_T[k] - BL_T[k - 1]) * BL_DUR, (BL_T[k + 1] - BL_T[k]) * BL_DUR));
+    });
+  return out.sort((a, b) => a.at - b.at);
+})();
 
 // ---- from frames to tracks ----
 const D = Math.round(CYCLE * 1000);
@@ -499,7 +530,6 @@ function unwrap(values: number[]): number[] {
  */
 export const PROP_ORDER = [
   ...Array.from({ length: PAINT_FRAMES }, (_, k) => `paint${k + 1}`),
-  ...Array.from({ length: EYE_FRAMES }, (_, k) => `eyes${k + 1}`),
   "smile", "tongue",
   "arrow", "handL", "handR",
   "brush", "brushHand",
@@ -523,21 +553,15 @@ const PAINT_STILL: Vec = [0, 1].map((i) => r2(FEET[i] + (PAINT_MID[i] - FEET[i])
 function build(): AgentAnimation {
   const frames = simulate();
   const props: Record<string, PropTrack> = {};
-  const eyesQ = frames.map((f) => Math.round(f.eyesSy * EYE_STEPS));   // which eye frame shows (EYE_STEPS: the rig's own eyes)
   const faceAt = (f: Frame): Vec => [f.look[0] + f.glance[0], f.look[1] + f.glance[1]];
   for (const name of PROP_ORDER) {
-    let shown: boolean[], at: (Vec | undefined)[], p: PropTrack;
+    let shown: boolean[], p: PropTrack;
     if (name.startsWith("paint")) {
       const k = Number(name.slice(5));
       shown = frames.map((f) => f.paint.opacity > 0.001 && Math.max(1, Math.round(f.paint.prog * PAINT_FRAMES)) === k && f.paint.prog > 0);
       // it lies under everything, behind the body (only the tools tucked away behind the back are drawn over it)
       p = { attach: "world", offset: breathKeys<Vec>([0, 0], PAINT_STILL), visible: spans(shown), behind: [[0, D]] };
       if (k === PAINT_FRAMES) p = { ...p, opacity: keys(held(frames.map((f, i) => (shown[i] ? f.paint.opacity : undefined)), 1), 0.005) };
-    } else if (name.startsWith("eyes")) {
-      const k = Number(name.slice(4));
-      shown = eyesQ.map((q) => q === k);
-      at = frames.map((f, i) => (shown[i] ? faceAt(f) : undefined));
-      p = { attach: "world", offset: keys(held(at, [0, 0] as Vec), 0.02), visible: spans(shown) };
     } else if (name === "smile") {
       shown = frames.map((f) => f.smile > 0.001);
       p = {
@@ -576,9 +600,7 @@ function build(): AgentAnimation {
     body: { squash: breathKeys<Vec>([1, 1], BREATH) },
     eyes: {
       look: keys(frames.map(faceAt), 0.02),
-      // the squashed-eye frames (or none, when shut for the smile) stand in while the eyes are narrowed, closed or
-      // blinking: the original's blinks (150 to 300 ms, down to 0.08) are slower than the rig's own quick blink
-      hidden: spans(eyesQ.map((q) => q < EYE_STEPS)),
+      blinks: BLINKS,   // every blink gives its own shape (see VEE and squash())
     },
     // the original's own hands are props (see above); the rig's wait out of sight behind the body
     hands: { L: { path: [[0, [26, 34]]], behind: [[0, D]] }, R: { path: [[0, [38, 34]]], behind: [[0, D]] } },

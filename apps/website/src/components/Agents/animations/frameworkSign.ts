@@ -21,15 +21,15 @@ import type { AgentAnimation, PropTrack, Span, Track, Vec } from "../types";
  *   45%), both on the page's spring cubic-bezier(.3,1.5,.5,1), which overshoots; and fs-sway, an endless 3.6 s cycle
  *   of the stick, sign and hand: rotate -1.6deg, then 1.6deg and up .6 at 50%, about (43 47), on (.45,0,.55,1).
  * - SMIL on the body: breathing (1.02 .98) about its feet every 3.4 s on spline .45 0 .55 1, and a blink every 4.2 s
- *   (shut at .63 of the cycle).
+ *   (the eyes' height 1, still 1 at .6, .08 at .63, 1 at .68, linear).
  * Those cycles are not whole fractions of the 22342 ms loop, so here they are stretched to the nearest whole number of
  * cycles per loop (sway 6 x 3724 ms, breathing 7 x 3192 ms, blinks 5 x 4468 ms) so the loop has no seam.
  *
  * The original's frame: the body is the squircle shrunk to 0.74 about (32 49) and set with that point at (25 62.5);
  * its eyes are raised 2.6. The stick, sign and hand are full size around (43 47), the hand's centre.
  * Here the rig's body is shrunk by a constant squash of 0.74 and set down by a constant lift, and the whole drawing is
- * the original moved right by 7 (the body's middle at x 32, where the rig squashes it about); the demo shifts the agent
- * back left by 7/64 of its width. The breathing and the hop, which squash the body about other points, are drawn by the
+ * the original moved right by 7 (the body's middle at x 32, where the rig squashes it about), and a constant body.shift
+ * of -7 moves the whole agent, props included, back to where the original draws it. The breathing and the hop, which squash the body about other points, are drawn by the
  * body outline track (the squircle's points moved exactly where the original puts them) and the eyes' look (their
  * centre moved likewise), so the rig's squash stays even and the props, scaled 1/0.74, sit exactly where they are in
  * the original. The rig's own hands wait out of sight behind the body; the holding hand is the `hand` prop.
@@ -189,8 +189,13 @@ function signSpans(level: number): Span[] {
 const signs: Record<string, PropTrack> = {};
 FRAMEWORK_SIGN_WIDTHS.forEach((_, k) => (signs[`sign${k + 1}`] = { ...held(), visible: signSpans(k + 1) }));
 
-/** The blinks: shut at .63 of each 4468 ms cycle. */
-const BLINKS = Array.from({ length: 5 }, (_, n) => Math.round((n + 0.63) * (D / 5)));
+/**
+ * The blinks: the original's eyes scale to .08 high over .6 .. .63 of each cycle and back by .68 (linear), so with the
+ * cycle stretched to 4468 ms each blink closes over 134 ms, is shut at .63 of the cycle and reopens over 223 ms.
+ */
+const BLINK_CYCLE = D / 5;
+const BLINKS = Array.from({ length: 5 }, (_, n) => Math.round((n + 0.63) * BLINK_CYCLE));
+const BLINK = { close: Math.round(0.03 * BLINK_CYCLE), open: Math.round(0.05 * BLINK_CYCLE), depth: 0.08 };
 
 export const frameworkSign: AgentAnimation = {
   duration: D,
@@ -199,9 +204,11 @@ export const frameworkSign: AgentAnimation = {
   body: {
     squash: [[0, [SHRINK, SHRINK]]],
     lift: [[0, LIFT]],
+    // the drawing below is the original moved right by SHIFT; this moves the whole agent, props included, back
+    shift: [[0, -SHIFT]],
     outline: track(outlineAt),
   },
-  eyes: { look: track(lookAt), blinks: BLINKS },
+  eyes: { look: track(lookAt), blinks: BLINKS, blink: BLINK },
   hands: {
     // the original has one hand, the `hand` prop; the rig's two wait out of sight behind the middle of the body
     L: { path: [[0, [32, 32]]], behind: [[0, D]] },

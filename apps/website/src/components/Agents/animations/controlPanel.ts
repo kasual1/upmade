@@ -202,8 +202,9 @@ export const controlPanel: AgentAnimation = {
     lift: TIMES.map((t) => [t, liftAt(t), "linear"] as const),
   },
   eyes: {
-    // the original's two blinks are shut at .06 and .81 (it takes 80 ms to close them and 140 to open them again;
-    // the rig's blink is a quicker 45 + 45)
+    // the original's two blinks: the eyes squash to .08 tall from .051 to .06 of the loop and open again by .076
+    // (.81 and .826 for the second), so 79 ms shut and 141 ms open
+    blink: { close: at(0.06) - at(0.051), open: at(0.076) - at(0.06), depth: 0.08 },
     blinks: [at(0.06), at(0.81)],
   },
   // the original has a single hand, a prop (see above); both of the rig's wait behind the body

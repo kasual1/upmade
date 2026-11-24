@@ -1,4 +1,3 @@
-import { SHAPES } from "../tokens";
 import type { AgentAnimation, PropTrack, Span, Track, Vec } from "../types";
 
 /**
@@ -13,8 +12,9 @@ import type { AgentAnimation, PropTrack, Span, Track, Vec } from "../types";
  *
  * Ported from the landing page's SMIL agent (infinite.html, 5.45 s loop). Its keyTimes are kept as fractions of the loop
  * (`at(.147)`) so each key can be checked against the original. Its motion is written below as the original's own
- * keys, eased with its keySplines (.45 0 .55 1). The tracks are then sampled from those keys every 10 ms (and at every
- * corner of the speed shake), so the eased curves come out as the original's rather than the format's smoothstep.
+ * keys, eased with its keySplines (.45 0 .55 1). The eased tracks are then sampled from those keys every 10 ms, so
+ * the eased curves come out as the original's rather than the format's smoothstep. The linear speed shake goes in
+ * key for key as the body's shift and lift.
  * The original draws the agent at 0.92 about its feet. That shrink is baked into the body squash, so the prop and hand
  * positions below are in the original's unshrunk units. The original also places the agent low and left in its box to
  * sit on the card's corner. That is page layout and is left out here.
@@ -22,7 +22,6 @@ import type { AgentAnimation, PropTrack, Span, Track, Vec } from "../types";
 const D = 5450;
 const at = (f: number) => f * D;
 const SHRINK = 0.92;
-const [FX, FY] = SHAPES.triangle.feet;
 
 /* ---- the original's keys ------------------------------------------------------------------------------------- */
 
@@ -92,8 +91,8 @@ const SHAKE: Keys = [
 
 /* ---- into the format ------------------------------------------------------------------------------------------- */
 
-/** Sample times: every 10 ms, plus each corner of the shake (it is piecewise linear, so those keep its zigzag sharp). */
-const TIMES = [...new Set([...Array.from({ length: D / 10 + 1 }, (_, n) => n * 10), ...SHAKE.map(([t]) => t)])].sort((a, b) => a - b);
+/** Sample times for the eased tracks: every 10 ms. */
+const TIMES = Array.from({ length: D / 10 + 1 }, (_, n) => n * 10);
 const track = <V>(value: (t: number) => V): Track<V> => TIMES.map((t) => [t, value(t), "linear"] as const);
 
 /** The body's scale at t: the crouch times the breath (one inside the other in the original), with the 0.92 shrink. */
@@ -102,38 +101,22 @@ const scaleAt = (t: number): Vec => {
   return [c * bx, c * by];
 };
 
-/** The format has no sideways body offset, so the sideways part of the shake becomes a slight lean about the feet,
- *  sized so the face (about 13 units above the feet, once crouched) moves by the shake's amount. */
-const LEVER = 13;
-const leanAt = (t: number) => (Math.atan(smil(SHAKE, t, false)[0] / LEVER) * 180) / Math.PI;
-
-/** The props are 'world' props inside the body, so the lean would also tip and swing them. Where a prop should be
- *  instead: the original puts it at `place` (its translate and rotate) inside the scaled agent, and shifts the whole
- *  agent sideways by the shake. Undo the port's lean from that, so the props shake straight sideways as in the
- *  original. Returns the offset and rotation that the format's prop transform needs. */
-function compensated(t: number, place: Vec, rotate: number): { at: Vec; rotate: number } {
-  const [sx, sy] = scaleAt(t), dx = smil(SHAKE, t, false)[0], th = (-leanAt(t) * Math.PI) / 180;
-  // into body space: scale about the feet, shift sideways by the shake, then undo the lean about the feet and the scale
-  let x = FX + sx * (place[0] - FX) + dx, y = FY + sy * (place[1] - FY);
-  const rx = x - FX, ry = y - FY;
-  x = FX + rx * Math.cos(th) - ry * Math.sin(th);
-  y = FY + rx * Math.sin(th) + ry * Math.cos(th);
-  return { at: [FX + (x - FX) / sx, FY + (y - FY) / sy], rotate: rotate + (th * 180) / Math.PI };
-}
+/** The shake is linear, so its keys go in as they are: x as the body's shift, y as its lift. Like the original's
+ *  translate, it moves the whole agent, props and all, outside the crouch. */
+const shake = (i: 0 | 1): Track<number> => SHAKE.map(([t, v]) => [t, v[i], "linear"] as const);
 
 /** The glasses and the hand are behind the body until they have swung out to the right (x 66, clear of the body),
  *  and again from when they are back out there on the way off. These are the original's own switch times. */
 const BEHIND: readonly Span[] = [[0, at(0.147)], [at(0.734), D]];
 
-const glassesAt = TIMES.map((t) => {
-  const [x, y, r] = smil(TEMPLE, t);
-  return [t, compensated(t, [x, y], r)] as const;
-});
+/** The props are 'world' props inside the body, so they crouch and shake with it, as inside the original's agent:
+ *  their offsets are the original's own translate and rotate. */
+const glassesAt = TIMES.map((t) => [t, smil(TEMPLE, t)] as const);
 /** Everything that is part of the glasses moves the same way. */
 const onTheGlasses: PropTrack = {
   attach: "world",
-  offset: glassesAt.map(([t, p]) => [t, p.at, "linear"] as const),
-  rotate: glassesAt.map(([t, p]) => [t, p.rotate, "linear"] as const),
+  offset: glassesAt.map(([t, [x, y]]) => [t, [x, y] as Vec, "linear"] as const),
+  rotate: glassesAt.map(([t, [, , r]]) => [t, r, "linear"] as const),
   behind: BEHIND,
 };
 
@@ -159,14 +142,15 @@ export const cyclingGlasses: AgentAnimation = {
   rest: 2200,
   body: {
     squash: track(scaleAt),
-    lift: track((t) => smil(SHAKE, t, false)[1]),
-    lean: track(leanAt),
+    shift: shake(0),
+    lift: shake(1),
   },
   eyes: {
-    // The original's blinks take 60 ms to close and 80 to 100 ms to open: 1139-1281 ms as the glasses settle and
-    // 4752-4910 ms once they are away (shut at 1199 and 4812). The format's blink is a symmetric 90 ms, so each one
-    // is placed where it best fits the original's (least squares over the window).
-    blinks: [1203, 4818],
+    // The original's eye scale keys: shut (.1) at .22 of the loop as the glasses settle and at .883 once they are
+    // away, closing from .209 and .872 (60 ms) and open again by .235 and .901 (82 and 98 ms). Linear there, eased
+    // here.
+    blink: { close: at(0.22 - 0.209), depth: 0.1 },
+    blinks: [{ at: at(0.22), open: at(0.235 - 0.22) }, { at: at(0.883), open: at(0.901 - 0.883) }],
   },
   hands: {
     // The original has one hand, the `hand` prop. The rig's hands wait out of sight behind the body.
@@ -181,7 +165,7 @@ export const cyclingGlasses: AgentAnimation = {
       attach: "world",
       offset: TIMES.map((t) => {
         const [x, y] = smil(HAND, t);
-        return [t, compensated(t, [x, y], 0).at, "linear"] as const;
+        return [t, [x, y] as Vec, "linear"] as const;
       }),
       behind: BEHIND,
     },

@@ -7,7 +7,7 @@ import type { DemoProps } from "./types";
 export const label = "Programmable cursors";
 export const order = 20;
 
-/** The ripple is a run of rings of growing radius and the closing eyes a run of openings (see animations/cursor.ts),
+/** The ripple is a run of rings of growing radius and the eyes on the squashed body a run of openings (see animations/cursor.ts),
  *  so each is its own prop. */
 const items = Object.fromEntries([
   ...cursorRipples.map(({ name, r, dot }) => [name, <Ripple r={r} dot={dot} />]),

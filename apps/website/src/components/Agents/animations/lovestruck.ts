@@ -105,11 +105,17 @@ export const lovestruck: AgentAnimation = {
   eyes: {
     look: frames(look, rv),
     blush: frames(blush, r3),
-    // two slow, dreamy blinks (.2 and .9), then the squeeze shut just before the happy arcs and the eyes springing
-    // open again as the arcs go. The rig's blink closes over 45 ms and opens over 45 ms (the original's take about
-    // 100 ms each way), so the squeeze is centred 20 ms before the arcs appear, where the original's eyes are nearly
-    // shut (2275 ms), and the reopening starts shut exactly as the arcs go, as the original's does.
-    blinks: [0.2 * D, ARCS_ON - 20, 0.9 * D, ARCS_OFF],
+    // The original's eye scaleY, sampled at its 25 ms frames and drawn linearly between them: two dreamy blinks, linear
+    // V's to .1 at 1040 and 4680 ms over 83 ms each way, which the frame sampling renders as a softer dip (the frames
+    // nearest the bottom show .15-.21). A smoothstep of 96 ms each way to .22 is the least-squares fit to what is drawn.
+    blink: { close: 96, open: 96, depth: 0.22 },
+    blinks: [
+      1040,
+      // the squeeze: a smoothstep shut over 104 ms to .1 at 2288 (.44 of the loop), held under the happy arcs, then
+      // a smoothstep open over 130 ms from 4056 (.78), so the eyes come back nearly shut as the arcs go (4075)
+      { at: 2288, close: 104, hold: 4056 - 2288, open: 130, depth: 0.1 },
+      4680,
+    ],
     happy: [[ARCS_ON, ARCS_OFF]],
   },
   hands: {

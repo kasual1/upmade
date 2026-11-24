@@ -9,8 +9,7 @@ export const order = 130;
 
 /**
  * Cycles the sign's logo (React, Vue, Angular) on the animation's `flip` event, as the landing page does in step with
- * its code snippet. The animation draws the original moved 7 units right (the rig squashes its body about x 32, see
- * animations/frameworkSign.ts), so the agent is shifted back left by 7/64 of its width here.
+ * its code snippet.
  */
 export default function FrameworkSignDemo({ className }: DemoProps) {
   const [n, setN] = useState(0);
@@ -26,7 +25,7 @@ export default function FrameworkSignDemo({ className }: DemoProps) {
         items={items}
         onEvent={(e) => e === "flip" && setN((i) => (i + 1) % FRAMEWORKS.length)}
         label={`Agent holding up a sign: ${framework}`}
-        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", transform: `translateX(${(-7 / 64) * 100}%)` }}
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
       />
     </div>
   );

@@ -1,11 +1,11 @@
-import type { AgentAnimation, Key, Span, Vec } from "../types";
+import type { AgentAnimation, Blink, Key, Span, Vec } from "../types";
 
 /**
  * "Programmable cursors", for the yellow circle agent: it closes its eyes, hops, and while in the air morphs into a
  * cursor arrow (with a little overshoot), clicks (a press towards its tip, two ink ripples spreading from the tip),
  * then morphs back into a circle, lands with a small dip and opens its eyes. Loop: 4.8 s.
- * Props: the ripple rings (`cursorRipples` lists them, with their radius) and the part-closed eyes (`cursorEyes`, with
- * their openness). Event: `click` (the press).
+ * Props: the ripple rings (`cursorRipples` lists them, with their radius) and the eyes on the squashed body
+ * (`cursorEyes`, with their openness). Event: `click` (the press).
  *
  * Ported from the landing page's SMIL agent. The original nests, around the body path and the eyes:
  *   translate (the hop) > translate (the press nudge) > scale about the tip (the press) > scale about the tip (0.8 as
@@ -17,8 +17,8 @@ import type { AgentAnimation, Key, Span, Vec } from "../types";
  *   - the thinner stroke is a uniform `squash` s = (original stroke x scales) / 3.6, with the outline points
  *     pre-divided by s about the feet so the drawn shape is unchanged; the props and hands are compensated the
  *     same way;
- *   - the eyes close slowly and stay as slits for a while, which the rig's quick blink cannot do, so while they are
- *     part way closed the rig's eyes are hidden and eye props, one per openness, stand in for them.
+ *   - the eyes blink with the original's timing (eyes.blinks), except where the body is squashed: there the rig's
+ *     eyes would shrink with it, so eye props, one per openness, stand in for them.
  * Between samples everything is linear, so the samples are dense (every 20 ms) wherever more than one track moves.
  */
 
@@ -147,13 +147,21 @@ const SAMPLES = [...new Set([
 const FRAMES = SAMPLES.map((t) => ({ t, ...frameAt(t) }));
 
 /**
- * The eyes, as the original draws them: a blink at .188 (77 ms to close, 120 ms to open), a slow close as it turns
- * into an arrow (.312 to .343, then gone from .345), back as closed slits from .749 while it turns round again, and
- * opening from .777 to .802. Their openness, as the original's scale about the eyes' middle:
+ * The eyes, as the original draws them (a scale about their middle, linear between its keys): a blink shut at .204
+ * (77 ms to close, 120 ms to open), a slow close as it turns into an arrow (.312 to .343, then gone from .345), back
+ * as closed slits from .749 while it turns round again, and opening from .777 to .802. All at openness .08.
+ * The rig's blinks draw this with the original's timing (smoothstep where the original is linear). But while the
+ * body is squashed for the thinner stroke (see above) the rig's eyes would shrink with it, up to 17% narrower than
+ * the original's, which the rig cannot undo; so in the two spans where the eyes are drawn on a squashed body (the
+ * slow close, and the slits) the rig's eyes are hidden and eye props stand in, sized and placed as the original's.
  */
 const OPEN: Lin = [[0, 1], [.188, 1], [.204, .08], [.229, 1], [.312, 1], [.343, .08], [.777, .08], [.802, 1], [1, 1]];
-/** the spans where the eyes are part way closed: the rig's own blink is a fixed 90 ms, so these are drawn as props */
-const EYE_SPANS: Span[] = [[ms(.188), ms(.229)], [ms(.312), ms(.345)], [ms(.749), ms(.802)]];
+const BLINKS: Blink[] = [
+  { at: ms(.204), close: ms(.204) - ms(.188) },
+  { at: ms(.343), close: ms(.343) - ms(.312), hold: ms(.777) - ms(.343) },
+];
+/** the spans where the eyes are drawn on a squashed body: there eye props, one per openness, stand in */
+const EYE_SPANS: Span[] = [[ms(.312), ms(.345)], [ms(.749), ms(.777)]];
 /** the middle of the eyes, which they close about */
 const EYE_MID: Vec = [32, 33.2];
 /** the openness of each eye prop: from a slit (.08) to wide open, in even steps */
@@ -246,8 +254,11 @@ export const cursor: AgentAnimation = {
     squash: FRAMES.map(({ t, s }): Key<Vec> => [t, [s, s], "linear"]),
   },
   eyes: {
-    // the rig's eyes are shown only while fully open (and then the body is unscaled); the props draw the rest
-    hidden: [[EYE_SPANS[0][0], EYE_SPANS[0][1]], [EYE_SPANS[1][0], EYE_SPANS[2][1]]],
+    blinks: BLINKS,
+    blink: { open: ms(.802) - ms(.777), depth: 0.08 },
+    // hidden from the slow close until the body is unscaled again: the props draw the eyes on the squashed body,
+    // and the original has none from .345 to .749
+    hidden: [[EYE_SPANS[0][0], EYE_SPANS[1][1]]],
   },
   hands: { L: hand, R: hand },
   props: { ...rippleProps, ...eyeProps },

@@ -14,31 +14,24 @@ const stageItems = {
 };
 
 /**
- * The original draws both agents at 0.7, feet (32 49) at (16.2 50) and (47.8 50) of the 64x64 box, the whole drawing
- * 3 up: each agent takes 70% of the box, its top-left at (16.2 - 0.7 x 32, 47 - 0.7 x 49) = (-6.2 12.7) and
- * (25.4 12.7) units. The stage (document and hands) covers the whole box on top of both, and lets the pointer through
- * so the agents still hop when hovered.
+ * The original draws both agents at 0.7, so each body is an <Agent> 70% of the box at its top-left corner; the
+ * animations' constant body.shift and body.lift move each into its place (feet at (16.2 50) and (47.8 50), 3 up). The
+ * stage (document and hands) covers the whole box on top of both, and lets the pointer through so the agents still hop
+ * when hovered.
  *
- * The bodies are moved into place with a transform rather than left/top: at 110 px those offsets are fractions of a
- * pixel (-10.66 px, 43.66 px, 21.83 px) and the browser snaps a positioned <svg>'s box to whole pixels, which put the
- * bodies about a third of a pixel off the hands and the document. A translate (in % of the agent's own size) isn't
- * snapped.
+ * Both bodies' <svg> boxes sit at that corner, and an <svg> catches the pointer over the whole of its box, so the
+ * circle's box (on top) would hide the triangle from the pointer. So the bodies' <svg>s let the pointer through and only
+ * their drawn bodies take it (the same as the shape-shift demo).
  */
-const SCALE = 0.7;
-const place = (feetX: number) => ({
-  position: "absolute" as const,
-  left: 0,
-  top: 0,
-  width: `${SCALE * 100}%`,
-  height: `${SCALE * 100}%`,
-  transform: `translate(${((feetX - SCALE * 32) / (SCALE * 64)) * 100}%, ${((50 - 3 - SCALE * 49) / (SCALE * 64)) * 100}%)`,
-});
+const BODY_CLASS = "handoff-body";
+const body = { position: "absolute" as const, left: 0, top: 0, width: "70%", height: "70%", pointerEvents: "none" as const };
 
 export default function HandoffDemo({ className }: DemoProps) {
   return (
     <div className={className} style={{ position: "relative" }}>
-      <Agent shape="triangle" colour="green" animation={handoffTriangle} style={place(16.2)} />
-      <Agent shape="circle" colour="blue" animation={handoffCircle} style={place(47.8)} />
+      <style>{`.${BODY_CLASS} [data-part="body"]{pointer-events:visiblePainted}`}</style>
+      <Agent className={BODY_CLASS} shape="triangle" colour="green" animation={handoffTriangle} style={body} />
+      <Agent className={BODY_CLASS} shape="circle" colour="blue" animation={handoffCircle} style={body} />
       <Agent
         shape="circle"
         colour="blue"

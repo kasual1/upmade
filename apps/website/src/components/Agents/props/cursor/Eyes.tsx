@@ -4,7 +4,8 @@ import { INK, SHAPES } from "../../tokens";
  * The circle agent's eyes, drawn around (0 0), their middle, and closed to `open` (1 open, .08 a slit) the way the
  * landing page closes them: the whole pair, highlights included, squashed vertically about the middle. Same pills
  * and highlights as the rig's own eyes (Agent.tsx), so swapping between the two does not show. The cursor animation
- * uses a run of these, one per openness, for the slow closes and the slits the rig's 90 ms blink cannot draw.
+ * uses a run of these, one per openness, while its body is squashed (for the thinner stroke) and the rig's own eyes
+ * would shrink with it.
  */
 export default function Eyes({ open }: { open: number }) {
   const y = SHAPES.circle.eyesY, cy = y + 3.1;

@@ -17,18 +17,17 @@ import type { AgentAnimation, PropTrack, Track, Vec } from "../types";
  * and breathes it (1.02 x .98 every 2 s); the wand hand, the objects and the sparkles are full size and still. The
  * 0.62 and the breathing are baked into the body squash; the rig squashes and lifts its props with the body, so the
  * props are placed through the inverse (`unsquash`) and scaled by 1 / 0.62. The rig's own hands would shrink with the
- * body, so they wait out of sight behind it and the wand hand is a prop. The body's 14.5 units to the left of the
- * middle is a placement, done by the demo (SHIFT_X); every point below is in the original's drawing, moved right by
- * that 14.5 so that the body stands in the middle.
+ * body, so they wait out of sight behind it and the wand hand is a prop. The body stands 14.5 units left of the middle
+ * (a constant body.shift, which moves the props with it); every point below is in the original's drawing.
  */
 const D = 6000;
 const at = (f: number) => Math.round(f * D);
 const SCALE = 0.62;
 const FEET = SHAPES.squircle.feet;
-/** How far the demo moves the agent left to put the body where the original has it. */
-export const SHIFT_X = 32 - 17.5;
-/** A point of the original drawing (all of which sits 2 units up), in the rig's frame before the demo's shift. */
-const orig = (x: number, y: number): Vec => [x + SHIFT_X, y - 2];
+/** How far the body stands left of the middle: its feet (32 49) are at (17.5 52) in the original. */
+const SHIFT = 17.5 - 32;
+/** A point of the original drawing (all of which sits 2 units up). */
+const orig = (x: number, y: number): Vec => [x, y - 2];
 
 // ---- the body ----
 
@@ -36,13 +35,13 @@ const orig = (x: number, y: number): Vec => [x + SHIFT_X, y - 2];
 const squash: Track<Vec> = [0, 1000, 2000, 3000, 4000, 5000, 6000].map(
   (t) => [t, (t / 1000) % 2 ? ([SCALE * 1.02, SCALE * 0.98] as Vec) : ([SCALE, SCALE] as Vec), "inOut"] as const,
 );
-/** Lifts the shrunk body so that its (32 49) lands on the original's (17.5 52), here (32 52). */
+/** Lifts the shrunk body so that its (32 49) lands on the original's (17.5 52), with the shift. */
 const LIFT = 52 - FEET[1] - SCALE * (49 - FEET[1]);
 
-/** A point of the original drawing at time t, placed so the rig's lift and squash put it back where it was. */
+/** A point of the original drawing at time t, placed so the rig's shift, lift and squash put it back where it was. */
 const unsquash = (p: Vec, t: number): Vec => {
   const s = sample(squash, t, [SCALE, SCALE] as Vec);
-  return [FEET[0] + (p[0] - FEET[0]) / s[0], FEET[1] + (p[1] - LIFT - FEET[1]) / s[1]];
+  return [FEET[0] + (p[0] - SHIFT - FEET[0]) / s[0], FEET[1] + (p[1] - LIFT - FEET[1]) / s[1]];
 };
 const BREATHS = squash.map(([t]) => t);
 /** An offset track holding a (possibly moving, linearly keyed) point of the original still against the breathing:
@@ -97,11 +96,12 @@ export const wizard: AgentAnimation = {
   duration: D,
   // the apple is out, the wand at rest
   rest: 2200,
-  body: { squash, lift: [[0, LIFT]] },
+  body: { squash, lift: [[0, LIFT]], shift: [[0, SHIFT]] },
   eyes: {
     // the eyes look right, at the objects, all the time
     look: [[0, [2.2, 0.4]]],
-    // the original's blink closes at .397 (the rig's is a quicker one)
+    // the original's one blink: from open at .383 down to .08 at .397, open again by .42
+    blink: { close: at(0.397) - at(0.383), open: at(0.42) - at(0.397), depth: 0.08 },
     blinks: [at(0.397)],
   },
   hands: { L: HIDDEN, R: HIDDEN },

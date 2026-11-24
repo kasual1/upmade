@@ -1,5 +1,4 @@
-import { sample } from "../timeline";
-import type { AgentAnimation, PropTrack, Span, Track, Vec } from "../types";
+import type { AgentAnimation, Blink, PropTrack, Span, Track, Vec } from "../types";
 import type { Paint } from "../props/painter/Brush";
 
 /**
@@ -11,18 +10,19 @@ import type { Paint } from "../props/painter/Brush";
  * values are kept as they are in the original (the `smil()` strings below) so they can be checked against it.
  *
  * The original draws the painter (body, eyes, beret) at 0.62, its feet (32 49) placed at (17 51), and leans it
- * about those feet; the brush hand and the easel are full size and do not lean. The rig can neither move its body
- * sideways nor keep a prop out of the body's lean and scale, so the demo draws two agents on top of each other,
- * both in the same box (PAINTER_BOX: 0.62 of the demo, placed so the painter's feet land at (17 51)):
- *   - `painter`: the painter itself. Its own hands wait out of sight behind its body.
+ * about those feet; the brush hand and the easel are full size and do not lean. The rig cannot keep a prop out of
+ * the body's lean and scale, so the demo draws two agents on top of each other, both in the same box (PAINTER_BOX:
+ * 0.62 of the demo, at its top left corner):
+ *   - `painter`: the painter itself, moved into place by a constant body shift and lift (PAINTER_SHIFT). Its own
+ *     hands wait out of sight behind its body. Its eyes squint and blink with the original's timing (`blinks`).
  *   - `painterStage`: an agent with no body (an empty outline, its eyes hidden) that holds the brush hand, the brush
  *     and the easel as props. They are full size in the original, so the demo draws their looks at 1/0.62 (baked
  *     into the items, not a `scale` track, which the rig rounds to 2 decimals) and the stage maps the original's
  *     coordinates into the shared box (`toBox`). Its rig hands wait out of sight behind the easel.
  *   The two share one box on purpose: each agent pauses while its own box is off screen, so two different boxes
  *   would pause at different scroll positions and drift apart (the brush hand out of step with the lean).
- * Props of `painter`: `beret` and the squint frames `squint0`..`squint<n>` (see SQUINT_SY). Props of
- * `painterStage`: `brushGreen`, `brushBlue`, `brushYellow` (one is shown at a time), `hand` and `easel`.
+ * Props of `painter`: `beret`. Props of `painterStage`: `brushGreen`, `brushBlue`, `brushYellow` (one is shown at a
+ * time), `hand` and `easel`.
  * Events (on `painter`): `judge` as it leans back to look at the canvas.
  */
 const D = 6000;
@@ -37,7 +37,6 @@ function smil(values: string, keyTimes: string): Track<Vec> {
   });
 }
 const xs = (track: Track<Vec>): Track<number> => track.map(([t, v, e]) => [t, v[0], e] as const);
-const ys = (track: Track<Vec>): Track<number> => track.map(([t, v, e]) => [t, v[1], e] as const);
 
 // ---- the original's channels ----
 
@@ -52,14 +51,6 @@ const look = smil(
   "2.2 -.4;2.2 -.4;2.2 -.4;1.6 -1;1.6 -1;2.2 -.4;2.2 -.4;2.2 -.4;1.6 -1;1.6 -1;2.2 -.4;2.2 -.4;2.2 -.4;1.6 -1;1.6 -1;2.2 -.4;2.2 -.4",
   "0;0.008;0.15;0.2;0.317;0.33;0.342;0.483;0.533;0.65;0.663;0.675;0.817;0.867;0.983;0.997;1");
 
-/** The squint (eye height): narrows to .42 as it leans back, held while it judges. */
-const squint = ys(smil(
-  "1 1;1 1;1 .42;1 .42;1 1;1 1;1 .42;1 .42;1 1;1 1;1 .42;1 .42;1 1;1 1",
-  "0;0.203;0.22;0.27;0.287;0.537;0.553;0.603;0.62;0.87;0.887;0.937;0.953;1"));
-
-/** One slow blink, early in the loop (shut, .08, at .097), on its own channel in the original. */
-const blink = ys(smil("1 1;1 1;1 .08;1 1;1 1", "0;0.083;0.097;0.12;1"));
-
 /** The brush hand (full size, the drawing's coordinates before the 1 up): from its rest at (27.5 46.5) a zigzag
  *  of strokes up the canvas's left side, then a quick hatching higher up, then a little circle, each followed by a
  *  return to rest. */
@@ -67,35 +58,29 @@ const handPath = smil(
   "27.5 46.5;27.5 46.5;28.07 38.2;28.7 34;29.33 36.6;30.05 33;31.13 38;27.5 46.5;27.5 46.5;28.12 23.8;28.66 21.6;29.2 23.8;29.74 21.6;30.28 23.8;30.82 21.6;31.08 22.6;27.5 46.5;27.5 46.5;29.24 27.6;29.47 27.95;29.65 28.9;29.71 30.2;29.65 31.5;29.47 32.45;29.24 32.8;29.01 32.45;28.83 31.5;28.77 30.2;28.83 28.9;29.01 27.95;29.24 27.6;27.5 46.5;27.5 46.5",
   "0;0.003;0.025;0.053;0.075;0.102;0.142;0.175;0.337;0.358;0.38;0.401;0.422;0.444;0.465;0.475;0.508;0.67;0.692;0.701;0.711;0.721;0.731;0.74;0.75;0.76;0.769;0.779;0.789;0.799;0.808;0.842;1");
 
-// ---- the eyes: the squint and the blink as frames ----
+// ---- the eyes: the slow blink and the three squints ----
 
-/** How open the eyes are at t: the squint and the blink scale the eyes about the same middle, one after the other. */
-const openAt = (t: number) => sample(squint, t, 1) * sample(blink, t, 1);
-/** The eye heights the frames are drawn at (the squint holds at .42, the blink shuts to .08). */
-export const SQUINT_SY = [0.08, 0.2, 0.32, 0.42, 0.53, 0.65, 0.77, 0.88] as const;
-/** Every STEP ms the eyes show the frame nearest their openness, or the rig's own eyes when they are (nearly) open. */
-const STEP = 20;
-const frameSpans: Span[][] = SQUINT_SY.map(() => []);
-const hidden: Span[] = [];
-const addSpan = (list: Span[], a: number, b: number) => {
-  const last = list[list.length - 1];
-  if (last && last[1] === a) list[list.length - 1] = [last[0], b];
-  else list.push([a, b]);
-};
-for (let t = 0; t < D; t += STEP) {
-  const o = openAt(t + STEP / 2);
-  if (o > 0.94) continue;
-  let k = 0;
-  SQUINT_SY.forEach((sy, n) => {
-    if (Math.abs(sy - o) < Math.abs(SQUINT_SY[k] - o)) k = n;
-  });
-  addSpan(frameSpans[k], t, t + STEP);
-  addSpan(hidden, t, t + STEP);
-}
-/** Squint frame k: in the body's own space, like the rig's eyes, moving with the gaze. */
-const squintFrame = (k: number): PropTrack => ({ attach: "world", offset: look, visible: frameSpans[k] });
+/** The original's eye scale channels, as blinks (ms against the 6 s loop). The squint (eyes at .42 of their height)
+ *  closes over 0.203..0.22 of the loop, holds to 0.27 and opens by 0.287, and again at 0.537 and 0.87; the slow blink
+ *  (a separate channel, multiplied in, down to .08) closes over 0.083..0.097 and opens by 0.12. The two never
+ *  overlap, so taking the minimum is the same as the original's product. The original is linear; the rig eases. */
+const SQUINT = { close: at(0.22) - at(0.203), hold: at(0.27) - at(0.22), open: at(0.287) - at(0.27), depth: 0.42 };
+const blinks: Blink[] = [
+  { at: at(0.097), close: at(0.097) - at(0.083), open: at(0.12) - at(0.097), hold: 0, depth: 0.08 },
+  { at: at(0.22) },
+  { at: at(0.553), close: at(0.553) - at(0.537) },
+  { at: at(0.887), open: at(0.953) - at(0.937) },
+];
 
 // ---- the painter ----
+
+/** The box both agents are drawn in: 0.62 of the demo, at its top left corner. The painter is moved into place inside
+ *  it by PAINTER_SHIFT, so that its feet (32 49), drawn at 0.62, land at (17 51) of the demo's 64x64 units. */
+export const PAINTER_BOX = { scale: 0.62 } as const;
+/** The painter's constant body shift and lift, in its own (box) units: ((17 51) - 0.62 x (32 49)) / 0.62. */
+const PAINTER_SHIFT: Vec = [(17 - 0.62 * 32) / 0.62, (51 - 0.62 * 49) / 0.62];
+/** A point of the original's full-size drawing, in the shared box's own 64x64 space. */
+const toBox = ([x, y]: Vec): Vec => [x / PAINTER_BOX.scale, y / PAINTER_BOX.scale];
 
 /** The painter's breathing: 1.02 wide and .98 tall, and back, every 2 s (the rig's `breathe` only scales the height,
  *  once per 3 s here). */
@@ -105,26 +90,21 @@ export const painter: AgentAnimation = {
   duration: D,
   // the original holds its first frame with reduced motion (the feature icons are designed to read as a still there)
   rest: 0,
-  body: { lean, squash: breathe },
-  eyes: { look, hidden },
+  // placed in the shared box (see PAINTER_BOX) by a constant shift and lift, so its feet (32 49) land at (17 51)
+  body: { shift: [[0, PAINTER_SHIFT[0]]], lift: [[0, PAINTER_SHIFT[1]]], lean, squash: breathe },
+  eyes: { look, blinks, blink: SQUINT },
   // out of sight behind the body: the original painter has no hands of its own (the brush hand is the stage's)
   hands: {
     L: { path: [[0, [28, 36]]], behind: [[0, D]] },
     R: { path: [[0, [36, 36]]], behind: [[0, D]] },
   },
   props: {
-    ...Object.fromEntries(SQUINT_SY.map((_, k) => [`squint${k}`, squintFrame(k)])),
     beret: { attach: "head" },
   },
   events: [[at(0.18), "judge"], [at(0.513), "judge"], [at(0.847), "judge"]],
 };
 
 // ---- the stage: brush hand, brush and easel, full size ----
-
-/** The box both agents are drawn in, in the demo's 64x64 units: 0.62 of it, the painter's feet (32 49) at (17 51). */
-export const PAINTER_BOX = { scale: 0.62, x: 17 - 0.62 * 32, y: 51 - 0.62 * 49 } as const;
-/** A point of the original's full-size drawing, in the shared box's own 64x64 space. */
-const toBox = ([x, y]: Vec): Vec => [(x - PAINTER_BOX.x) / PAINTER_BOX.scale, (y - PAINTER_BOX.y) / PAINTER_BOX.scale];
 
 /** The whole original drawing sits 1 up. */
 const UP = -1;
