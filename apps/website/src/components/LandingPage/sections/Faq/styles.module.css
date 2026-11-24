@@ -1,6 +1,8 @@
-/* stub styles (M5 replaces them with the design's .faq) */
+/* The design's .faq (L320-343). The section frame (border, 112px / 80px padding, gutters, the 820px column) is
+   SectionShell's; the centred intro is SectionIntro's. */
 .inner {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 48px;
 }
 
@@ -14,19 +16,131 @@
   border: var(--lp-stroke) solid var(--lp-ink);
   border-radius: var(--lp-r-card);
   background: var(--lp-grad-card);
-  padding: 20px 24px;
+  transition: background 0.25s;
 }
 
-.question {
-  font-size: var(--lp-fs-body-l);
-  line-height: 1.35;
-  font-weight: 650;
+.item.open {
+  background: var(--lp-grad-card-open);
 }
 
-.answer p {
-  margin-top: 10px;
+.heading {
+  margin: 0;
+}
+
+.q {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 20px 20px 20px 24px;
+  border: 0;
+  background: none;
+  text-align: left;
+  font: 650 var(--lp-fs-body-l) / 1.35 var(--lp-font-body);
+  letter-spacing: -0.01em;
+  color: var(--lp-ink);
+  cursor: pointer;
+  border-radius: 19px;
+}
+
+.q:focus-visible {
+  outline: var(--lp-stroke) solid var(--lp-hand);
+  outline-offset: 2px;
+}
+
+.icon {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border: var(--lp-stroke-s) solid var(--lp-ink);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--lp-grad-key);
+  transition:
+    transform 0.35s var(--lp-spring2),
+    background 0.2s;
+}
+
+.icon svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: var(--lp-ink);
+  stroke-width: 2.8;
+  stroke-linecap: round;
+}
+
+.q:hover .icon {
+  transform: scale(1.06);
+}
+
+/* as heavy as `.q:hover .icon` and later, so an open item keeps its rotation on hover (as in the design) */
+.item.open .icon {
+  transform: rotate(45deg);
+  background: var(--lp-grad-pink);
+}
+
+.a {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s var(--lp-ease-open);
+}
+
+.item.open .a {
+  grid-template-rows: 1fr;
+}
+
+.clip {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.text {
+  margin: 0;
+  padding: 0 24px 22px;
   max-width: 62ch;
   font-size: var(--lp-fs-body);
   line-height: 1.65;
   color: var(--lp-text-strong);
+}
+
+/* `code` spans in answers (the design has none; a quiet chip in the art style's greys) */
+.code {
+  padding: 0.1em 0.38em;
+  border: 1px solid var(--lp-line);
+  border-radius: 6px;
+  background: var(--lp-chip);
+  font-family: var(--lp-font-mono);
+  font-size: 0.9em;
+  color: var(--lp-ink);
+  overflow-wrap: anywhere;
+  vertical-align: baseline;
+}
+
+@media (max-width: 960px) {
+  .inner {
+    gap: 32px;
+  }
+}
+
+@media (max-width: 620px) {
+  .q {
+    font-size: var(--lp-fs-body);
+    padding: 16px 14px 16px 18px;
+  }
+
+  .text {
+    padding: 0 18px 18px;
+    font-size: 15.5px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .a,
+  .icon,
+  .item {
+    transition: none;
+  }
 }
