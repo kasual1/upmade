@@ -38,7 +38,9 @@ import { Agent, Hat, hatSwap } from "@site/src/components/Agents";
    the plain times; `ease: "linear"` makes a blink move at an even speed. `eyes.lid` cuts the eyes flat from the top
    (a sly or sleepy look, independent of blinks), `eyes.scale` stretches them about their lower ends (above 1 is taller
    than open), and `eyes.glint` moves the white glints within the pupils. `body.shift` moves the whole agent sideways (a shake, a step, or a fixed placement), as `lift`
-   does vertically.
+   does vertically. An animation drawn at another size or height than the family's (a port of a drawing made for
+   another layout) states it with `frame: { scale, ground }`: the box then shows its agent at the family's size, feet
+   on the usual line, with its props reaching out past the box. Layers drawn together share the frame.
 4. Fire `events` at the moments the page should react to, and handle them with `onEvent`.
 5. Export it from `animations/index.ts` (every export there is checked by `tests/agents.spec.ts`) and add a
    `demos/myThing.tsx` exporting `label` and a default component; `/agent` lists it automatically. To inspect one moment, pass `time={ms}` to `<Agent>`; it then shows that moment still.

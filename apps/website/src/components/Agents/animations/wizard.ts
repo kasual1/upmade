@@ -94,6 +94,8 @@ const HIDDEN = { path: [[0, [32, 34]]] as Track<Vec>, behind: [[0, D]] as const 
 
 export const wizard: AgentAnimation = {
   duration: D,
+  // drawn at the original card's size and height: the box shows it at the family's (see `frame`)
+  frame: { scale: SCALE, ground: FEET[1] + LIFT },
   // the apple is out, the wand at rest
   rest: 2200,
   body: { squash, lift: [[0, LIFT]], shift: [[0, SHIFT]] },

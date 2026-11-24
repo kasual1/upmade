@@ -206,6 +206,8 @@ const device = (k: Keys, pivot: Vec): PropTrack => ({
 
 export const devices: AgentAnimation = {
   duration: D,
+  // drawn at the original card's size and height: the box shows it at the family's (see `frame`)
+  frame: { scale: SHRINK, ground: FEET[1] + SET_DOWN },
   // holding the phone, looking at it
   rest: 300,
   body: {

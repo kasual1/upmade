@@ -1,4 +1,5 @@
 import type { AgentAnimation, PropTrack, Span, Track, Vec } from "../types";
+import { SHAPES } from "../tokens";
 
 /**
  * Puts on cycling glasses ("Performance"), for the green triangle. It reaches behind its back for a pair of
@@ -138,6 +139,8 @@ const glints: Record<string, PropTrack> = Object.fromEntries(
 
 export const cyclingGlasses: AgentAnimation = {
   duration: D,
+  // drawn at the original card's size and height: the box shows it at the family's (see `frame`)
+  frame: { scale: SHRINK, ground: SHAPES.triangle.feet[1] },
   // wearing them, crouched (the original's reduced-motion frame)
   rest: 2200,
   body: {

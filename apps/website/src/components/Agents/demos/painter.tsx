@@ -22,9 +22,8 @@ const stageItems = {
 /**
  * Both agents fill the demo's box, one on top of the other: the painter (drawn at 0.62 by its own body scale) and
  * the stage with the full-size brush hand, brush and easel. Sharing the box, they come on and off screen together
- * and stay in step; the stage lets the pointer through to the painter so the painter still hops when hovered. The
- * stage clips to its box like the original's svg (all it draws fits inside), which also makes Chrome anti-alias the
- * easel's edges the same as the original's. Until both agents have drawn their first pose the box is hidden, so the
+ * and stay in step; the stage lets the pointer through to the painter so the painter still hops when hovered. Both
+ * share the animations' frame, so the painter comes out at the family's size and the easel reaches past the box. Until both agents have drawn their first pose the box is hidden, so the
  * server-rendered page does not flash the stage's default body (a circle with eyes and hands) or the painter's hands.
  */
 const layer = {
@@ -54,7 +53,7 @@ export default function PainterDemo({ className }: DemoProps) {
         animation={painterStage}
         items={stageItems}
         reactive={false}
-        style={{ ...layer, pointerEvents: "none", overflow: "hidden" }}
+        style={{ ...layer, pointerEvents: "none" }}
       />
     </div>
   );

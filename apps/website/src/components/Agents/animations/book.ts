@@ -109,6 +109,8 @@ const pageFrame = (k: number): PropTrack =>
 
 export const book: AgentAnimation = {
   duration: D,
+  // drawn at the original card's size and height: the box shows it at the family's (see `frame`)
+  frame: { scale: SCALE, ground: FEET[1] + BASE_LIFT },
   // reading, between the first page turns and the squint
   rest: at(0.23),
   body: {

@@ -145,3 +145,22 @@ describe("eyes", () => {
     expect(validate({ duration: 1000, eyes: { lid: [[0, 1.5]] } })).toHaveLength(1);
   });
 });
+
+describe("frame", () => {
+  it("is checked, and every framed animation stands on a ground inside its drawing", () => {
+    expect(validate({ duration: 1000, frame: { scale: 0, ground: 49 } })).toHaveLength(1);
+    for (const [name, anim] of Object.entries(animations)) {
+      if (!anim.frame) continue;
+      expect(anim.frame.scale, name).toBeGreaterThan(0.5);
+      expect(anim.frame.scale, name).toBeLessThanOrEqual(1);
+      expect(anim.frame.ground, name).toBeGreaterThan(30);
+      expect(anim.frame.ground, name).toBeLessThan(64);
+    }
+  });
+
+  it("layers drawn together share a frame", () => {
+    expect(animations.painterStage.frame).toEqual(animations.painter.frame);
+    expect(animations.handoffTriangle.frame).toEqual(animations.handoff.frame);
+    expect(animations.handoffCircle.frame).toEqual(animations.handoff.frame);
+  });
+});

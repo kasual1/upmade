@@ -194,6 +194,8 @@ const BUTTON: Vec = [32, 50.2];
 
 export const controlPanel: AgentAnimation = {
   duration: D,
+  // drawn at the original card's size and height: the box shows it at the family's (see `frame`)
+  frame: { scale: 0.8, ground: FEET[1] + 4 + 0.5 * 0.8 },
   rest: 0,
   body: {
     // squared off while the first press holds the button down, round again with the fourth

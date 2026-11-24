@@ -178,6 +178,7 @@ export function validate(anim: AgentAnimation): string[] {
     spans(`props.${name}.visible`, p.visible);
     spans(`props.${name}.behind`, p.behind);
   }
+  if (anim.frame && !(anim.frame.scale > 0)) issues.push(`frame: scale ${anim.frame.scale} must be above 0`);
   anim.events?.forEach(([t, name]) => {
     if (t < 0 || t > anim.duration) issues.push(`event "${name}" at ${t} ms is outside the loop`);
   });

@@ -79,6 +79,8 @@ const SIZE = 0.62;
  *  below the original's, under .05 units of drift at the -8 deg lean.) */
 const FEET: Vec = [32, 49.6];
 const PAINTER_SHIFT: Vec = [17 - FEET[0], 51 + SIZE * (FEET[1] - 49) - FEET[1]];
+/** the painter and its stage are drawn at the original card's size; both layers take the same frame */
+const FRAME = { scale: SIZE, ground: FEET[1] + PAINTER_SHIFT[1] };
 
 /** The painter's size times its breathing: 1.02 wide and .98 tall, and back, every 2 s (the rig's `breathe` only
  *  scales the height, once per 3 s here). */
@@ -89,6 +91,8 @@ const breathe: Track<Vec> = Array.from(
 
 export const painter: AgentAnimation = {
   duration: D,
+  // drawn at the original card's size and height: the box shows it at the family's (see `frame`)
+  frame: FRAME,
   // the original holds its first frame with reduced motion (the feature icons are designed to read as a still there)
   rest: 0,
   // drawn at 0.62 (the squash) and placed by a constant shift and lift, so its feet (32 49) land at (17 51)
@@ -124,6 +128,8 @@ const PARKED: Vec = [41, 30];
 
 export const painterStage: AgentAnimation = {
   duration: D,
+  // drawn at the original card's size and height: the box shows it at the family's (see `frame`)
+  frame: FRAME,
   rest: 0,
   // no body: an empty outline (nothing is stroked for a zero-length path with butt caps) and no eyes
   body: { outline: [[0, "M0 0Z"]] },

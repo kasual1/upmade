@@ -306,6 +306,8 @@ function lookAt(t: number): Vec {
 
 export const plug: AgentAnimation = {
   duration: D,
+  // drawn at the original card's size and height: the box shows it at the family's (see `frame`)
+  frame: { scale: SHRINK, ground: FEET[1] + LIFT_BODY },
   // plugged together, looking down at them
   rest: 2300,
   body: { squash, lift: [[0, LIFT_BODY]], outline: frames.map((t) => [t, breathed(t), "linear"] as const) },

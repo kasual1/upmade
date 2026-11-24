@@ -204,6 +204,8 @@ const BEHIND = [[at(0.385), at(0.826)]] as const;
 
 export const key: AgentAnimation = {
   duration: D,
+  // drawn at the original card's size and height: the box shows it at the family's (see `frame`)
+  frame: { scale: SHRINK, ground: FEET[1] + PLACE[1] },
   // key out in front, twinkling, eyes happy
   rest: at(0.897),
   body: {

@@ -221,6 +221,8 @@ const GLINT: Vec = [0, -0.6];
 
 export const frameworkSign: AgentAnimation = {
   duration: D,
+  // drawn at the original card's size and height: the box shows it at the family's (see `frame`)
+  frame: { scale: SHRINK, ground: FEET[1] + LIFT },
   // holding up the React sign
   rest: 0,
   body: {

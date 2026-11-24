@@ -118,6 +118,14 @@ export interface AgentAnimation {
   events?: readonly (readonly [number, string])[];
   /** the moment shown, still, to people who prefer reduced motion */
   rest?: number;
+  /**
+   * For an animation drawn at another size or height than the family's (a port of a drawing made for another layout,
+   * with room for its props): the scale its agent is drawn at and the y its feet stand on. The agent's box then shows
+   * the drawing zoomed by 1 / scale about the box's middle, with that ground at the shape's own feet, so the agent
+   * comes out at the same size and on the same line as every other agent; its props reach out past the box.
+   * Layers drawn together (a stage agent on top of a body) take the same frame.
+   */
+  frame?: { scale: number; ground: number };
 }
 
 /** Everything the rig needs to draw one moment of an animation. */

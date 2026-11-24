@@ -185,7 +185,8 @@ export default function Agent({
       const h = hop && hopAt(hop.hop, performance.now() - hop.start);
       if (h) {
         const k = { lift: hopStyle.lift ?? 1, lean: hopStyle.lean ?? 1, squash: hopStyle.squash ?? 1 };
-        pose.body.lift += h.lift * k.lift;
+        // a frame zooms the drawing by 1 / scale, so the hop is made smaller by as much to come out the same height
+        pose.body.lift += h.lift * k.lift * (animation.frame?.scale ?? 1);
         pose.body.lean += h.lean * k.lean;
         pose.body.scale = [pose.body.scale[0] * (1 + (h.scale[0] - 1) * k.squash), pose.body.scale[1] * (1 + (h.scale[1] - 1) * k.squash)];
         pose.eyes.open = Math.min(pose.eyes.open, h.open);
@@ -257,11 +258,16 @@ export default function Agent({
     </g>
   );
   const y = spec.eyesY;
+  // the drawing at its frame's scale, zoomed about the box's middle with its ground on the shape's feet
+  const fr = animation.frame;
+  const viewBox = fr
+    ? [32 - 32 * fr.scale, fr.ground - spec.feet[1] * fr.scale, 64 * fr.scale, 64 * fr.scale].map((n) => +n.toFixed(4)).join(" ")
+    : "0 0 64 64";
 
   return (
     <svg
       ref={svgRef}
-      viewBox="0 0 64 64"
+      viewBox={viewBox}
       className={className}
       style={{ overflow: "visible", ...style }}
       role={label ? "img" : undefined}

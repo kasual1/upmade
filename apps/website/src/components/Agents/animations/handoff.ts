@@ -1,4 +1,5 @@
 import type { AgentAnimation, BlinkShape, Track, Vec } from "../types";
+import { SHAPES } from "../tokens";
 
 /**
  * Two agents handing a document back and forth (the "Realtime collaboration" feature on infinite.html), in a 3.6 s
@@ -11,8 +12,8 @@ import type { AgentAnimation, BlinkShape, Track, Vec } from "../types";
  *
  * The original draws the hands and the document at full size, on top of both bodies (document, then the triangle's
  * hand, then the circle's), so this is three animations for three <Agent>s, laid over one another in that order:
- *   - `handoffTriangle` and `handoffCircle`: the two bodies (eyes, glances, blink, hop), drawn at 0.7 and put in place
- *     with a constant body.shift and body.lift (in their own space). Their rig hands
+ *   - `handoffTriangle` and `handoffCircle`: the two bodies (eyes, glances, blink, hop), drawn at 0.7 (a constant
+ *     body.squash) and put in place with a constant body.shift and body.lift, in the box's coordinates. Their rig hands
  *     wait behind the middle of their own bodies, out of sight: the visible hands are the stage's props.
  *   - `handoff`: a full-size "stage" with no body (an empty outline, its eyes hidden) holding the document and both
  *     visible hands as world props, in the box's coordinates. Its rig hands ride under the document, which covers
@@ -22,14 +23,18 @@ import type { AgentAnimation, BlinkShape, Track, Vec } from "../types";
 const D = 3600;
 /** the whole drawing sits 3 up */
 const UP = -3;
-/** the agents' bodies are drawn at 0.7 (each <Agent> is 70% of the box, its top-left at the box's), so a length in
- *  the box is that / 0.7 in the agent's own space */
+/** the agents' bodies are drawn at 0.7 */
 const SCALE = 0.7;
 /** a hop of 2 in the box */
-const HOP = -2 / SCALE;
-/** Each body's place, in its own (0.7-scale) space: its feet (32 49) go to (feetX 50) of the box, moved 3 up. */
-const placeX = (feetX: number) => (feetX - SCALE * 32) / SCALE;
-const PLACE_Y = (50 + UP - SCALE * 49) / SCALE;
+const HOP = -2;
+/** the ground both agents stand on: their feet at y 50 of the box, moved 3 up */
+const GROUND = 50 + UP;
+/** the shared frame of the three layers: the bodies' scale and ground */
+const FRAME = { scale: SCALE, ground: GROUND };
+/** Each body's place in the box: shrunk to 0.7 about the rig's feet F, its own (32 49) put at (feetX, GROUND). */
+const place = (feetX: number, F: Vec) => ({ shift: feetX - 32, lift: GROUND - F[1] - SCALE * (49 - F[1]) });
+const TRIANGLE_PLACE = place(16.2, SHAPES.triangle.feet);
+const CIRCLE_PLACE = place(47.8, SHAPES.circle.feet);
 
 /** The original's blink: the eyes scale linearly (plain SMIL keyframes) to .08 over 0.022 of the loop (79.2 ms) and back
  *  over 0.039 (140.4 ms), about the eyes' middle. */
@@ -61,16 +66,23 @@ const triangleHand = smil("22.7 53.1;22.7 53.1;25.4 51.1;28.1 53.1;24 52.5;24 52
  *  back over to the triangle, ending at its rest (35.9 53.1). */
 const circleHand = smil("35.9 53.1;40 52.5;40 52.5;41.3 53.1;41.3 53.1;38.6 51.1;35.9 53.1", "0;0.083;0.389;0.5;0.833;0.917;1", UP);
 
+/** A hop of HOP from `base`, at the original's keyTimes (fractions of the loop): still, up, down. */
+const hop = (base: number, t0: number, t1: number, t2: number, t3: number): Track<number> => [
+  [t0 * D, base], [t1 * D, base, "linear"], [t2 * D, base + HOP, "linear"], [t3 * D, base, "linear"],
+];
+
 /** The triangle: hops as the document arrives back (0-0.28 s); looks down at the document (1 1.4), then, as it
  *  leaves, up after it (1.2 .2); blinks at 2.48 s (79 ms shut, 140 ms open again). Its rig hands wait behind its body. */
 export const handoffTriangle: AgentAnimation = {
   duration: D,
+  frame: FRAME,
   rest: 600,
   body: {
     outline: [[0, TRIANGLE_ORIGINAL]],
-    shift: [[0, placeX(16.2)]],
+    squash: [[0, [SCALE, SCALE]]],
+    shift: [[0, TRIANGLE_PLACE.shift]],
     // the hop: keyTimes 0;0.006;0.039;0.078
-    lift: [[0, PLACE_Y], [0.006 * D, PLACE_Y, "linear"], [0.039 * D, PLACE_Y + HOP, "linear"], [0.078 * D, PLACE_Y, "linear"]],
+    lift: hop(TRIANGLE_PLACE.lift, 0, 0.006, 0.039, 0.078),
   },
   // shut at 0.689 of the loop
   eyes: { look: smil("1 1.4;1 1.4;1.2 .2;1.2 .2;1 1.4", "0;0.333;0.5;0.833;1"), blinks: [0.689 * D], blink: BLINK },
@@ -84,11 +96,13 @@ export const handoffTriangle: AgentAnimation = {
  *  has it (-1 1.4); blinks at 0.68 s. Its rig hands wait behind its body. */
 export const handoffCircle: AgentAnimation = {
   duration: D,
+  frame: FRAME,
   rest: 600,
   body: {
-    shift: [[0, placeX(47.8)]],
+    squash: [[0, [SCALE, SCALE]]],
+    shift: [[0, CIRCLE_PLACE.shift]],
     // the hop: keyTimes 0;0.5;0.533;0.572
-    lift: [[0, PLACE_Y], [0.5 * D, PLACE_Y, "linear"], [0.533 * D, PLACE_Y + HOP, "linear"], [0.572 * D, PLACE_Y, "linear"]],
+    lift: hop(CIRCLE_PLACE.lift, 0, 0.5, 0.533, 0.572),
   },
   // shut at 0.189 of the loop
   eyes: { look: smil("-1.2 .2;-1.2 .2;-1 1.4;-1 1.4;-1.2 .2", "0;0.333;0.5;0.833;1"), blinks: [0.189 * D], blink: BLINK },
@@ -101,6 +115,7 @@ export const handoffCircle: AgentAnimation = {
 /** The stage: the document and the two visible hands, at full size in the box's coordinates. */
 export const handoff: AgentAnimation = {
   duration: D,
+  frame: FRAME,
   rest: 600,
   // no body: an empty outline (nothing is stroked for a zero-length path) and no eyes
   body: { outline: [[0, "M0 0Z"]] },
