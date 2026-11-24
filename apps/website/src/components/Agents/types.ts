@@ -32,8 +32,13 @@ export interface HandTrack {
 }
 
 export interface PropTrack {
-  /** what the prop follows: a hand, the top of the head, or nothing ("world": just the offset) */
-  attach: HandName | "head" | "world";
+  /**
+   * what the prop follows: a hand, the top of the head, or nothing ("world": just the offset, but still carried by the
+   * body's lift, shift, lean and squash and by its hops, like everything the agent holds). "scene" props belong to the
+   * scene, not the agent (a line it painted, the ground it stands on): placed by the offset in the box's own drawing,
+   * they stay put while the body moves or hops; `behind` still draws them under the body.
+   */
+  attach: HandName | "head" | "world" | "scene";
   /** position relative to the attach point */
   offset?: Track<Vec>;
   rotate?: Track<number>;

@@ -164,3 +164,16 @@ describe("frame", () => {
     expect(animations.handoffCircle.frame).toEqual(animations.handoff.frame);
   });
 });
+
+describe("scene props", () => {
+  it("are placed by their offset alone, like world props", () => {
+    const anim = { duration: 1000, props: { line: { attach: "scene" as const, offset: [[0, [4, 60]]] as const } } };
+    expect(poseAt(anim, 500).props.line.at).toEqual([4, 60]);
+  });
+
+  it("the tool cycle's painted line is a scene prop, so it stays put while the agent hops", () => {
+    const paint = Object.entries(animations.toolCycle.props ?? {}).filter(([name]) => name.startsWith("paint"));
+    expect(paint.length).toBeGreaterThan(0);
+    for (const [, p] of paint) expect(p.attach).toBe("scene");
+  });
+});

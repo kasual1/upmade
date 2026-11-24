@@ -534,13 +534,6 @@ export const PROP_ORDER = [
 // 8 breaths of 3.28 s fit the loop
 const BREATHS = 8, BREATH: Vec = [1.02, 0.98], FEET = SHAPES.squircle.feet;
 const breathKeys = <V>(rest: V, full: V): Key<V>[] => Array.from({ length: 2 * BREATHS + 1 }, (_, k) => [Math.round((k * D) / (2 * BREATHS)), k % 2 ? full : rest] as Key<V>);
-/**
- * The painted line lies on the original's svg itself, so it does not breathe. Here it is inside the body, so it moves
- * against the breathing: this offset puts the middle of the line back where it was (its ends are off by 0.2 at most).
- */
-const PAINT_MID = strokeAt(0.5);
-const PAINT_STILL: Vec = [0, 1].map((i) => r3(FEET[i] + (PAINT_MID[i] - FEET[i]) / BREATH[i] - PAINT_MID[i])) as unknown as Vec;
-
 function build(): AgentAnimation {
   const frames = simulate();
   const props: Record<string, PropTrack> = {};
@@ -550,8 +543,9 @@ function build(): AgentAnimation {
     if (name.startsWith("paint")) {
       const k = Number(name.slice(5));
       shown = frames.map((f) => f.paint.opacity > 0.001 && Math.max(1, Math.round(f.paint.prog * PAINT_FRAMES)) === k && f.paint.prog > 0);
-      // it lies under everything, behind the body (only the tools tucked away behind the back are drawn over it)
-      p = { attach: "world", offset: breathKeys<Vec>([0, 0], PAINT_STILL), visible: spans(shown), behind: [[0, D]] };
+      // it lies on the canvas under everything (a scene prop: it stays put while the agent breathes or hops), behind
+      // the body, so the tools tucked away behind the back are drawn over it
+      p = { attach: "scene", visible: spans(shown), behind: [[0, D]] };
       if (k === PAINT_FRAMES) p = { ...p, opacity: keys(held(frames.map((f, i) => (shown[i] ? f.paint.opacity : undefined)), 1), 0.005) };
     } else if (name === "smile") {
       shown = frames.map((f) => f.smile > 0.001);

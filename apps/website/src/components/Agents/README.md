@@ -30,7 +30,9 @@ import { Agent, Hat, hatSwap } from "@site/src/components/Agents";
 1. Create `animations/myThing.ts` exporting an `AgentAnimation`. Times are in ms within `duration`; positions are in
    the agent's 64×64 drawing space (the feet sit near y 49.5). Only list what moves: hands rest at the shape's spots,
    eyes look ahead, the body stands still.
-2. Props move with a hand (`attach: "R"`), on the head (`attach: "head"`) or freely (`attach: "world"`). To put a
+2. Props move with a hand (`attach: "R"`), on the head (`attach: "head"`) or freely (`attach: "world"`); all of
+   these move with the body, hops included. Things that belong to the scene rather than the agent (a line it painted)
+   take `attach: "scene"` and stay put. To put a
    hand or a prop behind the body, give it `behind` spans, and switch layers only while it is clear of the body
    (above the head or out to the side), or it will visibly pop through.
 3. Blinks are times (`blinks: [700, 3900]`) or blinks of their own shape

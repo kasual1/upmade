@@ -149,6 +149,8 @@ export default function Agent({
   const spec = SHAPES[shape];
   const [light, base] = COLOURS[colour];
   const propNames = Object.keys(animation.props ?? {});
+  // scene props are drawn outside the body, so its moves and hops don't carry them
+  const inScene = (n: string) => animation.props?.[n]?.attach === "scene";
   // compared by value, so an inline `reactive={{ lean: 0 }}` doesn't restart the animation on every render
   const hopKey = typeof reactive === "object" ? JSON.stringify(reactive) : String(reactive);
 
@@ -283,8 +285,9 @@ export default function Agent({
           <stop offset=".65" stopColor={base} />
         </linearGradient>
       </defs>
+      {propNames.filter(inScene).map((n) => prop(n, "behind"))}
       <g data-part="body">
-        {propNames.map((n) => prop(n, "behind"))}
+        {propNames.filter((n) => !inScene(n)).map((n) => prop(n, "behind"))}
         {HANDS.map((h) => hand(h, "behind"))}
         <path data-part="outline" d={spec.d} fill={`url(#${gradient})`} stroke={INK} strokeWidth={STROKE.body} strokeLinejoin="round" />
         <g data-part="blush" style={{ opacity: 0 }}>
@@ -307,9 +310,10 @@ export default function Agent({
             <path d={`M23.7 ${y + 4.3}q3 -4.5 6 0M34.3 ${y + 4.3}q3 -4.5 6 0`} fill="none" stroke={INK} strokeWidth={2.4} strokeLinecap="round" />
           </g>
         </g>
-        {propNames.map((n) => prop(n, "front"))}
+        {propNames.filter((n) => !inScene(n)).map((n) => prop(n, "front"))}
         {HANDS.map((h) => hand(h, "front"))}
       </g>
+      {propNames.filter(inScene).map((n) => prop(n, "front"))}
     </svg>
   );
 }
