@@ -18,3 +18,9 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Playwright (_e2e)
+/_e2e/test-results/
+/_e2e/playwright-report/
+/_e2e/blob-report/
+/build-e2e-*

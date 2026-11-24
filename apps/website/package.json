@@ -12,6 +12,8 @@
     "test:watch": "vitest --exclude tests/llms-output.spec.ts --exclude tests/blog-video-output.spec.ts",
     "test:llms": "vitest run tests/llms-output.spec.ts",
     "test:videos-output": "vitest run tests/blog-video-output.spec.ts",
+    "e2e:website": "playwright test -c _e2e/playwright.config.ts --trace off",
+    "e2e:website:update": "playwright test -c _e2e/playwright.config.ts --trace off --update-snapshots=changed",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "clear": "docusaurus clear",
