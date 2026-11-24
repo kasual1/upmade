@@ -44,7 +44,7 @@ const BORDER = '#ededed';
 
 // Source files holding the mark as UPMADE_LOGO_* constants: the website's React components and the engine's watermark.
 const LOGO_CONSTANT_FILES = [
-  'apps/website/src/components/Landing/paths.ts',
+  'apps/website/src/components/Brand/paths.ts',
   'libs/engine/core/src/components/upmade-watermark/upmade-logo.ts',
 ];
 

@@ -39,7 +39,7 @@ It needs Chromium for Playwright (`npx playwright install chromium`), which rend
 | Light tile (website)        | `apps/website/static/img/favicon.svg`, `apps/website/static/favicon.ico`, `apps/website/static/img/logo_avatar.png` (full-bleed, used as apple-touch-icon) |
 | Dark tile (app)             | `apps/website/static/img/favicon_dark.svg`, and in `apps/app/client/public/`: `favicon-96x96.png`, `apple-touch-icon.png`, `web-app-manifest-192x192.png`, `web-app-manifest-512x512.png` |
 | App tab icon (dark, bigger) | `apps/app/client/public/favicon.svg`, `apps/app/client/public/favicon.ico`                                                |
-| Inline mark on the website  | `UPMADE_LOGO_PATH`, `UPMADE_LOGO_VIEWBOX` and `UPMADE_LOGO_STROKE_WIDTH` in `apps/website/src/components/Landing/paths.ts`, drawn by the landing and agentic heroes and the blog navigation. Their CSS sets only a height, so the width follows the logo's aspect ratio. |
+| Inline mark on the website  | `UPMADE_LOGO_PATH`, `UPMADE_LOGO_VIEWBOX` and `UPMADE_LOGO_STROKE_WIDTH` in `apps/website/src/components/Brand/paths.ts`, drawn by the landing and agentic heroes and the blog navigation. Their CSS sets only a height, so the width follows the logo's aspect ratio. |
 | Watermark mark (engine)     | The same three constants in `libs/engine/core/src/components/upmade-watermark/upmade-logo.ts`, drawn by the "upmade.io" watermark of the engine and editor. Rebuild the libraries to ship it. |
 | README badge                | `logo.svg` (repo root): white rounded tile with a light grey border, shown at 160 px in the main README                  |
 

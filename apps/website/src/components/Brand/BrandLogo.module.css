@@ -1,0 +1,31 @@
+/* The "upmade.io" lockup of the Infinite landing page design (.brand, L398-402, and .foot-logo). Sized by
+   --brand-agent-size and --brand-text-size, which BrandLogo sets from its props. */
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: inherit;
+  font-size: var(--brand-text-size, 26px);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.brand:hover {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* The agent's drawing has empty space around the body, so it is pulled towards the text. */
+.agent {
+  flex: none;
+  width: var(--brand-agent-size, 38px);
+  height: var(--brand-agent-size, 38px);
+  margin: 0 calc(var(--brand-agent-size, 38px) * -0.08) 0 calc(var(--brand-agent-size, 38px) * -0.158);
+}
+
+.word b {
+  font-weight: 650;
+}

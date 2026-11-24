@@ -6,6 +6,7 @@ import type * as Preset from "@docusaurus/preset-classic";
 import type { PluginOptions as LlmsPluginOptions } from "docusaurus-plugin-llms";
 // The origins come from the environment (see site-urls.mjs), so the site can be built for another domain.
 import { APP_URL, SITE_URL } from "./site-urls.mjs";
+import { REPO_URL, SOCIAL_LINKS } from "./src/components/Brand/links";
 
 const SITE_BASE_URL = process.env.Docusaurus_BASE_URL || "/";
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
@@ -319,7 +320,7 @@ const config: Config = {
         },
         {
           label: 'GitHub',
-          href: 'https://github.com/kasual1/upmade',
+          href: REPO_URL,
           position: 'right',
           className: 'navbar-main-github-link',
         },
@@ -368,26 +369,10 @@ const config: Config = {
         },
         {
           title: 'Community',
-          items: [
-            {
-              html: '<a href="https://x.com/upmade_io" target="_blank" rel="noopener noreferrer" class="footer__link-item">X</a>',
-            },
-            {
-              html: '<a href="https://www.linkedin.com/in/upmade-io-26721b40b" target="_blank" rel="noopener noreferrer" class="footer__link-item">LinkedIn</a>',
-            },
-            {
-              html: '<a href="https://mastodon.social/@upmade" target="_blank" rel="me noopener noreferrer" class="footer__link-item">Mastodon</a>',
-            },
-            {
-              html: '<a href="https://bsky.app/profile/upmade.bsky.social" target="_blank" rel="noopener noreferrer" class="footer__link-item">Bluesky</a>',
-            },
-            {
-              html: '<a href="https://github.com/kasual1/upmade" target="_blank" rel="noopener noreferrer" class="footer__link-item">GitHub</a>',
-            },
-            {
-              html: '<a href="https://www.npmjs.com/package/@upmade/core" target="_blank" rel="noopener noreferrer" class="footer__link-item">NPM</a>',
-            },
-          ],
+          // Raw HTML so each opens in a new tab with its own rel (Mastodon's `me` verifies the profile).
+          items: SOCIAL_LINKS.map(({ label, href, rel }) => ({
+            html: `<a href="${href}" target="_blank" rel="${rel}" class="footer__link-item">${label}</a>`,
+          })),
         },
       ],
       copyright: `<span class="footer__meta"><span class="footer__meta-item">Copyright © ${new Date().getFullYear()} Upmade</span></span>`,
@@ -445,7 +430,7 @@ const config: Config = {
         name: "Upmade",
         url: ABSOLUTE_URL("/"),
         logo: ABSOLUTE_URL("/img/logo.svg"),
-        sameAs: ["https://github.com/kasual1/upmade"],
+        sameAs: [REPO_URL],
       }),
     },
     // Structured data: SiteNavigationElement list (helps Google surface Sitelinks)

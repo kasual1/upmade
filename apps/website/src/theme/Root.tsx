@@ -17,7 +17,6 @@ export default function Root({ children }: { children: ReactNode }): React.React
   const { pathname } = useLocation();
 
   useEffect(() => {
-    console.log("Root component mounted! pathname:", pathname);
     const framework = getFrameworkFromPath(pathname);
     if (framework && framework !== getPreferredFramework()) {
       setPreferredFramework(framework);

@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import Layout from "@theme/Layout";
 import { HtmlClassNameProvider } from "@docusaurus/theme-common";
 import Head from "@docusaurus/Head";
@@ -12,26 +12,11 @@ import {
   Wordmark,
 } from "@site/src/components/Landing/Sections";
 import styles from "@site/src/components/Landing/styles.module.css";
-import {
-  frameworkPaths,
-  getPreferredFramework,
-  subscribeToPreferredFramework,
-} from "@site/src/utils/frameworkPreference";
+import { usePreferredDocsPath } from "@site/src/components/LandingPage/hooks/usePreferredDocsPath";
 
 const TITLE = "Upmade - Infinite Canvas Library for React, Vue & Angular";
 const DESCRIPTION =
   "Upmade helps you build infinite canvas experiences featuring real-time collaboration and high-performance drawing tools. Fully open-source and easy to integrate into React, Vue & Angular.";
-
-function usePreferredDocsPath() {
-  const [docsPath, setDocsPath] = useState(frameworkPaths.react);
-
-  useEffect(() => {
-    setDocsPath(frameworkPaths[getPreferredFramework()]);
-    return subscribeToPreferredFramework((framework) => setDocsPath(frameworkPaths[framework]));
-  }, []);
-
-  return docsPath;
-}
 
 export default function Home(): ReactNode {
   const docsPath = usePreferredDocsPath();

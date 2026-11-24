@@ -1,5 +1,5 @@
 // The old Kritzel logo (the scribble) and the current Upmade mark, copied from the website:
-// apps/website/src/components/RenameBanner/kritzelLogo.ts and apps/website/src/components/Landing/paths.ts.
+// apps/website/src/components/RenameBanner/kritzelLogo.ts and apps/website/src/components/Brand/paths.ts.
 // Draw both filled and stroked in the same colour.
 
 export const KRITZEL_LOGO_VIEWBOX = "0 0 321.05759 277.97299";

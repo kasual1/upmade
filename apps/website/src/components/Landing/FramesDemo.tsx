@@ -1,6 +1,7 @@
-import { useEffect, useLayoutEffect, useRef, useState, type Ref } from "react";
+import { useLayoutEffect, useRef, useState, type Ref } from "react";
 import useBaseUrl from "@docusaurus/useBaseUrl";
 import styles from "./styles.module.css";
+import { useTimeline } from "../LandingPage/hooks/useTimeline";
 
 /** Where the cursor is: off the canvas below its middle, at the desktop titlebar's add button or on the phone page. */
 type Target = "offscreen" | "add" | "phone";
@@ -34,19 +35,11 @@ const FINAL_STATE: BuildState = {
 function useBuildSession(frameRef: React.RefObject<HTMLDivElement | null>) {
   const [state, setState] = useState<BuildState>(FINAL_STATE);
 
-  useEffect(() => {
-    const frame = frameRef.current;
-    if (!frame || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      return;
-    }
-
-    let timers: number[] = [];
-    const at = (ms: number, fn: () => void) => timers.push(window.setTimeout(fn, ms));
+  useTimeline(frameRef, ({ at, clear }) => {
     const update = (patch: Partial<BuildState>) => setState((current) => ({ ...current, ...patch }));
 
     const run = () => {
-      timers.forEach(window.clearTimeout);
-      timers = [];
+      clear();
       update({ built: false, target: "offscreen", pressed: false, phone: false, phoneBuilt: false });
 
       at(1500, () => update({ built: true }));
@@ -58,24 +51,8 @@ function useBuildSession(frameRef: React.RefObject<HTMLDivElement | null>) {
       at(9400, run);
     };
 
-    let started = false;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (!started && entries.some((entry) => entry.isIntersecting)) {
-          started = true;
-          observer.disconnect();
-          run();
-        }
-      },
-      { threshold: 0.3 },
-    );
-    observer.observe(frame);
-
-    return () => {
-      observer.disconnect();
-      timers.forEach(window.clearTimeout);
-    };
-  }, [frameRef]);
+    run();
+  });
 
   return state;
 }

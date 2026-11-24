@@ -272,7 +272,7 @@ input[type="radio"],
 select,
 label[for],
 label:has(input[type="checkbox"], input[type="radio"]),
-[class*="wordmarkLetter"] {
+.upmade-wordmark-letter {
   cursor: var(--upmade-site-pointer-cursor) !important;
 }
 

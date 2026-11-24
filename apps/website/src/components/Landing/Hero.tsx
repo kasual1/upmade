@@ -11,6 +11,8 @@ import { HELLO_DOT, HELLO_EXCLAMATION, HELLO_STROKES } from "./paths";
 import UpmadeBrand from "../UpmadeBrand";
 import { TOOLS } from "./tools";
 import styles from "./styles.module.css";
+import { REPO_URL } from "../Brand/links";
+import { useHeroNavObserver } from "../LandingPage/hooks/useHeroNavObserver";
 import { useAppUrl } from "@site/src/utils/siteUrls";
 
 function DraggableCanvasItem({
@@ -295,31 +297,8 @@ export default function Hero({
     };
   }, []);
 
-  useEffect(() => {
-    const nav = navRef.current;
-    if (!nav) {
-      return;
-    }
-
-    const root = document.documentElement;
-    const observer = new IntersectionObserver(([entry]) => {
-      root.classList.toggle("landing-nav-visible", !entry.isIntersecting);
-    });
-    observer.observe(nav);
-
-    // Only animate the floating navbar once the page has settled, so arriving here from another
-    // page hides it instantly instead of sliding it away.
-    let frame = window.requestAnimationFrame(() => {
-      frame = window.requestAnimationFrame(() => root.setAttribute("data-landing-nav-animated", ""));
-    });
-
-    return () => {
-      observer.disconnect();
-      window.cancelAnimationFrame(frame);
-      root.classList.remove("landing-nav-visible");
-      root.removeAttribute("data-landing-nav-animated");
-    };
-  }, []);
+  // Hides the site navbar while the hero's own navigation is on screen.
+  useHeroNavObserver(navRef);
 
   return (
     <div ref={wrapperRef} className={styles.heroWrapper}>
@@ -332,7 +311,7 @@ export default function Hero({
           <Link to={docsPath} className={styles.topNavLink}>
             Documentation
           </Link>
-          <Link href="https://github.com/kasual1/upmade" aria-label="GitHub" className={styles.topNavIcon}>
+          <Link href={REPO_URL} aria-label="GitHub" className={styles.topNavIcon}>
             <GitHubIcon />
           </Link>
           <MenuButton />

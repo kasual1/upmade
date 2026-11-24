@@ -7,11 +7,12 @@ import HeartBubbles from "./HeartBubbles";
 import Icon, { ArrowIcon } from "./Icon";
 import PerformanceDemo from "./PerformanceDemo";
 import ThemesDemo from "./ThemesDemo";
-import { WORDMARK_LETTERS } from "./paths";
 import styles from "./styles.module.css";
 import { InstallCommand } from "./InstallCommand";
 import { docsPath, getPreferredFramework, usePreferredFramework } from "@site/src/utils/frameworkPreference";
 import { useAppUrl, useSiteHost } from "@site/src/utils/siteUrls";
+import { SKILL_INSTALL_COMMAND } from "../Brand/links";
+import { useTimeline } from "../LandingPage/hooks/useTimeline";
 
 export function CallToActionBar({ docsPath }: { docsPath: string }) {
   const appUrl = useAppUrl();
@@ -311,7 +312,7 @@ const UPMADE_ASCII =`██╗   ██╗██████╗ ███╗   �
  ╚═════╝ ╚═╝     ╚═╝     ╚═╝╚═╝  ╚═╝╚═════╝ ╚══════╝`;
 
 const SKILL_SESSION = {
-  command: "npx skills add kasual1/upmade",
+  command: SKILL_INSTALL_COMMAND,
   question: "Install the upmade skill for your agent?",
 } as const;
 
@@ -386,19 +387,11 @@ function useCodeTyping(bodyRef: React.RefObject<HTMLDivElement | null>) {
     round: 0,
   });
 
-  useEffect(() => {
-    const body = bodyRef.current;
-    if (!body || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      return;
-    }
-
-    let timers: number[] = [];
-    const at = (ms: number, fn: () => void) => timers.push(window.setTimeout(fn, ms));
+  useTimeline(bodyRef, ({ at, clear }) => {
     const update = (patch: Partial<CodeState>) => setState((current) => ({ ...current, ...patch }));
 
     const run = (framework: number, round: number) => {
-      timers.forEach(window.clearTimeout);
-      timers = [];
+      clear();
       const { code } = CODE_FRAMEWORKS[framework];
       setState({ framework, typed: 0, typing: true, leaving: false, round });
 
@@ -414,25 +407,9 @@ function useCodeTyping(bodyRef: React.RefObject<HTMLDivElement | null>) {
       at(t + 2950, () => run((framework + 1) % CODE_FRAMEWORKS.length, round + 1));
     };
 
-    let started = false;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (!started && entries.some((entry) => entry.isIntersecting)) {
-          started = true;
-          observer.disconnect();
-          const preferred = getPreferredFramework();
-          run(Math.max(0, CODE_FRAMEWORKS.findIndex((option) => option.id === preferred)), 0);
-        }
-      },
-      { threshold: 0.3 },
-    );
-    observer.observe(body);
-
-    return () => {
-      observer.disconnect();
-      timers.forEach(window.clearTimeout);
-    };
-  }, [bodyRef]);
+    const preferred = getPreferredFramework();
+    run(Math.max(0, CODE_FRAMEWORKS.findIndex((option) => option.id === preferred)), 0);
+  });
 
   return state;
 }
@@ -497,19 +474,11 @@ const FINAL_STATE: Omit<TerminalState, "typed"> = {
 function useTerminalSession(terminalRef: React.RefObject<HTMLDivElement | null>, command: string) {
   const [state, setState] = useState<TerminalState>({ ...FINAL_STATE, typed: command });
 
-  useEffect(() => {
-    const terminal = terminalRef.current;
-    if (!terminal || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      return;
-    }
-
-    let timers: number[] = [];
-    const at = (ms: number, fn: () => void) => timers.push(window.setTimeout(fn, ms));
+  useTimeline(terminalRef, ({ at, clear }) => {
     const update = (patch: Partial<TerminalState>) => setState((current) => ({ ...current, ...patch }));
 
     const run = (round: number) => {
-      timers.forEach(window.clearTimeout);
-      timers = [];
+      clear();
       setState({ ...FINAL_STATE, typed: "", typing: true, banner: false, question: false, answered: false, added: false, prompt: false, round });
 
       let t = 250;
@@ -528,24 +497,8 @@ function useTerminalSession(terminalRef: React.RefObject<HTMLDivElement | null>,
       at(t + 2950, () => run(round + 1));
     };
 
-    let started = false;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (!started && entries.some((entry) => entry.isIntersecting)) {
-          started = true;
-          observer.disconnect();
-          run(0);
-        }
-      },
-      { threshold: 0.3 },
-    );
-    observer.observe(terminal);
-
-    return () => {
-      observer.disconnect();
-      timers.forEach(window.clearTimeout);
-    };
-  }, [terminalRef, command]);
+    run(0);
+  }, [command]);
 
   return state;
 }
@@ -997,19 +950,5 @@ export function Faq({ variant = "default" }: { variant?: "default" | "agentic" }
   );
 }
 
-export function Wordmark() {
-  return (
-    <section aria-label="Upmade" className={styles.wordmark}>
-      <svg viewBox="-0.3 -0.3 50.89 13.64" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Upmade" className={styles.wordmarkSvg}>
-        <g fill="none" stroke="#0a0a0a" strokeWidth="1.5" strokeLinejoin="round">
-          {WORDMARK_LETTERS.map((letter) => (
-            <g key={letter.x} className={styles.wordmarkLetter}>
-              <rect x={letter.x} y="0" width={letter.width} height="13.04" fill="transparent" stroke="none" />
-              <path vectorEffect="non-scaling-stroke" d={letter.d} />
-            </g>
-          ))}
-        </g>
-      </svg>
-    </section>
-  );
-}
+// Moved to Brand/Wordmark.tsx; re-exported so existing imports keep working.
+export { default as Wordmark } from "../Brand/Wordmark";

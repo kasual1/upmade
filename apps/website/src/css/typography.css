@@ -3,8 +3,18 @@
 @import "@fontsource-variable/jetbrains-mono";
 @import "@fontsource-variable/caveat";
 
-*:not(upmade-button) {
+/* Inter everywhere, except the editor's own buttons and elements that choose their font with `data-font` (see below).
+   The data-font exclusion sits in :where() so the selector keeps the specificity of a bare `*:not(upmade-button)`
+   (0,0,1): later `!important` font rules of the same weight (code blocks, for example) must keep winning. */
+*:not(upmade-button):where(:not([data-font])) {
   font-family: "Inter Variable", Inter, "Segoe UI", Helvetica, Arial, sans-serif !important;
+}
+
+/* Opt-in fonts: elements with data-font are skipped by the rule above, so these need no !important. Children
+   inherit the font unless they set their own (a child without data-font still gets Inter from the rule above, so
+   put data-font on the element that holds the text). */
+[data-font="mono"] {
+  font-family: "JetBrains Mono Variable", "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
 html {

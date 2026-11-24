@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import styles from "./styles.module.css";
+import { REPO_URL } from "../Brand/links";
 
 /**
  * The board is tilted and scaled up by BOARD_SCALE so its corners stay covered (see .perfBoard). Sizes and
@@ -8,8 +9,6 @@ import styles from "./styles.module.css";
 const BOARD_SCALE = 1.2;
 const OBJECT_WIDTH = 19 / BOARD_SCALE;
 const OBJECT_HEIGHT = 8.4 / BOARD_SCALE;
-
-const REPO_URL = "https://github.com/kasual1/upmade";
 
 /** The frame's height as a share of its width (the 16:11 .showcaseMedia), to turn widths into heights. */
 const FRAME_ASPECT = 11 / 16;

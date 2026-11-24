@@ -10,6 +10,7 @@ import {
   getFrameworkFromPath,
   getPreferredFramework,
 } from '@site/src/utils/frameworkPreference';
+import {REPO_URL} from '@site/src/components/Brand/links';
 
 function isFrameworkPicker(items: readonly LinkLikeNavbarItemProps[]): boolean {
   // Check if all items point to framework-specific docs
@@ -86,7 +87,7 @@ export default function DropdownNavbarItemDesktop({
       {isFramework && (
         <a
           className="navbar-framework-github-link"
-          href="https://github.com/kasual1/upmade"
+          href={REPO_URL}
           target="_blank"
           rel="noreferrer"
           aria-label="Upmade on GitHub"

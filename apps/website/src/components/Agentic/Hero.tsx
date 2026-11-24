@@ -9,6 +9,8 @@ import PieChart from "./PieChart";
 import { CallToActionBar } from "./CallToActionBar";
 import UpmadeBrand from "../UpmadeBrand";
 import styles from "./styles.module.css";
+import { REPO_URL } from "../Brand/links";
+import { useHeroNavObserver } from "../LandingPage/hooks/useHeroNavObserver";
 
 // On phones the canvas items can't be selected by hand (see styles.module.css), so a tap anywhere in the
 // hero keeps the selection the chat command made.
@@ -403,31 +405,8 @@ function HeroScene({
     };
   }, [shoeFocused, focusRequest, compactViewport]);
 
-  useEffect(() => {
-    const nav = navRef.current;
-    if (!nav) {
-      return;
-    }
-
-    const root = document.documentElement;
-    const observer = new IntersectionObserver(([entry]) => {
-      root.classList.toggle("landing-nav-visible", !entry.isIntersecting);
-    });
-    observer.observe(nav);
-
-    // Only animate the floating navbar once the page has settled, so arriving here from another
-    // page hides it instantly instead of sliding it away.
-    let frame = window.requestAnimationFrame(() => {
-      frame = window.requestAnimationFrame(() => root.setAttribute("data-landing-nav-animated", ""));
-    });
-
-    return () => {
-      observer.disconnect();
-      window.cancelAnimationFrame(frame);
-      root.classList.remove("landing-nav-visible");
-      root.removeAttribute("data-landing-nav-animated");
-    };
-  }, []);
+  // Hides the site navbar while the hero's own navigation is on screen.
+  useHeroNavObserver(navRef);
 
   return (
     <div
@@ -459,7 +438,7 @@ function HeroScene({
           <Link to={docsPath} className={styles.topNavLink}>
             Documentation
           </Link>
-          <Link href="https://github.com/kasual1/upmade" aria-label="GitHub" className={styles.topNavIcon}>
+          <Link href={REPO_URL} aria-label="GitHub" className={styles.topNavIcon}>
             <GitHubIcon />
           </Link>
           <MenuButton />
