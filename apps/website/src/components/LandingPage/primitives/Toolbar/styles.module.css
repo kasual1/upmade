@@ -93,16 +93,12 @@
     width: 36px;
     height: 36px;
     padding: 7px;
-    border-radius: 10px;
+    border-radius: 10px; /* design: phone tools 10px, the pill keeps 12px */
   }
 
   .tool svg {
     width: 22px;
     height: 22px;
-  }
-
-  .pill {
-    border-radius: 10px;
   }
 }
 

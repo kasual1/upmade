@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type FocusEvent, type KeyboardEvent, type ReactNode } from "react";
 import clsx from "clsx";
 import Icon from "../../../Brand/Icon";
 import { TOOLS, type ToolKey } from "./tools";
@@ -24,8 +24,10 @@ export interface ToolbarProps {
  * The editor toolbar of the hero (the design's .toolbar/.tool/.tb-pill): one button per tool and a black pill that
  * slides to the selected one.
  *
- * - `role="toolbar"` with a roving tabindex: Tab reaches the toolbar once; arrow keys (and Home/End) move between
- *   tools; Enter/Space select. Each tool has an aria-label and `aria-pressed`.
+ * - `role="toolbar"` with a roving tabindex that rests on the selected tool: Tab reaches the toolbar once, on the
+ *   selected tool; arrow keys (and Home/End) move between tools, wrapping at the ends; Enter/Space select. When focus
+ *   leaves the toolbar the tab stop goes back to the selected tool. Each tool has an aria-label, a title (tooltip)
+ *   and `aria-pressed`.
  * - The pill is placed from a ref per button (never by querying class names), again on resize and once the fonts
  *   are ready. Until it is placed (server HTML, before hydration) the selected tool paints its own background.
  * - Per plan §0 the toolbar is not synced to the toolCycle agent yet: it starts on its first tool and a click only
@@ -73,8 +75,16 @@ export default function Toolbar({ tools, value, defaultValue, onChange, label = 
     };
   }, [place]);
 
-  // slide to a new selection
-  useEffect(() => place(false), [selectedIndex, place]);
+  // slide to a new selection; the tab stop follows it (a click, a keyboard selection or a new controlled value)
+  useEffect(() => {
+    place(false);
+    setFocusIndex(selectedIndex);
+  }, [selectedIndex, place]);
+
+  // focus left the toolbar: Tab brings it back to the selected tool
+  const onBlur = (event: FocusEvent<HTMLDivElement>) => {
+    if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setFocusIndex(selectedRef.current);
+  };
 
   const select = (tool: ToolKey) => {
     if (value === undefined) setOwn(tool);
@@ -99,7 +109,7 @@ export default function Toolbar({ tools, value, defaultValue, onChange, label = 
   };
 
   return (
-    <div ref={barRef} className={clsx(styles.toolbar, className)} role="toolbar" aria-label={label} aria-orientation="horizontal" onKeyDown={onKeyDown}>
+    <div ref={barRef} className={clsx(styles.toolbar, className)} role="toolbar" aria-label={label} aria-orientation="horizontal" onKeyDown={onKeyDown} onBlur={onBlur}>
       <span ref={pillRef} className={styles.pill} aria-hidden="true" />
       {tools.map((tool, index) => {
         const { label: toolLabel, icon } = TOOLS[tool];

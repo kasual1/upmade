@@ -7,7 +7,8 @@
   background: var(--lp-chip);
   font-size: var(--lp-fs-toggle);
   font-weight: 600;
-  line-height: 1.4;
+  /* the design's toggle inherits body's `normal` line height (36px tall in all) */
+  line-height: normal;
 }
 
 .item,
