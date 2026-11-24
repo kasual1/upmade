@@ -33,4 +33,4 @@ import { Agent, Hat, hatSwap } from "@site/src/components/Agents";
    (above the head or out to the side), or it will visibly pop through.
 3. Fire `events` at the moments the page should react to, and handle them with `onEvent`.
 4. Export it from `animations/index.ts`, add it to the preview page (`src/pages/agent.tsx`) and to the data check in
-   `tests/agents.spec.ts`. Pause it there and scrub through the loop to fine-tune keys.
+   `tests/agents.spec.ts`. To inspect one moment, pass `time={ms}` to `<Agent>`; it then shows that moment still.
