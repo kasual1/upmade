@@ -1,4 +1,13 @@
-/* stub styles (M4 replaces them with the design's .features) */
+/* The design's .features / .feature / .feature-agent (L133-147); its padding (120px 112px, 72px on phones), side
+   gutters and top divider come from SectionShell (space="xl"). */
+
+/* below the fold: skip rendering until near the viewport. Paint containment clips at the section's padding box, which
+   spans the full width and has 120px (72px) of padding above the agents, so the agents' reach is not cut. */
+.section {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 800px;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -7,15 +16,27 @@
 
 .feature {
   display: grid;
-  align-content: start;
   gap: 12px;
+  align-content: start;
   min-width: 0;
+  /* how far the column's left edge is from the viewport's left edge; only the first column is near it (below). The
+     8px allow for a classic scrollbar, which 100vw includes */
+  --room: 9999px;
 }
 
+.feature:nth-child(3n + 1) {
+  --room: calc(max(var(--lp-gutter-left), (100vw - var(--lp-w-content)) / 2) - 8px);
+}
+
+/* the agent's box: the design's 136px (96px on phones), pulled left by the design's margin; an agent whose drawing
+   reaches further left than the room before the viewport edge (`--reach-l`, set from agents.ts) is moved right by
+   just the difference, so main's overflow-x clip never cuts it */
 .agent {
-  width: 136px;
-  height: 136px;
-  margin: 0 0 10px -13px;
+  --size: 136px;
+  --pull: -13px;
+  width: var(--size);
+  height: var(--size);
+  margin: 0 0 10px max(var(--pull), calc(var(--reach-l, 0) * var(--size) - var(--room)));
 }
 
 .title {
@@ -23,6 +44,7 @@
   line-height: 1.2;
   font-weight: 650;
   letter-spacing: -0.03em;
+  text-wrap: balance;
 }
 
 .body {
@@ -35,17 +57,35 @@
 @media (max-width: 960px) {
   .grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 64px 48px;
+  }
+
+  /* below 1180px + gutters the column starts at the gutter */
+  .feature:nth-child(n) {
+    --room: 9999px;
+  }
+
+  .feature:nth-child(2n + 1) {
+    --room: var(--lp-gutter-left);
   }
 }
 
 @media (max-width: 620px) {
   .grid {
     grid-template-columns: 1fr;
+    gap: 52px;
+  }
+
+  .feature:nth-child(n) {
+    --room: var(--lp-gutter-left);
   }
 
   .agent {
-    width: 96px;
-    height: 96px;
-    margin-left: -9px;
+    --size: 96px;
+    --pull: -9px;
+  }
+
+  .title {
+    font-size: var(--lp-fs-h3-phone);
   }
 }
