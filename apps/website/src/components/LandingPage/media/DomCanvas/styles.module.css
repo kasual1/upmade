@@ -1,27 +1,32 @@
-/* stub styles (M6b replaces them) */
+/* The DOM based canvas demo in the agent icons' art style (the design's .dom-demo, .dom-source, .dom-code,
+   .dom-handle, .badge, last winning rules). The frame (ink outline, panel ground, 16:11) is the MediaFrame's. */
 .root {
-  height: 100%;
+  --tilt: 10cqw; /* geometry only: how far the divider leans from its middle to either end */
+  --angle: 16.22deg; /* atan(2 * 10 / (100 * 11 / 16)): the divider's slope in the 16:11 frame */
+  --x: calc(var(--split) * (100% + 2 * var(--tilt)) - var(--tilt));
+  position: absolute;
+  inset: 0;
+  container-type: inline-size;
+  isolation: isolate;
+  overflow: hidden;
 }
 
 .canvas,
 .source {
   position: absolute;
-  top: 0;
-  bottom: 0;
-}
-
-.canvas {
-  left: 0;
-  right: 0;
+  inset: 0;
 }
 
 .source {
-  right: 0;
+  z-index: 1;
   background: var(--lp-code-dark-bg);
+  clip-path: polygon(calc(var(--x) + var(--tilt)) 0, 100% 0, 100% 100%, calc(var(--x) - var(--tilt)) 100%);
 }
 
+/* the badges stay at their real size (outside the stages) */
 .badge {
   position: absolute;
+  z-index: 1;
   top: 12px;
   left: 12px;
   padding: 3px 10px;
@@ -31,13 +36,167 @@
   color: var(--lp-ink);
   font-size: 12px;
   font-weight: 800;
+  line-height: normal;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   white-space: nowrap;
+  overflow: hidden;
 }
 
 .badgeDark {
   left: auto;
   right: 12px;
   background: var(--lp-grad-pink);
+}
+
+/* a full-width stage, centred vertically in the layer (the stage's height comes from its aspect ratio) */
+.stageBox {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-content: center;
+}
+
+.center {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+/* ---- the markup ---- */
+.code {
+  margin: 0;
+  color: var(--lp-code-dark-fg);
+  font-family: var(--lp-font-mono);
+  font-size: 12px; /* the design's 11.5px, raised to the 12px minimum inside the stage (plan §3.7) */
+  font-weight: 500;
+  line-height: 1.45;
+  white-space: pre;
+  counter-reset: ln;
+}
+
+.line {
+  margin: 0 -1ch;
+  padding-right: 1ch;
+  border-radius: 6px;
+}
+
+.line::before {
+  counter-increment: ln;
+  content: counter(ln);
+  display: inline-block;
+  width: 2ch;
+  margin: 0 2ch 0 1ch;
+  text-align: right;
+  color: var(--lp-code-dark-line-number);
+}
+
+.lineText {
+  display: inline-block;
+}
+
+.highlight {
+  background: var(--lp-code-dark-highlight);
+}
+
+.flash {
+  animation: flash 0.9s ease-out;
+}
+
+@keyframes flash {
+  from {
+    background: var(--lp-code-dark-flash);
+  }
+}
+
+.tag {
+  color: var(--lp-code-dark-tag);
+}
+
+.attr {
+  color: var(--lp-code-dark-attr);
+}
+
+.string {
+  color: var(--lp-code-dark-string);
+}
+
+.punct {
+  color: var(--lp-code-dark-punct);
+}
+
+.value {
+  color: var(--lp-code-dark-value);
+}
+
+/* ---- the divider: only the knob takes the pointer, so keys next to the line stay clickable ---- */
+.handle {
+  position: absolute;
+  z-index: 2;
+  top: -6%;
+  bottom: -6%;
+  left: var(--x);
+  width: 44px;
+  margin-left: -22px;
+  display: grid;
+  place-items: center;
+  transform: rotate(var(--angle));
+  pointer-events: none;
+}
+
+.handle:focus-visible {
+  outline: none;
+}
+
+.handle::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 3px;
+  transform: translateX(-50%);
+  background: var(--lp-ink);
+  box-shadow: 0 0 0 1.5px var(--lp-paper);
+}
+
+.knob {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border: var(--lp-stroke) solid var(--lp-ink);
+  border-radius: 50%;
+  background: var(--lp-grad-key);
+  /* the line runs off the frame at either end (split 0/100), but the knob, the only grabbable part and the
+     one that shows focus, is held inside it (32px: radius + border + focus outline + offset); the line keeps its geometry */
+  --x-cq: calc(var(--split) * (100cqw + 2 * var(--tilt)) - var(--tilt));
+  translate: calc(clamp(32px, var(--x-cq), 100cqw - 32px) - var(--x-cq)) 0;
+  transform: rotate(calc(-1 * var(--angle)));
+  pointer-events: auto;
+  cursor: ew-resize;
+  touch-action: none;
+}
+
+.knob svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: var(--lp-ink);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.handle:focus-visible .knob {
+  outline: var(--lp-stroke) solid var(--lp-hand);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flash {
+    animation: none;
+  }
 }

@@ -1,4 +1,5 @@
-/* the design's .showcase-in */
+/* The design's .showcase-in: media (1.1fr) beside the copy (.9fr), centred vertically; the section padding, divider
+   and column width come from SectionShell, the copy (.showcase-copy) from SectionIntro. */
 .grid {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
@@ -6,6 +7,7 @@
   align-items: center;
 }
 
+/* .showcase.reversed: the copy first (.9fr), the media on the right (1.1fr) */
 .reversed {
   grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
 }
@@ -14,10 +16,11 @@
   order: 2;
 }
 
+/* stacked: the media above the copy in both variants (MediaFrame's FREE_BELOW counts on this 36px gap) */
 @media (max-width: 960px) {
   .grid,
   .reversed {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 36px;
   }
 

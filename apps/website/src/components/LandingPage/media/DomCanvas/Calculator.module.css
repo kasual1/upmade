@@ -1,0 +1,139 @@
+/* The calculator in the agent icons' art style (the design's .dom-calc): thick ink outlines, squircle corners, the
+   family's gradient fills. Laid out at its real size (188px wide, text 12px or more) inside the DomCanvas stage. */
+.root {
+  display: grid;
+  gap: 7px;
+  width: 188px;
+  padding: 10px;
+  border: var(--lp-stroke) solid var(--lp-ink);
+  border-radius: 18px;
+  background: var(--lp-grad-calc);
+  color: var(--lp-ink);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 4px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: normal;
+}
+
+.title {
+  white-space: nowrap;
+}
+
+.pending {
+  display: grid;
+  place-items: center;
+  min-width: 28px;
+  height: 24px;
+  padding: 0 7px;
+  border: var(--lp-stroke-s) solid var(--lp-ink);
+  border-radius: 9px;
+  background: var(--lp-grad-pink);
+  color: var(--lp-ink);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.pending:empty {
+  visibility: hidden;
+}
+
+.display {
+  display: block;
+  height: 36px;
+  padding: 0 14px;
+  border: var(--lp-stroke) solid var(--lp-ink);
+  border-radius: 15px;
+  background: var(--lp-grad-display);
+  font-size: 19px;
+  font-weight: 800;
+  line-height: 30px;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bump {
+  animation: bump 0.45s var(--lp-spring2);
+}
+
+@keyframes bump {
+  40% {
+    transform: scale(1.03, 0.94);
+  }
+}
+
+.keypad {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+}
+
+/* Known limit (WCAG 2.5.8): the stage scales the calculator with its frame, so on phones the keys are about 22x15
+   (390px) and 17x12 (320px) CSS px with ~3px between them. Larger hit areas would overlap the neighbouring keys; the
+   calculator is a demo of the canvas, not a control the page depends on, so it is accepted as is. */
+.key {
+  height: 26px;
+  padding: 0;
+  border: var(--lp-stroke-s) solid var(--lp-ink);
+  border-radius: 10px;
+  background: var(--lp-grad-key);
+  color: var(--lp-ink);
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: inset 0 -3px 0 var(--lp-key-shade);
+  transform-origin: 50% 100%;
+  transition:
+    transform 0.32s var(--lp-spring2),
+    box-shadow 0.2s;
+}
+
+.key:hover {
+  transform: translateY(-1px);
+}
+
+.key:active {
+  transform: scale(1.04, 0.9);
+  box-shadow: inset 0 -1px 0 var(--lp-key-shade);
+  transition:
+    transform 0.06s ease-out,
+    box-shadow 0.06s;
+}
+
+.operator,
+.clear,
+.equals {
+  background: var(--lp-grad-pink);
+}
+
+.equals {
+  grid-row: span 2;
+  height: auto;
+  font-size: 16px;
+}
+
+.zero {
+  grid-column: span 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .key,
+  .key:active {
+    transition: none;
+  }
+
+  .bump {
+    animation: none;
+  }
+}

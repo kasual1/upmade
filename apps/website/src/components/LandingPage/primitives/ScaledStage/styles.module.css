@@ -5,6 +5,13 @@
   overflow: hidden;
 }
 
+/* fills its positioned parent instead of taking an aspect-ratio height */
+.fill {
+  position: absolute;
+  inset: 0;
+  width: auto;
+}
+
 /* the content at its virtual size, scaled about the stage's centre */
 .layer {
   position: absolute;

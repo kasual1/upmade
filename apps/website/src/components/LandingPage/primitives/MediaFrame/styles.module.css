@@ -2,11 +2,22 @@
   min-width: 0;
 }
 
+/* Room for the corner agent (see index.tsx): sideways, what it hangs past the room already free beside the content
+   column, i.e. the page gutter or, on wide screens, the centred column's margin (100vw counts the scrollbar, so
+   16px are taken off for it), but at least the design's own padding; below, a fixed amount set from index.tsx. */
+.gutterLeft,
+.gutterRight {
+  --free: max(var(--free-gutter), (100vw - 16px - var(--lp-w-content)) / 2);
+  --gutter-side: max(var(--gutter-min), var(--overhang) - var(--free));
+}
+
 .gutterLeft {
+  --free-gutter: var(--lp-gutter-left);
   padding: 0 0 var(--gutter-bottom) var(--gutter-side);
 }
 
 .gutterRight {
+  --free-gutter: var(--lp-gutter-right);
   padding: 0 var(--gutter-side) var(--gutter-bottom) 0;
 }
 
@@ -37,11 +48,16 @@
 }
 
 @media (max-width: 620px) {
+  .gutterLeft,
+  .gutterRight {
+    --gutter-side: max(var(--gutter-min-phone), var(--overhang-phone) - var(--free));
+  }
+
   .gutterLeft {
-    padding: 0 0 var(--gutter-bottom-phone) var(--gutter-side-phone);
+    padding: 0 0 var(--gutter-bottom-phone) var(--gutter-side);
   }
 
   .gutterRight {
-    padding: 0 var(--gutter-side-phone) var(--gutter-bottom-phone) 0;
+    padding: 0 var(--gutter-side) var(--gutter-bottom-phone) 0;
   }
 }

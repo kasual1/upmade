@@ -15,7 +15,8 @@ export const CORNER_SIZES: Record<CornerSizeKey, CornerSize> = {
   // the cycling glasses (.perf-agent)
   s: { px: 136, dx: 28, dy: 32, phone: { px: 96, dx: 10, dy: 22 } },
   // the framework sign (.fw-anchor)
-  m: { px: 150, dx: 34, dy: 30, phone: { px: 104, dx: 14, dy: 24 } },
+  // (the design measures it from inside .code-win's 3px border, so 3px less than its -34/-30, phone -14/-24)
+  m: { px: 150, dx: 31, dy: 27, phone: { px: 104, dx: 11, dy: 21 } },
   // the juggler (.mech)
   l: { px: 200, dx: 42, dy: 30, phone: { px: 136, dx: 18, dy: 22 } },
 };
