@@ -14,9 +14,11 @@ import type { AgentAnimation, PropTrack, Span, Track, Vec } from "../types";
  * same frames, so every frame matches. Positions are in the original's frame: its whole drawing is lifted 4 units
  * ("world" below), and the body (not the hands or the gear) is shrunk to 0.8 about its base, which sits at y 52.
  *
- * The shrink is the rig's body squash and the breathing is baked into the body's outline. The rig squashes hands
- * and props with the body, so the hands are drawn as props (the rig's own hands wait out of sight behind the body),
- * and every prop is placed so that the squash puts it back where it was in the original, and drawn 1/0.8 bigger.
+ * The shrink is the rig's body squash. The breathing is baked into the body's outline and given to the eyes as
+ * `eyes.scale` (they breathe with the body in the original), not put in the squash, because the rig squashes hands
+ * and props with the body and the original's don't breathe. The hands are drawn as props (the rig's own hands wait
+ * out of sight behind the body), and every prop is placed so that the squash puts it back where it was in the
+ * original, and drawn 1/0.8 bigger.
  */
 const D = 4400;
 const FRAMES = 176;
@@ -185,10 +187,10 @@ function breathed(t: number): string {
 }
 
 /**
- * The 0.8 shrink is a constant squash: the rig writes the squash with two decimals, so breathing in the squash would
- * move in visible steps of 0.01; it is baked into the outline instead (and into the eyes' look, below). The original
- * shrinks about (32 49) and then sets the base at y 52 (56 less the lift of 4); the rig squashes about its feet
- * (32 49.56), so the body is lifted by the difference: 52 - 49.56 + 0.56 x 0.8.
+ * The 0.8 shrink is a constant squash. The breathing stays out of it: the squash also scales the props, and a prop's
+ * scale is uniform, so the hands and gear would breathe 1.02 x 0.98 with the body, which they don't in the original.
+ * The original shrinks about (32 49) and then sets the base at y 52 (56 less the lift of 4); the rig squashes about its
+ * feet (32 49.56), so the body is lifted by the difference: 52 - 49.56 + 0.56 x 0.8.
  */
 const squash: Track<Vec> = [[0, [SHRINK, SHRINK]]];
 const LIFT_BODY = 52 - FEET[1] - (49 - FEET[1]) * SHRINK;
@@ -267,7 +269,29 @@ const LOOK: [number, Vec][] = [
   [0, [0, 0]], [0.2, [0, 0]], [0.27, [-1.3, -0.3]], [0.33, [1.3, -0.3]], [0.4, [0, 1.1]], [0.62, [0, 1.1]], [0.7, [0, 0]],
   [1, [0, 0]],
 ];
-/** The look, plus how the breathing moves the eyes (they sit 12.6 above the point it scales about, at (32 36.4)). */
+/** The eyes' lower ends, which `eyes.scale` scales about, and their middle, which the blink scales about. */
+const EYES_BOTTOM = SHAPES.triangle.eyesY + 6.2;
+const EYES_MID = SHAPES.triangle.eyesY + 3.1;
+/** The original's two blinks: shut (to .08) at .115 and .735 of the loop, closing from .1 / .72, open by .14 / .76. */
+const BLINK = { close: 0.015 * D, open: 0.025 * D, depth: 0.08 };
+const BLINKS = [0.115 * D, 0.735 * D];
+/** How open the eyes are at t: the original's linear V. */
+function openAt(t: number): number {
+  let open = 1;
+  for (const at of BLINKS) {
+    const u = t < at ? (at - t) / BLINK.close : (t - at) / BLINK.open;
+    if (u < 1) open = Math.min(open, BLINK.depth + (1 - BLINK.depth) * u);
+  }
+  return open;
+}
+/** The look's keys: every frame, plus the blinks' corners, where the blink correction below bends. */
+const lookTimes = [...frames, ...BLINKS.flatMap((at) => [at - BLINK.close, at, at + BLINK.open])].sort((a, b) => a - b);
+/**
+ * The look, plus how the breathing moves the eyes: the original scales them about (32 49) and `eyes.scale` scales them
+ * about their lower ends (32 39.5), so the look makes up the difference. And the original blinks inside the breathing,
+ * while the rig blinks outside `eyes.scale`; the two orders differ by (1 - open)(1 - sy)(39.5 - 36.4) (up to 0.06), which
+ * the look adds back.
+ */
 function lookAt(t: number): Vec {
   const u = t / D;
   let at: Vec = LOOK[LOOK.length - 1][1];
@@ -277,7 +301,7 @@ function lookAt(t: number): Vec {
       break;
     }
   const [bx, by] = breathScale(t);
-  return [at[0] * bx, at[1] * by + (by - 1) * (36.4 - 49)];
+  return [at[0] * bx, at[1] * by + (by - 1) * (EYES_BOTTOM - 49) + (1 - openAt(t)) * (1 - by) * (EYES_BOTTOM - EYES_MID)];
 }
 
 export const plug: AgentAnimation = {
@@ -286,12 +310,13 @@ export const plug: AgentAnimation = {
   rest: 2300,
   body: { squash, lift: [[0, LIFT_BODY]], outline: frames.map((t) => [t, breathed(t), "linear"] as const) },
   eyes: {
-    // the original's look, frame by frame, with the breathing's small move of the eyes
-    look: frames.map((t) => [t, lookAt(t), "linear"] as const),
-    // the original's two blinks: shut at .115 and .735 of the loop, closing from .1 / .72 and open again by .14 / .76
-    // (66 ms to close, 110 ms to open), down to .08
-    blink: { close: 0.015 * D, open: 0.025 * D, depth: 0.08 },
-    blinks: [0.115 * D, 0.735 * D],
+    // the original's look, frame by frame, with the breathing's small move of the eyes and the blink-order fix
+    look: lookTimes.map((t) => [t, lookAt(t), "linear"] as const),
+    // the eyes breathe with the body, as in the original
+    scale: frames.map((t) => [t, breathScale(t), "linear"] as const),
+    // the original's two blinks (66 ms to close, 110 ms to open) at an even speed, down to .08
+    blink: { ...BLINK, ease: "linear" },
+    blinks: BLINKS,
   },
   hands: {
     // the hands are the `handL`/`handR` props; the rig's own wait out of sight behind the middle of the body

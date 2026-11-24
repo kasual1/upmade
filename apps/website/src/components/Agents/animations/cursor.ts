@@ -4,8 +4,7 @@ import type { AgentAnimation, Blink, Key, Span, Vec } from "../types";
  * "Programmable cursors", for the yellow circle agent: it closes its eyes, hops, and while in the air morphs into a
  * cursor arrow (with a little overshoot), clicks (a press towards its tip, two ink ripples spreading from the tip),
  * then morphs back into a circle, lands with a small dip and opens its eyes. Loop: 4.8 s.
- * Props: the ripple rings (`cursorRipples` lists them, with their radius) and the eyes on the squashed body
- * (`cursorEyes`, with their openness). Event: `click` (the press).
+ * Props: the ripple rings (`cursorRipples` lists them, with their radius). Event: `click` (the press).
  *
  * Ported from the landing page's SMIL agent. The original nests, around the body path and the eyes:
  *   translate (the hop) > translate (the press nudge) > scale about the tip (the press) > scale about the tip (0.8 as
@@ -17,8 +16,8 @@ import type { AgentAnimation, Blink, Key, Span, Vec } from "../types";
  *   - the thinner stroke is a uniform `squash` s = (original stroke x scales) / 3.6, with the outline points
  *     pre-divided by s about the feet so the drawn shape is unchanged; the props and hands are compensated the
  *     same way;
- *   - the eyes blink with the original's timing (eyes.blinks), except where the body is squashed: there the rig's
- *     eyes would shrink with it, so eye props, one per openness, stand in for them.
+ *   - the eyes blink linearly with the original's timing (eyes.blinks); where the body is squashed, eyes.scale and
+ *     eyes.look undo the squash and apply the scales about the tip and the nudge, as the original does to them.
  * Between samples everything is linear, so the samples are dense (every 20 ms) wherever more than one track moves.
  */
 
@@ -126,8 +125,8 @@ function frameAt(t: number) {
   return { s, k, place, pts, deep };
 }
 
-const r2 = (n: number) => Math.round(n * 100) / 100;
-const pathOf = (pts: Vec[]) => pts.map(([x, y], i) => `${i ? "L" : "M"}${r2(x)} ${r2(y)}`).join("") + "Z";
+const r3 = (n: number) => Math.round(n * 1000) / 1000;
+const pathOf = (pts: Vec[]) => pts.map(([x, y], i) => `${i ? "L" : "M"}${r3(x)} ${r3(y)}`).join("") + "Z";
 
 /** times from..to (ms) every 20 ms, ends included */
 const every20 = (from: number, to: number) => {
@@ -150,53 +149,43 @@ const FRAMES = SAMPLES.map((t) => ({ t, ...frameAt(t) }));
  * The eyes, as the original draws them (a scale about their middle, linear between its keys): a blink shut at .204
  * (77 ms to close, 120 ms to open), a slow close as it turns into an arrow (.312 to .343, then gone from .345), back
  * as closed slits from .749 while it turns round again, and opening from .777 to .802. All at openness .08.
- * The rig's blinks draw this with the original's timing (smoothstep where the original is linear). But while the
- * body is squashed for the thinner stroke (see above) the rig's eyes would shrink with it, up to 17% narrower than
- * the original's, which the rig cannot undo; so in the two spans where the eyes are drawn on a squashed body (the
- * slow close, and the slits) the rig's eyes are hidden and eye props stand in, sized and placed as the original's.
+ * The rig's linear blinks draw this with the original's exact timing. While the body is squashed for the thinner
+ * stroke (see above) the rig's eyes would shrink with it, and they would not follow the scales about the tip and
+ * the press nudge either; so in the two spans where the eyes are drawn on a squashed body (the slow close and the
+ * slits) `eyes.scale` (k / s, about the eyes' lower ends) and `eyes.look` put them back where, and as big as, the
+ * original draws them.
  */
 const OPEN: Lin = [[0, 1], [.188, 1], [.204, .08], [.229, 1], [.312, 1], [.343, .08], [.777, .08], [.802, 1], [1, 1]];
 const BLINKS: Blink[] = [
-  { at: ms(.204), close: ms(.204) - ms(.188) },
-  { at: ms(.343), close: ms(.343) - ms(.312), hold: ms(.777) - ms(.343) },
+  { at: ms(.204), close: ms(.204) - ms(.188), open: ms(.229) - ms(.204), ease: "linear" },
+  { at: ms(.343), close: ms(.343) - ms(.312), hold: ms(.777) - ms(.343), open: ms(.802) - ms(.777), ease: "linear" },
 ];
-/** the spans where the eyes are drawn on a squashed body: there eye props, one per openness, stand in */
+/** the spans where the eyes are drawn on a squashed body (outside them the body is unscaled) */
 const EYE_SPANS: Span[] = [[ms(.312), ms(.345)], [ms(.749), ms(.777)]];
-/** the middle of the eyes, which they close about */
-const EYE_MID: Vec = [32, 33.2];
-/** the openness of each eye prop: from a slit (.08) to wide open, in even steps */
-const EYE_LEVELS = Array.from({ length: 12 }, (_, i) => Math.round((0.08 + (0.92 * i) / 11) * 1000) / 1000);
+/** the middle of the eyes, which the blink closes about, and their lower ends, which `eyes.scale` is about */
+const EYE_MID = 33.2;
+const EYE_BOTTOM = EYE_MID + 3.1;
 
-export const cursorEyes: { name: string; open: number }[] = [];
-const eyeProps: NonNullable<AgentAnimation["props"]> = {};
-{
-  // each eye prop is shown while the original's openness is nearest its own (checked every ms)
-  const spans: Span[][] = EYE_LEVELS.map(() => []);
-  for (const [a, b] of EYE_SPANS) {
-    let level = -1, from = a;
-    for (let t = a; t <= b; t++) {
-      const now = t === b ? -1 : Math.round((lin(OPEN, t) - 0.08) / (0.92 / 11));
-      if (now !== level) {
-        if (level >= 0) spans[level].push([from, t]);
-        level = now;
-        from = t;
-      }
-    }
-  }
-  // where the eyes are and how big: the body's squash undone, and the original's scales about the tip applied
-  const times = EYE_SPANS.flatMap(([a, b]) => [...new Set([...every20(a, b), ...SAMPLES.filter((t) => t > a && t < b)])].sort((p, q) => p - q));
-  const offset = times.map((t): Key<Vec> => [t, frameAt(t).place(EYE_MID), "linear"]);
-  const scale = times.map((t): Key<number> => {
-    const { s, k } = frameAt(t);
-    return [t, k / s, "linear"];
-  });
-  EYE_LEVELS.forEach((open, i) => {
-    if (!spans[i].length) return;
-    const name = `eyes${i}`;
-    cursorEyes.push({ name, open });
-    eyeProps[name] = { attach: "world", offset, scale, visible: spans[i] };
-  });
-}
+const eyeTimes = EYE_SPANS.flatMap(([a, b]) => {
+  const list = new Set([...SAMPLES.filter((t) => t >= a && t <= b), a, b]);
+  for (let t = a; t < b; t += 10) list.add(t);
+  return [...list].sort((p, q) => p - q);
+});
+/**
+ * The rig draws an eye point p at feet + s (look + blink(stretch(p)) - feet) (plus the hop); the original at
+ * tip + nudge + k (blink(p) - tip). With stretch = k / s about the lower ends these agree when s look =
+ * nudge + tip (1 - k) - feet (1 - s) - (s - k) blink(bottom), blink(bottom) being the lower ends' middle once blinked.
+ */
+const eyePlace = eyeTimes.map((t) => {
+  const { s, k } = frameAt(t);
+  const nudge = lin(PRESS_NUDGE, t), o = lin(OPEN, t);
+  const by = EYE_MID + o * (EYE_BOTTOM - EYE_MID);
+  const look: Vec = [
+    (nudge + TIP[0] * (1 - k) - FEET[0] * (1 - s) - (s - k) * 32) / s,
+    (nudge + TIP[1] * (1 - k) - FEET[1] * (1 - s) - (s - k) * by) / s,
+  ];
+  return { t, look, scale: k / s };
+});
 
 /**
  * The click ripples: two ink circles (stroke 2) centred on the tip, growing (radius 0 to 9, and a little later 0 to
@@ -255,12 +244,14 @@ export const cursor: AgentAnimation = {
   },
   eyes: {
     blinks: BLINKS,
-    blink: { open: ms(.802) - ms(.777), depth: 0.08 },
-    // hidden from the slow close until the body is unscaled again: the props draw the eyes on the squashed body,
-    // and the original has none from .345 to .749
-    hidden: [[EYE_SPANS[0][0], EYE_SPANS[1][1]]],
+    blink: { depth: 0.08 },
+    // from rest (the morph starts within the first ms of the first span)
+    look: [[EYE_SPANS[0][0] - 1, [0, 0]], ...eyePlace.map(({ t, look }): Key<Vec> => [t, look, "linear"])],
+    scale: [[EYE_SPANS[0][0] - 1, [1, 1]], ...eyePlace.map(({ t, scale }): Key<Vec> => [t, [scale, scale], "linear"])],
+    // the original has no eyes while it is an arrow
+    hidden: [[ms(.345), ms(.749)]],
   },
   hands: { L: hand, R: hand },
-  props: { ...rippleProps, ...eyeProps },
+  props: rippleProps,
   events: [[ms(.51), "click"]],
 };

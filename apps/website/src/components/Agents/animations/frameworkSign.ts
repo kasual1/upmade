@@ -1,4 +1,5 @@
 import { SHAPES } from "../tokens";
+import { openness } from "../timeline";
 import type { AgentAnimation, PropTrack, Span, Track, Vec } from "../types";
 
 /**
@@ -20,8 +21,8 @@ import type { AgentAnimation, PropTrack, Span, Track, Vec } from "../types";
  *   fs-lift (the stick, sign and hand up 3 at 45%) and fs-hop (the agent up 2 and scaled (1.02 .97) about (43 47) at
  *   45%), both on the page's spring cubic-bezier(.3,1.5,.5,1), which overshoots; and fs-sway, an endless 3.6 s cycle
  *   of the stick, sign and hand: rotate -1.6deg, then 1.6deg and up .6 at 50%, about (43 47), on (.45,0,.55,1).
- * - SMIL on the body: breathing (1.02 .98) about its feet every 3.4 s on spline .45 0 .55 1, and a blink every 4.2 s
- *   (the eyes' height 1, still 1 at .6, .08 at .63, 1 at .68, linear).
+ * - SMIL on the body: breathing (1.02 .98) about (32 49) every 3.4 s on spline .45 0 .55 1, and a blink every 4.2 s
+ *   (the eyes' height 1, still 1 at .6, .08 at .63, 1 at .68, linear). Its glints are r .95 at 1.1 below the eyes' tops.
  * Those cycles are not whole fractions of the 22342 ms loop, so here they are stretched to the nearest whole number of
  * cycles per loop (sway 6 x 3724 ms, breathing 7 x 3192 ms, blinks 5 x 4468 ms) so the loop has no seam.
  *
@@ -30,8 +31,8 @@ import type { AgentAnimation, PropTrack, Span, Track, Vec } from "../types";
  * Here the rig's body is shrunk by a constant squash of 0.74 and set down by a constant lift, and the whole drawing is
  * the original moved right by 7 (the body's middle at x 32, where the rig squashes it about), and a constant body.shift
  * of -7 moves the whole agent, props included, back to where the original draws it. The breathing and the hop, which squash the body about other points, are drawn by the
- * body outline track (the squircle's points moved exactly where the original puts them) and the eyes' look (their
- * centre moved likewise), so the rig's squash stays even and the props, scaled 1/0.74, sit exactly where they are in
+ * body outline track (the squircle's points moved exactly where the original puts them) and the eyes' look and scale
+ * (their lower ends moved likewise, and scaled with the body), so the rig's squash stays even and the props, scaled 1/0.74, sit exactly where they are in
  * the original. The rig's own hands wait out of sight behind the body; the holding hand is the `hand` prop.
  */
 const D = 6170 + 6824 + 9348;
@@ -120,14 +121,27 @@ function outlineAt(t: number): string {
       return "";
     }
     const q = toRig(bodyPoint([x, v], t));
-    return `${q[0].toFixed(2)} ${q[1].toFixed(2)}`;
+    return `${q[0].toFixed(3)} ${q[1].toFixed(3)}`;
   }).replace(/([ML]) /g, "$1");
 }
-/** The eyes: the original raises them 2.6 in the body; the rig's are centred at (32 33.6). */
+/**
+ * The eyes: the original raises them 2.6 in the body, and the breathing and the hop scale them along with the body.
+ * The rig scales its eyes (eyes.scale) about their lower ends, (32 36.7) in the rig, so the look puts that point where
+ * the original draws the eyes' lower ends ((32 36.7 - 2.6) of its body), and the scale is the body's own.
+ */
+const EYES_BOTTOM = SHAPES.squircle.eyesY + 6.2;
 function lookAt(t: number): Vec {
-  const q = toRig(bodyPoint([32, 33.6 - 2.6], t));
-  return [q[0] - 32, q[1] - 33.6];
+  const q = toRig(bodyPoint([32, EYES_BOTTOM - 2.6], t));
+  // The original blinks about the middle of its (scaled) eyes; the rig blinks about eyesY + 3.1 after the scale, which
+  // is 3.1 (1 - sy) above that middle. Lower the eyes by what that costs while they are shut part way.
+  const sy = eyeScaleAt(t)[1], o = openness(BLINKS, t, BLINK, D);
+  return [q[0] - 32, q[1] - EYES_BOTTOM + 3.1 * (1 - sy) * (1 - o)];
 }
+function eyeScaleAt(t: number): Vec {
+  const b = breatheAt(t), k = hopAt(t);
+  return [b[0] * (1 + 0.02 * k), b[1] * (1 - 0.03 * k)];
+}
+
 /** Where the stick's pivot is drawn (lifted by fs-lift, and by the sway's own lift inside its rotation). */
 function pivotAt(t: number): Vec {
   const { angle, up } = swayAt(t);
@@ -137,11 +151,24 @@ function pivotAt(t: number): Vec {
 
 // ---- sampling ----
 
-/** Every 100 ms, and every 10 ms through each flip (where the spring and the squeeze move fast). */
+/**
+ * The blinks: the original's eyes scale to .08 high over .6 .. .63 of each cycle and back by .68, linearly, so with the
+ * cycle stretched to 4468 ms each blink closes over 134 ms, is shut at .63 of the cycle and reopens over 223 ms.
+ */
+const BLINK_CYCLE = D / 5;
+const BLINKS = Array.from({ length: 5 }, (_, n) => (n + 0.63) * BLINK_CYCLE);
+const BLINK = { close: 0.03 * BLINK_CYCLE, open: 0.05 * BLINK_CYCLE, depth: 0.08, ease: "linear" } as const;
+
+/** Every 100 ms, and every 10 ms through each flip (where the spring and the squeeze move fast) and each blink. */
 const frames: number[] = (() => {
   const set = new Set<number>();
   for (let t = 0; t <= D; t += 100) set.add(t);
   for (const s of FLIPS) for (let t = s; t <= s + FLIP; t += 10) set.add(t);
+  // and through each blink, for the look's blink correction (see lookAt), at its corners too
+  for (const b of BLINKS) {
+    for (let t = Math.ceil(b - BLINK.close); t <= b + BLINK.open; t += 10) set.add(t);
+    for (const t of [b - BLINK.close, b, b + BLINK.open]) set.add(t);
+  }
   set.add(D);
   return [...set].sort((a, b) => a - b);
 })();
@@ -189,13 +216,8 @@ function signSpans(level: number): Span[] {
 const signs: Record<string, PropTrack> = {};
 FRAMEWORK_SIGN_WIDTHS.forEach((_, k) => (signs[`sign${k + 1}`] = { ...held(), visible: signSpans(k + 1) }));
 
-/**
- * The blinks: the original's eyes scale to .08 high over .6 .. .63 of each cycle and back by .68 (linear), so with the
- * cycle stretched to 4468 ms each blink closes over 134 ms, is shut at .63 of the cycle and reopens over 223 ms.
- */
-const BLINK_CYCLE = D / 5;
-const BLINKS = Array.from({ length: 5 }, (_, n) => Math.round((n + 0.63) * BLINK_CYCLE));
-const BLINK = { close: Math.round(0.03 * BLINK_CYCLE), open: Math.round(0.05 * BLINK_CYCLE), depth: 0.08 };
+/** The original's glints are at 1.1 below the eyes' tops, the rig's at 1.7. */
+const GLINT: Vec = [0, -0.6];
 
 export const frameworkSign: AgentAnimation = {
   duration: D,
@@ -208,7 +230,7 @@ export const frameworkSign: AgentAnimation = {
     shift: [[0, -SHIFT]],
     outline: track(outlineAt),
   },
-  eyes: { look: track(lookAt), blinks: BLINKS, blink: BLINK },
+  eyes: { look: track(lookAt), scale: track(eyeScaleAt), glint: [[0, GLINT]], blinks: BLINKS, blink: BLINK },
   hands: {
     // the original has one hand, the `hand` prop; the rig's two wait out of sight behind the middle of the body
     L: { path: [[0, [32, 32]]], behind: [[0, D]] },

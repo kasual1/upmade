@@ -14,7 +14,7 @@ import type { AgentAnimation, Key, Track, Vec } from "../types";
  *                throws from side to side
  *   5.25-5.85 s  the hands catch everything and carry it down to where it came from; the objects shrink back and
  *                fade out (5.58-5.85 s), the eyes come back down
- *   5.88-6.42 s  looks ahead again; blinks at 6.31 s (shutting over 61 ms, reopening over 81 ms, as in the original)
+ *   5.88-6.39 s  looks ahead again; blinks at 6.31 s (shutting over 61 ms, reopening over 81 ms, at an even speed, as in the original)
  *
  * The original draws the body at 0.66 with its feet (32 49.6) at (32 63.5) of its 64x64 box, and the hands and the
  * objects at full size in that box, on top of the body (vase, apple, calculator, then the two hands). So this agent
@@ -208,11 +208,11 @@ export const juggler: AgentAnimation = {
       [2550, [-1.73, -2.8]], [3150, [1.73, -2.8]], [3750, [-1.73, -2.8]], [4350, [1.73, -2.8]], [4950, [-1.73, -2.8]],
       // and back down with the catch
       [5160, [-0.89, -1.8], "in"], [5250, [-0.39, -0.46], "linear"], [5400, [-0.03, 1.17], "linear"], [5520, [0, 1.4], "out"],
-      // then ahead again
-      [5880, [0, 1.4]], [6420, [0, 0]],
+      // then ahead again: speeding up to halfway at 6.135 s and slowing to a stop at 6.39 s, as in the original
+      [5880, [0, 1.4]], [6135, [0, 0.7], "in"], [6390, [0, 0], "out"],
     ],
     // the original's blink: a linear scale to .1 from 6250 ms, shut at 6311 ms, open again by 6392 ms
-    blink: { close: 61, open: 81, depth: 0.1 },
+    blink: { close: 61, open: 81, depth: 0.1, ease: "linear" },
     blinks: [6311],
   },
   hands: { L: HIDDEN, R: HIDDEN },

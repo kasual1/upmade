@@ -31,8 +31,9 @@ const HOP = -2 / SCALE;
 const placeX = (feetX: number) => (feetX - SCALE * 32) / SCALE;
 const PLACE_Y = (50 + UP - SCALE * 49) / SCALE;
 
-/** The original's blink: the eyes scale to .08 over 0.022 of the loop (79.2 ms) and back over 0.039 (140.4 ms). */
-const BLINK: BlinkShape = { close: 0.022 * D, open: 0.039 * D, depth: 0.08 };
+/** The original's blink: the eyes scale linearly (plain SMIL keyframes) to .08 over 0.022 of the loop (79.2 ms) and back
+ *  over 0.039 (140.4 ms), about the eyes' middle. */
+const BLINK: BlinkShape = { close: 0.022 * D, open: 0.039 * D, depth: 0.08, ease: "linear" };
 
 /** The original's triangle, which differs a little from tokens' TRIANGLE at its two bottom corners (its bottom edge is
  *  at 49.60, not 49.56); set as a one-key outline track so the body is exactly the original's. */

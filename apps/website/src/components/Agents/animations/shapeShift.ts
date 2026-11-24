@@ -97,19 +97,29 @@ function bodyTracks(shape: ShapeName, hop: Lin, pop: Lin): { lift: Track<number>
 
 /**
  * The eyes, shared by all three as in the original (they all start together): a glance right (1.5 0), then left
- * and a touch down (-1.3 .3), and blinks (one, then a double). The original runs the glances on a 7 s cycle; here
- * they are fitted to the 6.3 s loop, keeping where in their cycle each move happens.
+ * and a touch down (-1.3 .3), and blinks (one, then a double). The original runs the glances on a 7 s cycle, which
+ * does not divide the 6.3 s loop; the glances keep the original's first-cycle times (right at 1.75-1.96 s, left at
+ * 3.5-3.71 s, held until 5.6 s) and only the slow drift back to the middle is cut short (5.6-6.3 s rather than
+ * 5.6-7 s). The glints move the other way within the pupils (-.4 times the glance, on the same keys), as the
+ * original's do.
  *
- * The blinks are the original's, timed in ms: on its 8 s cycle the eyes squash to .08 tall at 3.48 s (closing over
- * 120 ms, opening over 200), then twice at 7.144 and 7.4 s (closing over 104 ms, opening over 152 and 160; the
- * second starts closing just as the first is open again). The 8 s cycle does not divide the 6.3 s loop either, so
- * they are placed as in the original's first 8 s: the single blink at 3480, the double wrapped round to 844 and 1100.
- * The original eases them linearly; the rig eases them with a smoothstep.
+ * The blinks are the original's, timed in ms and eased linearly as its keyframes are: on its 8 s cycle the eyes
+ * squash to .08 tall at 3.48 s (closing over 120 ms, opening over 200), then twice at 7.144 and 7.4 s (closing over
+ * 104 ms, opening over 152 and 160; the second starts closing just as the first is open again). The 8 s cycle does
+ * not divide the 6.3 s loop either, so they are placed as in the original's first 8 s: the single blink at 3480,
+ * the double wrapped round to 844 and 1100.
  */
+const GLANCE = 7000;
+const LOOK: readonly (readonly [number, Vec])[] = [
+  [0, [0, 0]], [0.25 * GLANCE, [0, 0]], [0.28 * GLANCE, [1.5, 0]], [0.5 * GLANCE, [1.5, 0]], [0.53 * GLANCE, [-1.3, 0.3]],
+  [0.8 * GLANCE, [-1.3, 0.3]], [D, [0, 0]],
+];
+const GLINT_PER_LOOK = -0.4;
+const linear = (f: (v: Vec) => Vec): Track<Vec> => LOOK.map(([t, v]) => [t, f(v), "linear"]);
 const eyes: NonNullable<AgentAnimation["eyes"]> = {
-  look: [[0, [0, 0]], [ms(0.25), [0, 0]], [ms(0.28), [1.5, 0], "linear"], [ms(0.5), [1.5, 0]], [ms(0.53), [-1.3, 0.3], "linear"],
-    [ms(0.8), [-1.3, 0.3]], [D, [0, 0], "linear"]],
-  blink: { close: 104, depth: 0.08 },
+  look: linear((v) => v),
+  glint: linear(([x, y]) => [Math.round(x * GLINT_PER_LOOK * 1e3) / 1e3, Math.round(y * GLINT_PER_LOOK * 1e3) / 1e3]),
+  blink: { close: 104, depth: 0.08, ease: "linear" },
   blinks: [{ at: 3480, close: 120, open: 200 }, { at: 7144 - D, open: 152 }, { at: 7400 - D, open: 160 }],
 };
 

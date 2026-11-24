@@ -1,14 +1,12 @@
 import { SHAPES } from "../tokens";
-import { openness } from "../timeline";
 import type { AgentAnimation, Blink, BlinkShape, Track, Vec } from "../types";
 
 /**
  * Reveals a golden key ("Open source"), for the violet squircle: it stands holding the key at its side and glances
  * about, swings it out and round behind its back, peeks it out past its side twice while looking left and right
  * (eyes narrowed, slyly), then whips it out in front with a little hop, a twinkle on the key and happy eyes.
- * Props: `key` (the key), `sparkle` (its twinkle) and `hand` (the hand holding it); and, for the eyes, `glintCovers`
- * and `glints` (the glints drifting inside the pupils) and `tallEyes` (their stretch before the whip), which do what
- * the rig's eyes cannot.
+ * Props: `key` (the key), `sparkle` (its twinkle) and `hand` (the hand holding it). The eyes are the rig's: the squint
+ * is a lid, the stretch before the whip is `eyes.scale` and the glints' drift inside the pupils is `eyes.glint`.
  * Event: `reveal` (the key is out in front).
  *
  * Ported from the landing page's SMIL agent (6.8 s loop). Each of its animated channels is copied below verbatim, as
@@ -116,62 +114,48 @@ const look = smil(
   "0;.066;.091;.147;.174;.309;.353;.434;.474;.556;.579;.647;.674;.715;.753;1",
   "0 0 1 1;.45 0 .55 1;0 0 1 1;.45 0 .55 1;0 0 1 1;.45 0 .55 1;0 0 1 1;.45 0 .55 1;0 0 1 1;.45 0 .55 1;0 0 1 1;.45 0 .55 1;0 0 1 1;.45 0 .55 1;0 0 1 1",
 );
-/** The glints drift inside the pupils, relative to the gaze (an animateMotion inside the gazing group): a little
+/** The glints drift inside the pupils, relative to the gaze (an animateMotion inside the blinking eyes): a little
  *  against the glances, and down to the pupils' lower half while it looks aside at the peeks. */
 const glintDrift = smil(
   "-0,0;-0,0;-.52,.2;-.52,.2;-0,0;-0,0;-.52,-.12;-.52,-.12;.46,1.32;.46,1.32;-.3,1.32;-.3,1.32;.42,1.32;.42,1.32;-0,0;-0,0",
   "0;.066;.091;.147;.174;.309;.353;.434;.474;.556;.579;.647;.674;.715;.753;1",
   "0 0 1 1;.45 0 .55 1;0 0 1 1;.45 0 .55 1;0 0 1 1;.45 0 .55 1;0 0 1 1;.45 0 .55 1;0 0 1 1;.45 0 .55 1;0 0 1 1;.45 0 .55 1;0 0 1 1;.45 0 .55 1;0 0 1 1",
 );
-/** The eyes stretch to 1.12 tall (about their lower ends) as it crouches for the whip, and back by the reveal. */
+/** The eyes stretch to 1.12 tall (about their lower ends, y 36.7) as it crouches for the whip, and back by the reveal. */
 const eyeStretch = smil("1;1;1.12;1.12;1;1", "0;.753;.765;.809;.846;1", "0 0 1 1;.2 .7 .4 1;0 0 1 1;.45 0 .55 1;0 0 1 1");
+/** The eyes narrow slyly while it peeks the key out: the original clips them, in the gaze's space, above a line that
+ *  moves from 29 (above the eyes, which start at 30.5) down to 32.2 and back, cutting the top 1.7 off the 6.2-tall
+ *  eyes from .474 to .715. */
+const lidLine = smil("29;29;32.2;32.2;29;29", "0;.434;.474;.715;.753;1", "0 0 1 1;.45 0 .55 1;0 0 1 1;.45 0 .55 1;0 0 1 1");
+const EYE_TOP = 30.5, EYE_H = 6.2;
+const lid = (t: number) => Math.max(0, (lidLine(t)[0] - EYE_TOP) / EYE_H);
 
-// ---- the eyes' blinks and squint ----
+// ---- the eyes' blinks ----
 
 /** The original's eye scale about their middle (y 33.6): "1;1;.08;1;1;.08;1;1;.08;.08;1;1" at
  *  "0;.182;.197;.221;.547;.562;.585;.862;.876;.935;.953;1". So two blinks, shut at .197 and .562, closing in 102 ms
- *  and opening in 163 and 156 ms (linear); and a third shut from .876 to .935 (under the happy ^ ^), opening by
- *  .953. That one's keys span 95 ms to close and 122 to open, but with a strong ease-in (.6 0 .8 .4) and a sharp
- *  ease-out (.2 .7 .4 1): the eyes barely move until the last 40 ms or so, and are nearly open 50 ms after .935. The
- *  rig eases every blink with a smoothstep, so those two are the smoothstep lengths that fit the original's curves
- *  best (least squares, 1 ms steps): 46 and 54 ms. */
-const BLINK: BlinkShape = { close: at(0.197) - at(0.182), depth: 0.08 };
+ *  and opening in 163 and 156 ms, linear (keySplines 0 0 1 1); and a third, shut from .876 to .935 (under the happy
+ *  ^ ^), opening by .953, whose keys are eased (.6 0 .8 .4 closing, .2 .7 .4 1 opening). */
+const BLINK: BlinkShape = { close: at(0.197) - at(0.182), depth: 0.08, ease: "linear" };
+/** The happy close. Its keys span 95 ms to close and 122 to open, but the strong ease-in and sharp ease-out leave
+ *  the eyes barely moving until the last 40 ms or so of the close, and nearly open 50 ms after .935; so it runs
+ *  over the lengths that fit those curves best (least squares, 1 ms steps): 47 and 54 ms, "linear", which fits them
+ *  with half the error of "smooth" (best 46 and 54 ms) and better than the original's own spans with either ease. */
+const HAPPY_BLINK: Blink = { at: at(0.876), close: 47, hold: at(0.935) - at(0.876), open: 54, ease: "linear" };
 const BLINKS: Blink[] = [
   { at: at(0.197), open: at(0.221) - at(0.197) },
   { at: at(0.562), open: at(0.585) - at(0.562) },
-  { at: at(0.876), close: 46, hold: at(0.935) - at(0.876), open: 54 },
+  HAPPY_BLINK,
 ];
-/** The eyes narrow while it peeks the key out: the original clips them above a line that moves "29;29;32.2;32.2;29;29"
- *  at "0;.434;.474;.715;.753;1" (eased .45 0 .55 1), i.e. it cuts the top 1.7 off the 6.2-tall eyes (30.5 to 36.7)
- *  from .474 to .715. Here that is a long shallow blink to the same height, (36.7 - 32.2) / 6.2 open... */
-const EYE_TOP = 30.5, EYE_H = 6.2, EYE_MID = EYE_TOP + EYE_H / 2;
-const SQUINT: Blink = {
-  at: at(0.474), close: at(0.474) - at(0.434), hold: at(0.715) - at(0.474), open: at(0.753) - at(0.715),
-  depth: (EYE_TOP + EYE_H - 32.2) / EYE_H,
-};
-/** ...and since a blink shrinks the eyes about their middle while the clip keeps their lower ends where they are, the
- *  eyes are let down by the difference: the middle of what the original shows (the blink-scaled eyes, cut at the
- *  clip line) less the middle of the eyes. Zero outside the squint. */
-const squintDrop = (t: number) => {
-  const s = openness(BLINKS, t, BLINK, D), q = openness([SQUINT], t, undefined, D);
-  const top = Math.max(EYE_MID - (EYE_H / 2) * s, EYE_TOP + EYE_H * (1 - q)), bottom = EYE_MID + (EYE_H / 2) * s;
-  return Math.max(0, (top + bottom) / 2 - EYE_MID);
-};
-/** How open the rig draws the eyes. */
-const open = (t: number) => openness([...BLINKS, SQUINT], t, BLINK, D);
-/** The gaze as drawn: the original's look, let down for the squint. */
-const gaze = (t: number): Vec => [look(t)[0], look(t)[1] + squintDrop(t)];
 
 // ---- sampling the channels into tracks ----
 
 /** Every key of the given channels, plus every 20 ms, so the eased stretches between keys hold when joined linearly;
- *  every 5 ms through the whip and the hop (.8 to .87), whose sharp ease-outs cover most of their way in a few ms,
- *  and through the blink in the squint (where the eyes' drop changes quickly). */
+ *  every 5 ms through the whip and the hop (.8 to .87), whose sharp ease-outs cover most of their way in a few ms. */
 function times(...channels: Channel[]): number[] {
   const all = new Set<number>(channels.flatMap((c) => c.keys.map(Math.round)));
   for (let t = 0; t <= D; t += 20) all.add(t);
   for (let t = at(0.8); t <= at(0.87); t += 5) all.add(t);
-  for (let t = at(0.547); t <= at(0.585); t += 5) all.add(t);
   return [...all].sort((a, b) => a - b);
 }
 /** A track sampled from f at the given times, joined linearly; runs that hold one value are kept to their ends. */
@@ -191,34 +175,28 @@ const wobble = (t: number): Vec => {
   const j = jump(t), b = breath(t);
   return [j[0] * b[0], j[1] * b[1]];
 };
-/** The squash the rig actually applies: it writes the body's scale with two decimals, so 0.85 x 1.0065 is drawn at
- *  0.86. Undoing that (rather than the exact squash) keeps the key and hand where the original has them, to 0.01
- *  units instead of up to 0.15. */
-const drawn = (t: number): Vec => {
-  const w = wobble(t), r = (v: number) => Math.round(SHRINK * v * 100) / 100 / SHRINK;
-  return [r(w[0]), r(w[1])];
-};
 const unsquash = (p: Vec, t: number): Vec => {
-  const w = drawn(t);
+  const w = wobble(t);
   return [FEET[0] + (p[0] - FEET[0]) / w[0], FEET[1] + (p[1] - FEET[1]) / w[1]];
 };
 const unsquashSize = (t: number) => {
-  const w = drawn(t);
+  const w = wobble(t);
   return 1 / Math.sqrt(w[0] * w[1]);
 };
 const hand = (t: number): Vec => [handX(t)[0], handY(t)[0]];
+/** The rig can only scale a prop evenly, so the squash still stretches the key's shape about its grip (the ring's
+ *  hole). The key is moved so that its middle, rather than its grip, is where the original has it: that halves
+ *  the shape's misplacement at the breaths and the landing. KEY_MIDDLE is about the middle of the key's area, in
+ *  its own frame (on its axis, 14.4 up from the hole). */
+const KEY_MIDDLE: Vec = [0, -14.4];
+const keyAt = (t: number): Vec => {
+  const w = wobble(t), even = Math.sqrt(w[0] * w[1]), [x, y] = unsquash(hand(t), t);
+  const a = (keyTilt(t)[0] * Math.PI) / 180, k = keySize(t)[0], [mx, my] = KEY_MIDDLE;
+  const m: Vec = [k * (mx * Math.cos(a) - my * Math.sin(a)), k * (mx * Math.sin(a) + my * Math.cos(a))];
+  return [x - (1 / even - 1 / w[0]) * m[0], y - (1 / even - 1 / w[1]) * m[1]];
+};
 const handTimes = times(handX, handY, jump, breath);
 const twinkleTimes = times(handX, handY, keyTilt, keySize, twinkleSize, twinkleTurn).filter((t) => t >= at(0.86) && t <= at(0.94));
-
-/** The drifted glints do not close with the eyes, so they are hidden through the blink at .562 while the eyes are
- *  less than half open (its own glints, which the covers hide, are all but shut with the eyes by then). */
-const half = (b: Blink) => {
-  const c = b.close ?? BLINK.close ?? 45, o = b.open ?? BLINK.open ?? 45, d = b.depth ?? BLINK.depth ?? 0.1;
-  // half open where smoothstep(u) = y: u = .5 - sin(asin(1 - 2y) / 3), u being 0 shut and 1 open
-  const y = (0.5 - d) / (1 - d), inv = 0.5 - Math.sin(Math.asin(1 - 2 * y) / 3);
-  return [Math.round(b.at - c * inv), Math.round(b.at + (b.hold ?? 0) + o * inv)] as const;
-};
-const BLINK2 = half(BLINKS[1]);
 
 /** The key is behind the body from when it has swung out to the right (x 65, clear of the body) until it is out
  *  there again on the way back. */
@@ -240,11 +218,16 @@ export const key: AgentAnimation = {
     shift: [[0, PLACE[0]]],
   },
   eyes: {
-    look: track(times(look, glintDrift), gaze),
-    // the original's blinks, as timed there, and the squint
+    look: track(times(look), vec(look)),
+    // the original's blinks, as timed there
     blink: BLINK,
-    blinks: [...BLINKS, SQUINT],
+    blinks: BLINKS,
     happy: [[at(0.876), at(0.935)]],
+    // the sly squint: the original's clip line, as a lid
+    lid: track(times(lidLine), lid),
+    // the stretch before the whip
+    scale: track(times(eyeStretch), (t) => [1, eyeStretch(t)[0]] as Vec),
+    glint: track(times(glintDrift), vec(glintDrift)),
   },
   hands: {
     // the original has one hand, the `hand` prop: the rig's hands wait out of sight behind the body
@@ -254,7 +237,7 @@ export const key: AgentAnimation = {
   props: {
     key: {
       attach: "world",
-      offset: track(handTimes, (t) => unsquash(hand(t), t)),
+      offset: track(times(handX, handY, keyTilt, keySize, jump, breath), keyAt),
       rotate: track(times(keyTilt), num(keyTilt)),
       scale: track(times(keySize, jump, breath), (t) => keySize(t)[0] * unsquashSize(t)),
       behind: BEHIND,
@@ -276,25 +259,6 @@ export const key: AgentAnimation = {
       offset: track(handTimes, (t) => unsquash(hand(t), t)),
       scale: track(times(handSize, jump, breath), (t) => handSize(t)[0] * unsquashSize(t)),
       behind: BEHIND,
-    },
-    // the drifting glints: an ink pair hides the rig's glints (following the gaze, and the glints' move towards the
-    // eyes' middle as the squint narrows them), a white pair drifts inside the pupils (where the original has them,
-    // which the squint's drop does not move); shown only while the drift is away from zero, and not during the blink
-    glintCovers: {
-      attach: "world",
-      offset: track(times(look, glintDrift), (t) => [gaze(t)[0], gaze(t)[1] + (1 - open(t)) * (EYE_MID - (EYE_TOP + 1.7))] as Vec),
-      visible: [[at(0.066), at(0.174)], [at(0.309), BLINK2[0]], [BLINK2[1], at(0.753)]],
-    },
-    glints: {
-      attach: "world",
-      offset: track(times(look, glintDrift), (t) => [look(t)[0] + glintDrift(t)[0], look(t)[1] + glintDrift(t)[1]] as Vec),
-      visible: [[at(0.066), at(0.174)], [at(0.309), BLINK2[0]], [BLINK2[1], at(0.753)]],
-    },
-    // the eyes' stretch: a copy of the eyes slid up by the extra height (the gaze is straight ahead by then)
-    tallEyes: {
-      attach: "world",
-      offset: track(times(eyeStretch).filter((t) => t >= at(0.75) && t <= at(0.85)), (t) => [0, -(eyeStretch(t)[0] - 1) * 6.2] as Vec),
-      visible: [[at(0.753), at(0.846)]],
     },
   },
   events: [[at(0.853), "reveal"]],

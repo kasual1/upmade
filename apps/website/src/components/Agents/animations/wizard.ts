@@ -10,8 +10,8 @@ import type { AgentAnimation, PropTrack, Track, Vec } from "../types";
  * Props: `hat` (on the head), `vase`, `apple`, `rabbit`, `wand` (the wand with the hand holding it) and `sparkle1`..
  * `sparkle3`. Events: `apple`, `rabbit`, `vase` as each one pops up.
  *
- * Ported from the landing page's SMIL agent (6 s loop; every channel but the breathing is linear). Its keyTimes are
- * kept as fractions of the loop (`at(.207)`) so each key can be checked against the original.
+ * Ported from the landing page's SMIL agent (6 s loop; every channel but the breathing is linear, the blink included).
+ * Its keyTimes are kept as fractions of the loop (`at(.207)`) so each key can be checked against the original.
  *
  * The original draws only the body (with its eyes and hat) at 0.62, placed with its feet point (32 49) at (17.5 52),
  * and breathes it (1.02 x .98 every 2 s); the wand hand, the objects and the sparkles are full size and still. The
@@ -100,8 +100,8 @@ export const wizard: AgentAnimation = {
   eyes: {
     // the eyes look right, at the objects, all the time
     look: [[0, [2.2, 0.4]]],
-    // the original's one blink: from open at .383 down to .08 at .397, open again by .42
-    blink: { close: at(0.397) - at(0.383), open: at(0.42) - at(0.397), depth: 0.08 },
+    // the original's one blink, a linear ramp: from open at .383 down to .08 at .397, open again by .42
+    blink: { close: at(0.397) - at(0.383), open: at(0.42) - at(0.397), depth: 0.08, ease: "linear" },
     blinks: [at(0.397)],
   },
   hands: { L: HIDDEN, R: HIDDEN },
