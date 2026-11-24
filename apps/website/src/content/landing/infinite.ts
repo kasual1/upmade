@@ -32,7 +32,7 @@ export const infinitePage = {
       toolbar: { tools: ["cursor", "pen", "eraser", "arrow", "shapeRectangle", "type", "image"], syncWithAgent: true },
       nav: {
         links: [
-          { label: "Blog", link: { kind: "route", to: "/blog" } },
+          { label: "Blog", link: { kind: "route", to: "/blog" }, hideBelow: 620 },
           { label: "Documentation", link: { kind: "docs" }, hideBelow: 620 },
         ],
         github: { kind: "external", href: REPO_URL },

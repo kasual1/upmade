@@ -42,7 +42,7 @@ html.landing-page {
   --lp-panel: #f7f7f4; /* media frame grounds */
   --lp-text-strong: #3f3f3b; /* FAQ answers, footer links */
   --lp-meta: #6e6e68; /* footer meta line; the design's #7a7a74 darkened to pass AA at 13.5px (plan decision 3) */
-  --lp-focus-art: #8fd0ff; /* focus ring on the ink-outlined "art style" controls (FAQ, slider knob) */
+  --lp-focus-art: #8fd0ff; /* the design's art-style focus blue; unused (1.6:1, below WCAG 1.4.11): FAQ + slider use --lp-hand */
   --lp-toolbar-line: #ebebeb;
   --lp-hover: hsl(0 0% 0% / 4.3%); /* toolbar tool hover */
   --lp-press: hsl(0 0% 0% / 8.6%); /* toolbar tool press */
@@ -63,7 +63,7 @@ html.landing-page {
   --lp-code-dark-tag: #ff8bc5;
   --lp-code-dark-attr: #8fd0ff;
   --lp-code-dark-string: #ffdf40;
-  --lp-code-dark-punct: #6b6b66;
+  --lp-code-dark-punct: #85857f; /* design #6b6b66, darkened to AA (4.5:1 on the highlight row) */
   --lp-code-dark-value: #4ade80;
   --lp-code-dark-line-number: #4a4a46;
   --lp-code-dark-highlight: rgba(255, 106, 181, 0.14);
@@ -72,10 +72,10 @@ html.landing-page {
   /* code on a light ground (the code typer's window) */
   --lp-code-light-fg: #0a0a0a;
   --lp-code-light-line-number: #b4b4ae;
-  --lp-code-light-keyword: #d6338c;
-  --lp-code-light-string: #1f9d55;
-  --lp-code-light-tag: #1c7ed6;
-  --lp-code-light-decorator: #c27c00;
+  --lp-code-light-keyword: #c42a7e; /* syntax colours: the design's, darkened to AA on #fafaf8 */
+  --lp-code-light-string: #17804a;
+  --lp-code-light-tag: #1a6fc0;
+  --lp-code-light-decorator: #9a6200;
   --lp-code-light-caret: #ff6ab5;
 
   /* ---- shadows ---- */

@@ -33,6 +33,7 @@
 .m {
   padding: 12px 20px;
   font-size: var(--lp-fs-btn-s);
+  line-height: 20px; /* the design's inherited 20px line box: 44px tall */
 }
 
 .dark,

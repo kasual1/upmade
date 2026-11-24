@@ -7,8 +7,9 @@ import {
   SKILL_REPO,
   SOCIAL_LINKS,
 } from '../src/components/Brand/links';
+import { toDocusaurusFooterItem } from '../src/components/LandingPage/chrome/LandingFooter/links';
 
-type FooterColumn = { title: string; items: Array<{ html?: string; label?: string; href?: string }> };
+type FooterColumn = { title: string; items: Array<{ html?: string; label?: string; href?: string; rel?: string }> };
 type NavbarItem = { label?: string; href?: string };
 
 const themeConfig = config.themeConfig as {
@@ -33,10 +34,12 @@ describe('Brand/links', () => {
     }
   });
 
-  // The footer's Community column is built from SOCIAL_LINKS; it must render exactly the markup it had before.
+  // The footer's Community column is built from SOCIAL_LINKS as {label, href, rel} items; theme/Footer/Links
+  // (toDocusaurusFooterItem) must render exactly the markup the raw-HTML items had before.
   test('the footer Community column is built from SOCIAL_LINKS, unchanged', () => {
     const community = themeConfig.footer.links.find((column) => column.title === 'Community');
-    expect(community?.items.map((item) => item.html)).toEqual([
+    expect(community?.items).toEqual(SOCIAL_LINKS.map(({ label, href, rel }) => ({ label, href, rel })));
+    expect(community?.items.map((item) => (toDocusaurusFooterItem(item) as { html?: string }).html)).toEqual([
       '<a href="https://x.com/upmade_io" target="_blank" rel="noopener noreferrer" class="footer__link-item">X</a>',
       '<a href="https://www.linkedin.com/in/upmade-io-26721b40b" target="_blank" rel="noopener noreferrer" class="footer__link-item">LinkedIn</a>',
       '<a href="https://mastodon.social/@upmade" target="_blank" rel="me noopener noreferrer" class="footer__link-item">Mastodon</a>',
