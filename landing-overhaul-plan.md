@@ -9,6 +9,18 @@
 
 Paths are relative to `apps/website`.
 
+## 0. Revision (2026-11-24): the agents on `/agent` are the ground truth
+
+The animated agents are being iterated on in a separate stream of work (`src/components/Agents/`, previewed at `/agent`). For this overhaul they are **placeholders**: the final versions will be added later, separately. Therefore:
+
+- **`src/components/Agents/` is read-only for this effort.** The landing overhaul does not change its animations, props, tokens, timeline, runtime, `Agent.tsx`, `demos/*`, `pages/agent.tsx` or `tests/agents.spec.ts`. When the two streams meet on the branch, the Agents side wins.
+- **The landing page consumes agents as they are**: it renders the existing `/agent` demo components (each `demos/*.tsx` default export, or a `demos` entry) by key, through a small landing-side adapter, `LandingPage/agents.ts` + `primitives/AgentSlot`. That adapter replaces the planned `Agents/registry.ts` and `Agents/AgentSlot.tsx`.
+- **No agent ↔ media coupling yet.** Today's demos do not forward `onEvent` or expose `seek`, so the event pairings in 3.5 (sign → code typer, glasses → star board, toolCycle ↔ toolbar) become **hook points**: each media runs on its own clock now (the code typer uses the sign's documented 6170/6824/9348 ms turns; the star board drifts at a steady speed; the toolbar starts on "cursor" and a click only selects). `useSectionSignal` and the media `listens` declarations stay, so wiring them later is a config/adapter change, not a rewrite.
+- **The M2 runtime work moves out of this effort** into "Requests for the agents stream" (3.5). M2 becomes the landing-side agent adapter only.
+- **Tests and guards follow**: `validate.ts` drops the event-coupling rules (they come back with the final agents); a landing test checks every agent key the config uses resolves to an existing `/agent` demo, so renames in the agents stream fail fast. `/agent` is not screenshot-guarded, because it changes in the other stream.
+
+Where a later section of this plan disagrees with this revision, this revision wins.
+
 ## 1. Goals and non-goals
 
 **Goals**
@@ -193,7 +205,9 @@ export function SectionRenderer({ sections }: { sections: readonly SectionConfig
 
 ### 3.5 Agents in sections
 
-Widen `demos/types.ts`:
+> **Revised (see §0).** What this effort builds is the landing-side adapter: `LandingPage/agents.ts` maps an `AgentKey` to an existing `/agent` demo component plus landing metadata (`label`, `reach`, `composite?`), and `LandingPage/primitives/AgentSlot` renders it (relative box, overflow padding from `reach`, the SSR ready gate for composites and devices with a `<noscript>` reveal). Sections refer to agents only by key. The pairings in the table below are hook points: media run on their own clocks until the final agents forward events. Everything else in this subsection (widened `DemoProps`, `Agents/registry.ts`, the runtime changes) is a **request for the agents stream**, not work in this effort.
+
+Original design, kept as the request for the agents stream. Widen `demos/types.ts`:
 
 ```ts
 export interface DemoProps { className?: string; style?: CSSProperties; label?: string; paused?: boolean;
@@ -217,7 +231,7 @@ export interface DemoProps { className?: string; style?: CSSProperties; label?: 
 | cyclingGlasses → starBoard | the agent | glassesOn/glassesOff → Web Animations `playbackRate` ramps to 30x, then a cubic coast (L1077–1088) | board static |
 | toolCycle ↔ Toolbar | the agent | `tool:*` sets the selection (local state in Toolbar). A click calls `agentRef.seek(TOOL_START[k])` | "cursor" selected, a click only selects |
 
-Agent runtime changes (milestone M2, each with a test):
+Requests for the agents stream (formerly milestone M2; not done in this effort):
 
 - `useReducedMotion` becomes reactive (listens for `change`).
 - One shared IntersectionObserver with `rootMargin:"200px 0px"`.
@@ -327,9 +341,9 @@ Add a new section type:
 
 | Layer | What | Where / script |
 |---|---|---|
-| Unit (vitest, default `npm test`) | `validateLandingConfig`: unique section ids and derived ids, exactly one hero, every AgentKey/MediaKey registered, every corner agent emits at least one event its media listens to, hero tools are a subset of the toolCycle `tool:*` events, every docs path exists in `docs/{react,vue,angular}` | `tests/landing-config.spec.ts` |
+| Unit (vitest, default `npm test`) | `validateLandingConfig`: unique section ids and derived ids, exactly one hero, every AgentKey/MediaKey registered, (deferred per §0: every corner agent emits at least one event its media listens to, hero tools are a subset of the toolCycle `tool:*` events), every docs path exists in `docs/{react,vue,angular}` | `tests/landing-config.spec.ts` |
 | Unit | `buildFaqJsonLd` (one entry per item, no backticks), `useResolveLink` cases, the highlight tokenizer | same and `tests/landing-utils.spec.ts` |
-| Unit | Each registry entry's `events` is a subset of its `animation.events`, every entry has a `rest`, `TOOL_START` is derived correctly | extend `tests/agents.spec.ts` |
+| Unit | (Revised, §0) Every agent key in `LandingPage/agents.ts` and in the config resolves to an existing `/agent` demo. The event-coupling rules (corner agent events vs media `listens`, hero tools vs `tool:*`, `TOOL_START`) are deferred to the final agents. `tests/agents.spec.ts` is not touched | `tests/landing-config.spec.ts` |
 | Post-build | `build/index.html`: one h1, every FAQ answer present, no duplicate ids, og/twitter tags and the og:image file exists, FAQPage JSON-LD parses, `html.landing-page`, toggle links to `/agentic/` | `tests/landing-output.spec.ts`, new `test:landing` like `test:llms` |
 | Playwright (new `apps/website/_e2e/playwright.config.ts`, webServer `docusaurus serve`) | Projects: desktop 1440, tablet 960, phone 390 and 320. For `/` (and `/landing-next/` before cutover): no pageerror or console errors, no horizontal overflow (`scrollWidth <= innerWidth`), screenshots with `reducedMotion:'reduce'`, FAQ and toolbar keyboard flows, navbar shown only after scrolling past the hero | `e2e:website` script |
 | Playwright, min font | A Chromium persistent context with prefs `webkit.webprefs.minimum_font_size = 24` (to be confirmed in M0): assert each MediaFrame's children stay inside its box | same suite |
@@ -344,16 +358,16 @@ Each milestone is one PR, verified with typecheck, tests, build and Playwright.
 |---|---|---|---|
 | M0 | Playwright harness and baseline screenshots of `/`, `/agentic`, blog, docs. Confirm the min-font technique | suite runs green against today's site | nothing changes |
 | M1 | Groundwork: `Brand/` (paths, Icon with GitHubIcon via useBaseUrl, Wordmark, links), with `Landing/*` re-exporting it as shims. Shared hooks (usePreferredDocsPath, useHeroNavObserver, useTimeline), used by both current pages. The `[data-font]` font rule. `[class*=wordmarkLetter]` becomes a real class. Remove the `console.log` in `Root.tsx` | screenshots pixel-identical | shims keep `/agentic`, RenameBanner, UpmadeBrand and Footer/Links working |
-| M2 | Agent layer: widened DemoProps, `registry.ts`, AgentSlot, `/agent` iterates the registry, the runtime fixes (3.5) | `/agent` looks the same in the same order; agents.spec extended | `require.context` removed |
+| M2 | (Revised, §0) Landing-side agent adapter: `LandingPage/agents.ts` (key → existing `/agent` demo, label, reach, composite) and `primitives/AgentSlot`. No changes inside `src/components/Agents/` | every key resolves to a demo (unit test); `git diff` shows nothing under `Agents/`; `/agent` untouched | – |
 | M3 | Kit skeleton: `tokens.css`, primitives, types, registry, renderer, validate, LandingPage, LandingPageContext; the `/landing-next/` preview (noindex, `sitemap.ignorePatterns`) | a wrong key fails tsc; the sitemap has no preview URL; redirects.spec passes | – |
 | M4 | FeatureGrid with the six agents | 3/2/1 columns; no clipping at 320/620/960; no rig flash with JS throttled | – |
 | M5 | FAQ with JSON-LD | keyboard accordion; answers in the built HTML; Rich Results test | – |
-| M6a/b/c | Showcases: starBoard with glasses, domCanvas with juggler, codeTyper with the sign as clock. MediaFrame, CornerAgent, ScaledStage | sign and snippet in step for 3 cycles; board speeds up; slider works by keyboard; min-font test passes; reduced motion gives static states | – |
-| M7 | Hero: BrandLogo, toggle, toolCycle with Toolbar sync, seek on click, CTAs, nav observer | navbar appears only after the hero header; MenuButton works below 620px; h1 in view-source | – |
+| M6a/b/c | Showcases: starBoard with glasses, domCanvas with juggler, codeTyper with the sign as clock. MediaFrame, CornerAgent, ScaledStage | (§0) the typer cycles React → Vue → Angular on its own clock; board drifts; slider works by keyboard; min-font test passes; reduced motion gives static states | – |
+| M7 | Hero: BrandLogo, toggle, toolCycle (placeholder, §0) and the Toolbar (local selection, starts on "cursor"; agent sync and seek deferred), CTAs, nav observer | navbar appears only after the hero header; MenuButton works below 620px; h1 in view-source | – |
 | M8 | LandingFooter via `theme/Footer` reading LandingPageContext (`footer:"landing"`); docs still null, blog keeps Wordmark; Community links converted to `{label, href}` | SSR output shows exactly one footer per page type | – |
 | M9 | Cutover: `index.tsx` becomes `<LandingPage config={infinitePage}/>`; delete the preview; social card; `test:landing` | full suite; Lighthouse against the baseline; `/agentic`, blog and docs screenshots unchanged; real-device checks | old Hero, CallToActionBar and the Wordmark section are no longer used by `/` but are not deleted yet |
 | M10 | `/agentic` onto the renderer (`content/landing/agentic.ts`; media frames, themes, skillTerminal) | same checks as M9 for `/agentic` | then delete: `Landing/Hero.tsx` and both DraggableCanvasItem forks, HeroTitle, ImageCard*, `Sections.tsx`, `Landing/styles.module.css`, all of `Agentic/*`, the shims, HELLO_STROKES, the wet-grass images (if unused), `static/js/hide-navbar-brand.js` (grep first). Keep moved: Calculator and calculator-state with its spec, `tools.tsx` icons, MenuButton, InstallCommand (if agentic still uses it), HeartBubbles |
-| M11 | Polish: toolbar stow/arrow `request()`, BrandLogo look-up and wink, optional RenameBanner restyle (sitewide, own PR) | Playwright and screenshots | – |
+| M11 | Final agents (with the agents stream): wire the hook points (sign → typer, glasses → board, toolCycle ↔ toolbar with `seek`) and re-enable the deferred validate rules. Polish: toolbar stow/arrow `request()`, BrandLogo look-up and wink, optional RenameBanner restyle (sitewide, own PR) | Playwright and screenshots | – |
 
 How `/agentic` and the other pages are protected:
 
