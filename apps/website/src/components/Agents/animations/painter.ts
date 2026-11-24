@@ -12,12 +12,15 @@ import type { Paint } from "../props/painter/Brush";
  *
  * The original draws the painter (body, eyes, beret) at 0.62, its feet (32 49) placed at (17 51), and leans it
  * about those feet; the brush hand and the easel are full size and do not lean. The rig can neither move its body
- * sideways nor keep a prop out of the body's lean and scale, so the demo draws two agents on top of each other:
- *   - `painter`: the painter itself, drawn by the demo at 0.62 of the box and placed so its feet land at (17 51)
- *     (see demos/painter.tsx). Its own hands wait out of sight behind its body.
- *   - `painterStage`: a full-size agent with no body (an empty outline, its eyes hidden) that holds the brush
- *     hand, the brush and the easel as props, in the original's full-size coordinates (the whole drawing sits 1 up).
- *     Its rig hands wait out of sight behind the easel.
+ * sideways nor keep a prop out of the body's lean and scale, so the demo draws two agents on top of each other,
+ * both in the same box (PAINTER_BOX: 0.62 of the demo, placed so the painter's feet land at (17 51)):
+ *   - `painter`: the painter itself. Its own hands wait out of sight behind its body.
+ *   - `painterStage`: an agent with no body (an empty outline, its eyes hidden) that holds the brush hand, the brush
+ *     and the easel as props. They are full size in the original, so the demo draws their looks at 1/0.62 (baked
+ *     into the items, not a `scale` track, which the rig rounds to 2 decimals) and the stage maps the original's
+ *     coordinates into the shared box (`toBox`). Its rig hands wait out of sight behind the easel.
+ *   The two share one box on purpose: each agent pauses while its own box is off screen, so two different boxes
+ *   would pause at different scroll positions and drift apart (the brush hand out of step with the lean).
  * Props of `painter`: `beret` and the squint frames `squint0`..`squint<n>` (see SQUINT_SY). Props of
  * `painterStage`: `brushGreen`, `brushBlue`, `brushYellow` (one is shown at a time), `hand` and `easel`.
  * Events (on `painter`): `judge` as it leans back to look at the canvas.
@@ -100,8 +103,8 @@ const breathe: Track<Vec> = Array.from({ length: D / 1000 + 1 }, (_, n) => [n * 
 
 export const painter: AgentAnimation = {
   duration: D,
-  // mid-stroke, brush on the canvas, before the blink
-  rest: 300,
+  // the original holds its first frame with reduced motion (the feature icons are designed to read as a still there)
+  rest: 0,
   body: { lean, squash: breathe },
   eyes: { look, hidden },
   // out of sight behind the body: the original painter has no hands of its own (the brush hand is the stage's)
@@ -118,23 +121,36 @@ export const painter: AgentAnimation = {
 
 // ---- the stage: brush hand, brush and easel, full size ----
 
+/** The box both agents are drawn in, in the demo's 64x64 units: 0.62 of it, the painter's feet (32 49) at (17 51). */
+export const PAINTER_BOX = { scale: 0.62, x: 17 - 0.62 * 32, y: 51 - 0.62 * 49 } as const;
+/** A point of the original's full-size drawing, in the shared box's own 64x64 space. */
+const toBox = ([x, y]: Vec): Vec => [(x - PAINTER_BOX.x) / PAINTER_BOX.scale, (y - PAINTER_BOX.y) / PAINTER_BOX.scale];
+
 /** The whole original drawing sits 1 up. */
 const UP = -1;
 const PAINT_SPANS: Record<Paint, Span> = { green: [0, 2000], blue: [2000, 4000], yellow: [4000, D] };
-const handOffset: Track<Vec> = handPath.map(([t, [x, y], e]) => [t, [x, y + UP], e] as const);
+/** The brush hand's path, 1 up and in the box (mapping is affine, so linear keys still trace the same path). */
+const handOffset: Track<Vec> = handPath.map(([t, [x, y], e]) => [t, toBox([x, y + UP]), e] as const);
 /** A brush loaded with one paint, in the hand and tilted 40 deg towards the canvas, shown while that paint is on. */
-const brush = (paint: Paint): PropTrack => ({ attach: "world", offset: handOffset, rotate: [[0, 40]], visible: [PAINT_SPANS[paint]] });
+const brush = (paint: Paint): PropTrack => ({
+  attach: "world",
+  offset: handOffset,
+  rotate: [[0, 40]],
+  visible: [PAINT_SPANS[paint]],
+});
+/** Where the stage's unused rig hands wait: (41 30) of the full drawing, under the easel's canvas. */
+const PARKED = toBox([41, 30]);
 
 export const painterStage: AgentAnimation = {
   duration: D,
-  rest: 300,
+  rest: 0,
   // no body: an empty outline (nothing is stroked for a zero-length path with butt caps) and no eyes
   body: { outline: [[0, "M0 0Z"]] },
   eyes: { hidden: [[0, D]] },
   // the rig hands wait behind the layer the easel is in, where the canvas hides them
   hands: {
-    L: { path: [[0, [41, 30]]], behind: [[0, D]] },
-    R: { path: [[0, [41, 30]]], behind: [[0, D]] },
+    L: { path: [[0, PARKED]], behind: [[0, D]] },
+    R: { path: [[0, PARKED]], behind: [[0, D]] },
   },
   // drawn in this order, as in the original: the brush, the hand over its handle, then the easel over both
   props: {
@@ -142,6 +158,6 @@ export const painterStage: AgentAnimation = {
     brushBlue: brush("blue"),
     brushYellow: brush("yellow"),
     hand: { attach: "world", offset: handOffset },
-    easel: { attach: "world", offset: [[0, [0, UP]]] },
+    easel: { attach: "world", offset: [[0, toBox([0, UP])]] },
   },
 };

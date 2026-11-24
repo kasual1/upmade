@@ -1,10 +1,11 @@
+import { useEffect, useState, type ReactNode } from "react";
 import Agent from "../Agent";
 import Beret from "../props/painter/Beret";
 import Squint from "../props/painter/Squint";
 import Brush from "../props/painter/Brush";
 import Hand from "../props/painter/Hand";
 import Easel from "../props/painter/Easel";
-import { painter, painterStage, SQUINT_SY } from "../animations/painter";
+import { painter, painterStage, PAINTER_BOX, SQUINT_SY } from "../animations/painter";
 import type { DemoProps } from "./types";
 
 export const label = "Painter";
@@ -15,33 +16,45 @@ const painterItems = {
   ...Object.fromEntries(SQUINT_SY.map((sy, k) => [`squint${k}`, <Squint sy={sy} />])),
   beret: <Beret />,
 };
+/** The stage's props are full size in the original, so in the painter's 0.62 box they are drawn at 1/0.62. */
+const full = (look: ReactNode) => <g transform={`scale(${1 / PAINTER_BOX.scale})`}>{look}</g>;
 const stageItems = {
-  brushGreen: <Brush paint="green" />,
-  brushBlue: <Brush paint="blue" />,
-  brushYellow: <Brush paint="yellow" />,
-  hand: <Hand />,
-  easel: <Easel />,
+  brushGreen: full(<Brush paint="green" />),
+  brushBlue: full(<Brush paint="blue" />),
+  brushYellow: full(<Brush paint="yellow" />),
+  hand: full(<Hand />),
+  easel: full(<Easel />),
 };
 
 /**
- * The original draws the painter at 0.62 with its feet (32 49) at (17 51) of the 64x64 box, so its agent takes 62%
- * of the box, shifted by (17 51) - 0.62 x (32 49) = (-2.84 20.62) units, i.e. -4.44% and 32.22% of the box. The
- * stage (brush hand, brush, easel) covers the whole box on top, and lets the pointer through to the painter so it
- * still hops when hovered.
+ * The original draws the painter at 0.62 with its feet (32 49) at (17 51) of the 64x64 box, so both agents take 62%
+ * of the box, shifted by (17 51) - 0.62 x (32 49) = (-2.84 20.62) units, i.e. -4.44% and 32.22% of the box
+ * (PAINTER_BOX). The stage draws the full-size brush hand, brush and easel at 1/0.62 inside that same box, so both
+ * agents come on and off screen together and stay in step; it lets the pointer through to the painter so the
+ * painter still hops when hovered. Until both agents have drawn their first pose the box is hidden, so the
+ * server-rendered page does not flash the stage's default body (a circle with eyes and hands) or the painter's hands.
  */
-const SCALE = 0.62;
-const left = ((17 - SCALE * 32) / 64) * 100;
-const top = ((51 - SCALE * 49) / 64) * 100;
+const { scale, x, y } = PAINTER_BOX;
+const layer = {
+  position: "absolute",
+  left: `${(x / 64) * 100}%`,
+  top: `${(y / 64) * 100}%`,
+  width: `${scale * 100}%`,
+  height: `${scale * 100}%`,
+} as const;
 
 export default function PainterDemo({ className }: DemoProps) {
+  // the agents' effects (their first pose) run before this one, so the box is shown already posed
+  const [ready, setReady] = useState(false);
+  useEffect(() => setReady(true), []);
   return (
-    <div className={className} style={{ position: "relative" }}>
+    <div className={className} style={{ position: "relative", visibility: ready ? undefined : "hidden" }}>
       <Agent
         shape="circle"
         colour="violet"
         animation={painter}
         items={painterItems}
-        style={{ position: "absolute", left: `${left}%`, top: `${top}%`, width: `${SCALE * 100}%`, height: `${SCALE * 100}%` }}
+        style={layer}
       />
       <Agent
         shape="circle"
@@ -49,7 +62,7 @@ export default function PainterDemo({ className }: DemoProps) {
         animation={painterStage}
         items={stageItems}
         reactive={false}
-        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}
+        style={{ ...layer, pointerEvents: "none" }}
       />
     </div>
   );

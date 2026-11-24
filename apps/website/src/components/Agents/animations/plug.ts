@@ -1,4 +1,3 @@
-import { sample } from "../timeline";
 import { SHAPES } from "../tokens";
 import type { AgentAnimation, PropTrack, Span, Track, Vec } from "../types";
 
@@ -15,9 +14,9 @@ import type { AgentAnimation, PropTrack, Span, Track, Vec } from "../types";
  * same frames, so every frame matches. Positions are in the original's frame: its whole drawing is lifted 4 units
  * ("world" below), and the body (not the hands or the gear) is shrunk to 0.8 about its base, which sits at y 52.
  *
- * The shrink and the body's breathing are the rig's body squash. The rig squashes hands and props with the body,
- * so the hands are drawn as props (the rig's own hands wait out of sight behind the body), and every prop is
- * placed so that the squash puts it back where it was in the original, and drawn 1/0.8 bigger.
+ * The shrink is the rig's body squash and the breathing is baked into the body's outline. The rig squashes hands
+ * and props with the body, so the hands are drawn as props (the rig's own hands wait out of sight behind the body),
+ * and every prop is placed so that the squash puts it back where it was in the original, and drawn 1/0.8 bigger.
  */
 const D = 4400;
 const FRAMES = 176;
@@ -117,53 +116,86 @@ const cubic = ([a, b, c, e]: Vec[], u: number): Vec =>
 
 // ---- the cords as chains of pieces ----
 
-/** The length of one cord piece, and how many make a cord: 10 x 2.6 covers the longest cord (23.3). */
-export const CORD_PIECE = 2.6;
-export const CORD_PIECES = 10;
+/**
+ * The length of one cord piece, and how many make a cord. The pieces are short so that, laid as chords of the curve,
+ * they cut its tightest bends (where a cord hangs below a hand) by less than 0.2; 16 x 1.6 covers the longest cord
+ * (23.3) with every piece overlapping the next.
+ */
+export const CORD_PIECE = 1;
+export const CORD_PIECES = 24;
 
 /**
  * The pieces of a cord at time t (world units): each starts at an even step along the curve and points at the place
- * one piece further along, so together they overlap into a chain that follows the curve whatever its length.
+ * further along the curve that lies one piece away, so both its ends are on the curve and it never sticks out of a
+ * bend. Together they overlap into a chain that follows the curve whatever its length, ending at the anchor.
  */
 function cordPieces(side: Side, t: number): { at: Vec; angle: number }[] {
   const { points } = cordCurve(side, t);
-  const steps = 64;
+  const steps = 200;
   const pts = Array.from({ length: steps + 1 }, (_, n) => cubic(points, n / steps));
-  const len = [0];
-  for (let n = 1; n <= steps; n++) len.push(len[n - 1] + Math.hypot(pts[n][0] - pts[n - 1][0], pts[n][1] - pts[n - 1][1]));
-  const total = len[steps];
-  const pointAt = (s: number): Vec => {
-    let n = 1;
-    while (n < steps && len[n] < s) n++;
-    const u = len[n] > len[n - 1] ? (s - len[n - 1]) / (len[n] - len[n - 1]) : 0;
-    return mix(pts[n - 1], pts[n], Math.max(0, Math.min(1, u)));
+  const end = pts[steps];
+  const dist = (p: Vec, q: Vec) => Math.hypot(q[0] - p[0], q[1] - p[1]);
+  /** The first sample after `from` that lies a piece's length away from sample `from` (or the curve's end). */
+  const reach = (from: number) => {
+    for (let n = from + 1; n <= steps; n++) if (dist(pts[from], pts[n]) >= CORD_PIECE) return n;
+    return steps;
   };
+  // the last start: the latest sample from which the end is still a piece's length away
+  let last = steps;
+  while (last > 0 && dist(pts[last], end) < CORD_PIECE) last--;
   return Array.from({ length: CORD_PIECES }, (_, n) => {
-    const s = total > CORD_PIECE ? (n * (total - CORD_PIECE)) / (CORD_PIECES - 1) : 0;
-    const a = pointAt(s), b = pointAt(Math.min(total, s + CORD_PIECE));
+    const from = Math.round((n * last) / (CORD_PIECES - 1));
+    const a = pts[from], b = pts[reach(from)];
     const angle = (Math.atan2(b[1] - a[1], b[0] - a[0]) * 180) / Math.PI;
     return { at: [a[0], a[1] + LIFT], angle };
   });
 }
 
-// ---- the body: the shrink and the breathing as the squash ----
+// ---- the body: the shrink as the squash, the breathing in the outline ----
 
-/** The original shrinks the body to 0.8 and breathes it a touch wider and shorter (1.02 x 0.98) every 2.2 s. */
-const squash: Track<Vec> = [0, 1, 2, 3, 4].map((n) => {
-  const b = n % 2 ? [1.02, 0.98] : [1, 1];
-  return [(n * D) / 4, [SHRINK * b[0], SHRINK * b[1]] as Vec] as const;
-});
+/** The landing page's triangle, whose rounded corners differ a little from the family's (its base sits at 49.6). */
+const OUTLINE =
+  "M25.82 16.10L26.43 15.23L27.17 14.46L28.00 13.81L28.92 13.29L29.91 12.91L30.94 12.68L32.00 12.60L33.06 12.68L34.09 12.91L35.08 13.29L36.00 13.81L36.83 14.46L37.57 15.23L38.18 16.10L39.68 18.61L41.19 21.12L42.69 23.63L44.20 26.14L45.70 28.65L47.21 31.16L48.71 33.68L50.22 36.19L51.73 38.70L52.21 39.67L52.55 40.70L52.72 41.77L52.74 42.85L52.59 43.93L52.28 44.97L51.81 45.95L51.21 46.85L50.48 47.65L49.63 48.33L48.70 48.88L47.69 49.28L46.63 49.52L45.55 49.60L42.54 49.60L39.53 49.60L36.52 49.60L33.51 49.60L30.49 49.60L27.48 49.60L24.47 49.60L21.46 49.60L18.45 49.60L17.37 49.52L16.31 49.28L15.30 48.88L14.37 48.33L13.52 47.65L12.79 46.85L12.19 45.95L11.72 44.97L11.41 43.93L11.26 42.85L11.28 41.77L11.45 40.70L11.79 39.67L12.27 38.70L13.78 36.19L15.29 33.68L16.79 31.16L18.30 28.65L19.80 26.14L21.31 23.63L22.81 21.12L24.32 18.61Z";
+
 /**
- * The original shrinks about (32 49) and then sets the base at y 52 (56 less the lift of 4); the rig squashes about
- * its feet (32 49.56), so the body is lifted by the difference: 52 - 49.56 + 0.56 x the vertical squash.
+ * The original breathes the body a touch wider and shorter (1.02 x 0.98) about (32 49) every 2.2 s, eased with the
+ * spline (.45 0 .55 1). Returns how far into a breath it is (0 at rest, 1 at the widest).
  */
-const liftFor = (sy: number) => 52 - FEET[1] - (49 - FEET[1]) * sy;
-const lift: Track<number> = squash.map(([t, s]) => [t, liftFor(s[1])] as const);
+function breath(t: number): number {
+  const phase = (t % 2200) / 2200;
+  const x = phase < 0.5 ? phase * 2 : 2 - phase * 2;
+  // solve the spline's x(s) = x for s, then take its y(s)
+  const bx = (s: number) => 3 * s * (1 - s) ** 2 * 0.45 + 3 * s * s * (1 - s) * 0.55 + s ** 3;
+  let lo = 0, hi = 1;
+  for (let n = 0; n < 30; n++) {
+    const mid = (lo + hi) / 2;
+    if (bx(mid) < x) lo = mid;
+    else hi = mid;
+  }
+  const s = (lo + hi) / 2;
+  return 3 * s * s * (1 - s) + s ** 3;
+}
+const breathScale = (t: number): Vec => [1 + 0.02 * breath(t), 1 - 0.02 * breath(t)];
+
+/** The outline breathed: every point scaled about (32 49), in the body's own (unshrunk) units. */
+function breathed(t: number): string {
+  const [bx, by] = breathScale(t);
+  let n = 0;
+  return OUTLINE.replace(/-?\d*\.?\d+/g, (v) => (n++ % 2 ? 49 + (+v - 49) * by : 32 + (+v - 32) * bx).toFixed(2));
+}
+
+/**
+ * The 0.8 shrink is a constant squash: the rig writes the squash with two decimals, so breathing in the squash would
+ * move in visible steps of 0.01; it is baked into the outline instead (and into the eyes' look, below). The original
+ * shrinks about (32 49) and then sets the base at y 52 (56 less the lift of 4); the rig squashes about its feet
+ * (32 49.56), so the body is lifted by the difference: 52 - 49.56 + 0.56 x 0.8.
+ */
+const squash: Track<Vec> = [[0, [SHRINK, SHRINK]]];
+const LIFT_BODY = 52 - FEET[1] - (49 - FEET[1]) * SHRINK;
 
 /** A world point, placed so that the rig's squash and lift put it back there. */
-function unsquash(p: Vec, t: number): Vec {
-  const s = sample(squash, t, [SHRINK, SHRINK]), l = sample(lift, t, 0);
-  return [FEET[0] + (p[0] - FEET[0]) / s[0], FEET[1] + (p[1] - l - FEET[1]) / s[1]];
+function unsquash(p: Vec): Vec {
+  return [FEET[0] + (p[0] - FEET[0]) / SHRINK, FEET[1] + (p[1] - LIFT_BODY - FEET[1]) / SHRINK];
 }
 
 // ---- deriving the tracks, frame by frame ----
@@ -180,7 +212,7 @@ const UNSHRINK: Track<number> = [[0, 1 / SHRINK]];
 
 const handTrack = (side: Side): PropTrack => ({
   attach: "world",
-  offset: frames.map((t) => [t, unsquash(world(pose(side, t / D).at), t), "linear"] as const),
+  offset: frames.map((t) => [t, unsquash(world(pose(side, t / D).at)), "linear"] as const),
   scale: UNSHRINK,
   behind: BEHIND,
 });
@@ -216,7 +248,7 @@ function cordTracks(side: Side): Record<string, PropTrack> {
       const angles = unwrap(perFrame.map((pieces) => pieces[n].angle));
       tracks[`cord${side}${part}${n}`] = {
         attach: "world",
-        offset: frames.map((t, f) => [t, unsquash(perFrame[f][n].at, t), "linear"] as const),
+        offset: frames.map((t, f) => [t, unsquash(perFrame[f][n].at), "linear"] as const),
         rotate: frames.map((t, f) => [t, angles[f], "linear"] as const),
         scale: UNSHRINK,
         visible,
@@ -227,18 +259,35 @@ function cordTracks(side: Side): Record<string, PropTrack> {
   return tracks;
 }
 
+/**
+ * Where the eyes look (in the body's units), as in the original: ahead, at the plug coming out on the left, at the
+ * socket on the right, then down at the plugging, and back up after pulling them apart, eased between the keys.
+ */
+const LOOK: [number, Vec][] = [
+  [0, [0, 0]], [0.2, [0, 0]], [0.27, [-1.3, -0.3]], [0.33, [1.3, -0.3]], [0.4, [0, 1.1]], [0.62, [0, 1.1]], [0.7, [0, 0]],
+  [1, [0, 0]],
+];
+/** The look, plus how the breathing moves the eyes (they sit 12.6 above the point it scales about, at (32 36.4)). */
+function lookAt(t: number): Vec {
+  const u = t / D;
+  let at: Vec = LOOK[LOOK.length - 1][1];
+  for (let n = 1; n < LOOK.length; n++)
+    if (u <= LOOK[n][0]) {
+      at = mix(LOOK[n - 1][1], LOOK[n][1], smooth((u - LOOK[n - 1][0]) / (LOOK[n][0] - LOOK[n - 1][0])));
+      break;
+    }
+  const [bx, by] = breathScale(t);
+  return [at[0] * bx, at[1] * by + (by - 1) * (36.4 - 49)];
+}
+
 export const plug: AgentAnimation = {
   duration: D,
   // plugged together, looking down at them
   rest: 2300,
-  body: { squash, lift },
+  body: { squash, lift: [[0, LIFT_BODY]], outline: frames.map((t) => [t, breathed(t), "linear"] as const) },
   eyes: {
-    // looks ahead, at the plug coming out on the left, at the socket on the right, then down at the plugging, and
-    // back up after pulling them apart
-    look: [
-      [0, [0, 0]], [0.2 * D, [0, 0]], [0.27 * D, [-1.3, -0.3]], [0.33 * D, [1.3, -0.3]], [0.4 * D, [0, 1.1]],
-      [0.62 * D, [0, 1.1]], [0.7 * D, [0, 0]],
-    ],
+    // the original's look, frame by frame, with the breathing's small move of the eyes
+    look: frames.map((t) => [t, lookAt(t), "linear"] as const),
     // the original's two blinks close by .115 and .735 of the loop
     blinks: [0.115 * D, 0.735 * D],
   },

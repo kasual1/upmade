@@ -21,8 +21,9 @@ import { Agent, Hat, hatSwap } from "@site/src/components/Agents";
 | `runtime.ts` | One shared `requestAnimationFrame` loop for every agent, and a looping clock that reports events |
 | `Agent.tsx` | Draws the rig once and writes each frame's pose into it (no React re-render per frame); plays only while on screen; holds `animation.rest` with reduced motion |
 | `reactions.ts` | Random hops (single, double or a mid-air wiggle, each with its own height, speed, tilt and squash) that `<Agent>` plays on top of its animation when hovered or clicked; turn them off with `reactive={false}` |
-| `props/` | Things agents handle (`Hat`, `Bouquet`), drawn around (0 0) in the same style |
-| `animations/` | The animations, as data |
+| `props/` | Things agents handle (`Hat`, `Bouquet`, and one folder per ported landing-page agent), drawn around (0 0) in the same style |
+| `animations/` | The animations, as data, including the ports of every agent on the landing pages |
+| `demos/` | One file per entry on `/agent`; the page picks them up automatically (`/agent?only=<key>` shows one) |
 
 ## Adding an animation
 
@@ -33,5 +34,5 @@ import { Agent, Hat, hatSwap } from "@site/src/components/Agents";
    hand or a prop behind the body, give it `behind` spans, and switch layers only while it is clear of the body
    (above the head or out to the side), or it will visibly pop through.
 3. Fire `events` at the moments the page should react to, and handle them with `onEvent`.
-4. Export it from `animations/index.ts`, add it to the preview page (`src/pages/agent.tsx`) and to the data check in
-   `tests/agents.spec.ts`. To inspect one moment, pass `time={ms}` to `<Agent>`; it then shows that moment still.
+4. Export it from `animations/index.ts` (every export there is checked by `tests/agents.spec.ts`) and add a
+   `demos/myThing.tsx` exporting `label` and a default component; `/agent` lists it automatically. To inspect one moment, pass `time={ms}` to `<Agent>`; it then shows that moment still.

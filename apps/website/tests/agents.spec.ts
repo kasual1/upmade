@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { eventsBetween, poseAt, sample, validate } from "../src/components/Agents/timeline";
+import * as animations from "../src/components/Agents/animations";
 import { bouquetReveal, hatSwap, idle } from "../src/components/Agents/animations";
 import { SHAPES } from "../src/components/Agents/tokens";
 
@@ -28,7 +29,7 @@ describe("eventsBetween", () => {
 });
 
 describe("animations", () => {
-  it.each([["idle", idle], ["hatSwap", hatSwap], ["bouquetReveal", bouquetReveal]] as const)("%s has valid data", (_, anim) => {
+  it.each(Object.entries(animations))("%s has valid data", (_, anim) => {
     expect(validate(anim)).toEqual([]);
   });
 

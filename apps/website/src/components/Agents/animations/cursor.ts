@@ -4,7 +4,8 @@ import type { AgentAnimation, Key, Span, Vec } from "../types";
  * "Programmable cursors", for the yellow circle agent: it closes its eyes, hops, and while in the air morphs into a
  * cursor arrow (with a little overshoot), clicks (a press towards its tip, two ink ripples spreading from the tip),
  * then morphs back into a circle, lands with a small dip and opens its eyes. Loop: 4.8 s.
- * Props: the ripple rings (`cursorRipples` lists them, with their radius). Event: `click` (the press).
+ * Props: the ripple rings (`cursorRipples` lists them, with their radius) and the part-closed eyes (`cursorEyes`, with
+ * their openness). Event: `click` (the press).
  *
  * Ported from the landing page's SMIL agent. The original nests, around the body path and the eyes:
  *   translate (the hop) > translate (the press nudge) > scale about the tip (the press) > scale about the tip (0.8 as
@@ -14,8 +15,10 @@ import type { AgentAnimation, Key, Span, Vec } from "../types";
  *   - the hop is `body.lift`, as in the original;
  *   - the press nudge, both scales about the tip and the morph are baked into the `outline` points;
  *   - the thinner stroke is a uniform `squash` s = (original stroke x scales) / 3.6, with the outline points
- *     pre-divided by s about the feet so the drawn shape is unchanged; the props, hands and eyes are compensated
- *     the same way.
+ *     pre-divided by s about the feet so the drawn shape is unchanged; the props and hands are compensated the
+ *     same way;
+ *   - the eyes close slowly and stay as slits for a while, which the rig's quick blink cannot do, so while they are
+ *     part way closed the rig's eyes are hidden and eye props, one per openness, stand in for them.
  * Between samples everything is linear, so the samples are dense (every 20 ms) wherever more than one track moves.
  */
 
@@ -120,7 +123,7 @@ function frameAt(t: number) {
   for (let i = 0; i < pa.length; i += 2) pts.push(place([pa[i] + (pb[i] - pa[i]) * u, pa[i + 1] + (pb[i + 1] - pa[i + 1]) * u]));
   const da = DEEPEST[MORPH_SHAPES[a]], db = DEEPEST[MORPH_SHAPES[b]];
   const deep = place([da[0] + (db[0] - da[0]) * u, da[1] + (db[1] - da[1]) * u]);
-  return { s, place, pts, deep };
+  return { s, k, place, pts, deep };
 }
 
 const r2 = (n: number) => Math.round(n * 100) / 100;
@@ -143,43 +146,91 @@ const SAMPLES = [...new Set([
 ])].sort((p, q) => p - q);
 const FRAMES = SAMPLES.map((t) => ({ t, ...frameAt(t) }));
 
-/** The eyes close from .312 and are gone from .345 (as the original's discrete opacity) until it is round again. */
-const EYES_HIDE = ms(.345);
-/** The original shows them as closed slits from .749 and opens them from .777; here they reappear, opening, at .777. */
-const EYES_BACK = ms(.777);
-/** the middle of the eyes, kept where the original draws it while the squash already starts (before they hide) */
+/**
+ * The eyes, as the original draws them: a blink at .188 (77 ms to close, 120 ms to open), a slow close as it turns
+ * into an arrow (.312 to .343, then gone from .345), back as closed slits from .749 while it turns round again, and
+ * opening from .777 to .802. Their openness, as the original's scale about the eyes' middle:
+ */
+const OPEN: Lin = [[0, 1], [.188, 1], [.204, .08], [.229, 1], [.312, 1], [.343, .08], [.777, .08], [.802, 1], [1, 1]];
+/** the spans where the eyes are part way closed: the rig's own blink is a fixed 90 ms, so these are drawn as props */
+const EYE_SPANS: Span[] = [[ms(.188), ms(.229)], [ms(.312), ms(.345)], [ms(.749), ms(.802)]];
+/** the middle of the eyes, which they close about */
 const EYE_MID: Vec = [32, 33.2];
+/** the openness of each eye prop: from a slit (.08) to wide open, in even steps */
+const EYE_LEVELS = Array.from({ length: 12 }, (_, i) => Math.round((0.08 + (0.92 * i) / 11) * 1000) / 1000);
+
+export const cursorEyes: { name: string; open: number }[] = [];
+const eyeProps: NonNullable<AgentAnimation["props"]> = {};
+{
+  // each eye prop is shown while the original's openness is nearest its own (checked every ms)
+  const spans: Span[][] = EYE_LEVELS.map(() => []);
+  for (const [a, b] of EYE_SPANS) {
+    let level = -1, from = a;
+    for (let t = a; t <= b; t++) {
+      const now = t === b ? -1 : Math.round((lin(OPEN, t) - 0.08) / (0.92 / 11));
+      if (now !== level) {
+        if (level >= 0) spans[level].push([from, t]);
+        level = now;
+        from = t;
+      }
+    }
+  }
+  // where the eyes are and how big: the body's squash undone, and the original's scales about the tip applied
+  const times = EYE_SPANS.flatMap(([a, b]) => [...new Set([...every20(a, b), ...SAMPLES.filter((t) => t > a && t < b)])].sort((p, q) => p - q));
+  const offset = times.map((t): Key<Vec> => [t, frameAt(t).place(EYE_MID), "linear"]);
+  const scale = times.map((t): Key<number> => {
+    const { s, k } = frameAt(t);
+    return [t, k / s, "linear"];
+  });
+  EYE_LEVELS.forEach((open, i) => {
+    if (!spans[i].length) return;
+    const name = `eyes${i}`;
+    cursorEyes.push({ name, open });
+    eyeProps[name] = { attach: "world", offset, scale, visible: spans[i] };
+  });
+}
 
 /**
- * The click ripples: two ink circles (stroke 2) growing from the tip while they fade (opacity .9 to 0), the second a
- * little later and smaller. Rather than scaling one circle (which would scale its stroke from 0 up), each ripple is
- * a run of rings of radius 1, 2, 3...: each ring is shown while the ripple's radius is within half a unit of its own
- * and scaled by at most a quarter (ring 1 grows from nothing), so the line stays close to 2 wide. Drawn behind the body, as in the original.
+ * The click ripples: two ink circles (stroke 2) centred on the tip, growing (radius 0 to 9, and a little later 0 to
+ * 5.4) while they fade (opacity .9 to 0), drawn behind the body and not moved by the press, as in the original.
+ * Scaling one circle would scale its stroke too, so each ripple is a disc while its radius is under 1 (the stroke
+ * then covers the middle), then a run of rings: ring j has its outer edge (radius + 1) at 2 q^(j + 1/2), with q about
+ * 1.2, and is shown while the ripple's outer edge is within a factor of sqrt(q) of it, scaled so the outer edge is
+ * exactly the original's; the line then stays within 10% of 2 wide.
  */
 const RIPPLES = [
   { name: "rippleA", from: ms(.51), to: ms(.594), radius: 9 },
   { name: "rippleB", from: ms(.535), to: ms(.619), radius: 5.4 },
 ];
-export const cursorRipples: { name: string; r: number }[] = [];
+export const cursorRipples: { name: string; r: number; dot: boolean }[] = [];
 const rippleProps: NonNullable<AgentAnimation["props"]> = {};
 for (const rp of RIPPLES) {
-  const timeAt = (r: number) => rp.from + ((rp.to - rp.from) * r) / rp.radius;
-  for (let ring = 1; ring - 0.5 < rp.radius; ring++) {
-    const lo = Math.max(0, ring - 0.5), hi = Math.min(rp.radius, ring + 0.5);
-    const span: Span = [Math.round(timeAt(lo)), hi >= rp.radius ? rp.to : Math.round(timeAt(hi))];
-    // at the body's own sample times (so the ring follows its squash exactly), plus every 20 ms
-    const times = [...new Set([...every20(span[0], span[1]), ...SAMPLES.filter((t) => t > span[0] && t < span[1])])].sort((p, q) => p - q);
+  const timeAt = (r: number) => Math.round(rp.from + ((rp.to - rp.from) * r) / rp.radius);
+  const n = Math.ceil(Math.log((rp.radius + 1) / 2) / Math.log(1.2));
+  const q = ((rp.radius + 1) / 2) ** (1 / n);
+  // [radius drawn (0 for the disc), outer edge it stands for, shown while the ripple's radius is in lo..hi]
+  const rings: [number, number, number, number][] = [[0, 1, 0, 1]];
+  for (let j = 0; j < n; j++) {
+    const outer = 2 * q ** (j + 0.5);
+    rings.push([outer - 1, outer, 2 * q ** j - 1, j === n - 1 ? rp.radius : 2 * q ** (j + 1) - 1]);
+  }
+  for (const [r, outer, lo, hi] of rings) {
+    const span: Span = [timeAt(lo), hi >= rp.radius ? rp.to : timeAt(hi)];
+    // at the body's own sample times (so the ring follows its squash exactly), plus every 10 ms
+    const times = [...new Set([span[0], ...SAMPLES.filter((t) => t > span[0] && t < span[1]), span[1]])];
+    for (let t = span[0]; t < span[1]; t += 10) times.push(t);
+    times.sort((p, q) => p - q);
     const offset: Key<Vec>[] = [], scale: Key<number>[] = [], opacity: Key<number>[] = [];
-    for (const t of times) {
+    for (const t of [...new Set(times)]) {
       const u = (t - rp.from) / (rp.to - rp.from);
       const { s } = frameAt(t);
       // undo the rig's squash (about the feet) so the ring sits on the tip, at its true size
       offset.push([t, [FEET[0] + (TIP[0] - FEET[0]) / s, FEET[1] + (TIP[1] - FEET[1]) / s], "linear"]);
-      scale.push([t, (rp.radius * u) / ring / s, "linear"]);
+      scale.push([t, (rp.radius * u + 1) / outer / s, "linear"]);
       opacity.push([t, 0.9 * (1 - u), "linear"]);
     }
-    const name = `${rp.name}${ring}`;
-    cursorRipples.push({ name, r: ring });
+    const name = `${rp.name}${r ? Math.round(r * 100) : "Dot"}`;
+    cursorRipples.push({ name, r, dot: !r });
     rippleProps[name] = { attach: "world", offset, scale, opacity, visible: [span], behind: [[0, D]] };
   }
 }
@@ -195,19 +246,10 @@ export const cursor: AgentAnimation = {
     squash: FRAMES.map(({ t, s }): Key<Vec> => [t, [s, s], "linear"]),
   },
   eyes: {
-    // the rig scales the eyes with the squash about the feet; this keeps their middle where the original has it
-    look: [
-      ...FRAMES.filter(({ t }) => t <= EYES_HIDE).map(({ t, place }): Key<Vec> => {
-        const [x, y] = place(EYE_MID);
-        return [t, [r2(x - EYE_MID[0]), r2(y - EYE_MID[1])], "linear"];
-      }),
-      [EYES_BACK, [0, 0]],
-    ],
-    // a blink at .204; closing as it turns into an arrow (shut just as they hide); opening as it is round again
-    blinks: [ms(.204), EYES_HIDE, EYES_BACK],
-    hidden: [[EYES_HIDE, EYES_BACK]],
+    // the rig's eyes are shown only while fully open (and then the body is unscaled); the props draw the rest
+    hidden: [[EYE_SPANS[0][0], EYE_SPANS[0][1]], [EYE_SPANS[1][0], EYE_SPANS[2][1]]],
   },
   hands: { L: hand, R: hand },
-  props: rippleProps,
+  props: { ...rippleProps, ...eyeProps },
   events: [[ms(.51), "click"]],
 };

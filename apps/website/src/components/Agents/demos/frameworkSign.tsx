@@ -1,0 +1,33 @@
+import { useState, type ReactNode } from "react";
+import Agent from "../Agent";
+import { FRAMEWORKS, Hand, Pole, Sign } from "../props/frameworkSign/Sign";
+import { FRAMEWORK_SIGN_WIDTHS, frameworkSign } from "../animations/frameworkSign";
+import type { DemoProps } from "./types";
+
+export const label = "Framework sign";
+export const order = 130;
+
+/**
+ * Cycles the sign's logo (React, Vue, Angular) on the animation's `flip` event, as the landing page does in step with
+ * its code snippet. The animation draws the original moved 7 units right (the rig squashes its body about x 32, see
+ * animations/frameworkSign.ts), so the agent is shifted back left by 7/64 of its width here.
+ */
+export default function FrameworkSignDemo({ className }: DemoProps) {
+  const [n, setN] = useState(0);
+  const framework = FRAMEWORKS[n];
+  const items: Record<string, ReactNode> = { pole: <Pole />, hand: <Hand /> };
+  FRAMEWORK_SIGN_WIDTHS.forEach((w, k) => (items[`sign${k + 1}`] = <Sign framework={framework} width={w} />));
+  return (
+    <div className={className} style={{ position: "relative" }}>
+      <Agent
+        shape="squircle"
+        colour="pink"
+        animation={frameworkSign}
+        items={items}
+        onEvent={(e) => e === "flip" && setN((i) => (i + 1) % FRAMEWORKS.length)}
+        label={`Agent holding up a sign: ${framework}`}
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", transform: `translateX(${(-7 / 64) * 100}%)` }}
+      />
+    </div>
+  );
+}

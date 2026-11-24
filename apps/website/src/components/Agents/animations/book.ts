@@ -6,8 +6,8 @@ import type { AgentAnimation, PropTrack, Span, Track, Vec } from "../types";
  * Speed-reads a book, for the orange triangle: it sits behind an open indigo book, eyes darting along the lines,
  * flicking three pages over with its right hand; then it squints, scratching its head, glances down again, and reads
  * and flicks three more pages before a last few glances along the lines.
- * Props (all drawn by the demo): `book`, the page frames `page0`..`page11`, the squint frames `squint0`..`squint3`
- * and the hands `handL`, `handR`. Event: `turn` as each page starts to turn.
+ * Props (all drawn by the demo): `book`, the page frames `page0`..`page15`, the eye frames `eye0`, `eye1`... (for the
+ * squint and the blinks) and the hands `handL`, `handR`. Event: `turn` as each page starts to turn.
  *
  * Ported from the landing page's SMIL agent (4.8 s loop, every channel linear). Its keyTimes and values are kept as
  * they are in the original (the `smil()` strings below) so they can be checked against it.
@@ -57,17 +57,50 @@ const handROffset = smil(
 const TURNS: readonly Span[] = [
   [0.021, 0.075], [0.079, 0.133], [0.138, 0.192], [0.521, 0.575], [0.579, 0.633], [0.637, 0.692],
 ].map(([a, b]) => [at(a), at(b)] as const);
-/** How many frames show a turning page (about one per display frame for the ~260 ms turn). */
-export const PAGE_FRAMES = 12;
+/** How many frames show a turning page (one per display frame, ~16 ms, for the ~260 ms turn). */
+export const PAGE_FRAMES = 16;
 /** The width of each page frame: the squeeze at the middle of its slot of the turn. */
 export const PAGE_SX = Array.from({ length: PAGE_FRAMES }, (_, k) => 1 - (2 * (k + 0.5)) / PAGE_FRAMES);
 
-/** The squint: the eyes narrow to .62 of their height (.283 to .304), hold, and widen again (.396 to .417). The
- *  first and last quarter of each change are left to the rig's eyes; three frames show the rest, then the hold. */
-const SQUINT = { in: [at(0.283), at(0.304)], out: [at(0.396), at(0.417)], to: 0.62 } as const;
-const squintAt = (u: number) => 1 - (1 - SQUINT.to) * u;
-/** squint0..2: the narrowing (and widening) frames, squint3: fully narrowed. */
-export const SQUINT_SY = [squintAt(0.375), squintAt(0.625), squintAt(0.875), SQUINT.to];
+/** The eyes' height (a vertical scale about their middle), as in the original: they narrow to .62 for the squint
+ *  (.283 to .304), hold, widen again (.396 to .417), and blink twice, shutting to .08 at .463 and .9 (closing in
+ *  ~62 ms, opening in ~77 ms and ~100 ms). */
+const eyeHeight = ys(smil("1 1;1 1;1 .62;1 .62;1 1;1 1;1 .08;1 1;1 1;1 .08;1 1;1 1",
+  "0;0.283;0.304;0.396;0.417;0.45;0.463;0.479;0.887;0.9;0.921;1"));
+/** The rig's eyes can only blink, and only with its own fixed 90 ms blink, so wherever the eyes are not fully open
+ *  they are hidden and a frame of narrowed eyes stands in: each change is cut into slots of about one display frame
+ *  (16 ms), each showing the height at the slot's middle (rounded to .02, so frames are shared); the held squint is
+ *  one slot. */
+const EYE_SLOT = 16;
+const eyeSlots: Array<{ sy: number; span: Span }> = [];
+for (let n = 1; n < eyeHeight.length; n++) {
+  const [t0, v0] = eyeHeight[n - 1], [t1, v1] = eyeHeight[n];
+  if (v0 === 1 && v1 === 1) continue;
+  const count = v0 === v1 ? 1 : Math.max(1, Math.round((t1 - t0) / EYE_SLOT));
+  for (let k = 0; k < count; k++) {
+    const sy = Math.round((v0 + ((v1 - v0) * (k + 0.5)) / count) * 50) / 50;
+    if (sy < 1) eyeSlots.push({ sy, span: [Math.round(t0 + ((t1 - t0) * k) / count), Math.round(t0 + ((t1 - t0) * (k + 1)) / count)] });
+  }
+}
+/** The heights of the eye frames `eye0`, `eye1`... (the demo draws one `Squint` per height). */
+export const EYE_SY = [...new Set(eyeSlots.map((e) => e.sy))].sort((a, b) => b - a);
+/** Eye frame k is shown in every slot of its height; it sits in the body's own (scaled) space, like the rig's eyes,
+ *  and moves with the gaze. */
+const eyeFrame = (k: number): PropTrack => ({
+  attach: "world",
+  offset: look,
+  visible: eyeSlots.filter((e) => e.sy === EYE_SY[k]).map((e) => e.span),
+});
+/** While any eye frame shows, the rig's eyes are hidden (the slots run back to back within each change). */
+const EYES_HIDDEN: Span[] = eyeSlots
+  .map((e) => e.span)
+  .sort((a, b) => a[0] - b[0])
+  .reduce<Span[]>((out, [a, b]) => {
+    const last = out[out.length - 1];
+    if (last && a <= last[1]) out[out.length - 1] = [last[0], Math.max(last[1], b)];
+    else out.push([a, b]);
+    return out;
+  }, []);
 
 // ---- placing the props ----
 
@@ -100,14 +133,6 @@ const pageFrame = (k: number): PropTrack =>
     visible: TURNS.map(([a, b]) => [Math.round(a + ((b - a) * k) / PAGE_FRAMES), Math.round(a + ((b - a) * (k + 1)) / PAGE_FRAMES)] as const),
   });
 
-/** Squint frame k: frames 0..2 in the quarters 2..4 of the narrowing and the quarters 1..3 of the widening; frame 3
- *  in between. They are in the body's own (scaled) space, like the rig's eyes, and move with the gaze. */
-const quarter = ([a, b]: readonly [number, number], q: number): Span => [Math.round(a + ((b - a) * q) / 4), Math.round(a + ((b - a) * (q + 1)) / 4)];
-const squintFrame = (k: number): PropTrack => ({
-  attach: "world",
-  offset: look,
-  visible: k === 3 ? [[SQUINT.in[1], SQUINT.out[0]]] : [quarter(SQUINT.in, k + 1), quarter(SQUINT.out, 2 - k)],
-});
 
 export const book: AgentAnimation = {
   duration: D,
@@ -122,18 +147,16 @@ export const book: AgentAnimation = {
   },
   eyes: {
     look,
-    // the original's two blinks close at .463 and .9
-    blinks: [at(0.463), at(0.9)],
-    // the squint frames stand in for the eyes (see SQUINT)
-    hidden: [[quarter(SQUINT.in, 1)[0], quarter(SQUINT.out, 2)[1]]],
+    // no rig blinks: the squint and the two blinks are drawn by the eye frames (see eyeHeight)
+    hidden: EYES_HIDDEN,
   },
   hands: {
     L: { path: [[0, [28, 40]]], behind: [[0, D]] },
     R: { path: [[0, [36, 40]]], behind: [[0, D]] },
   },
-  // drawn in this order: squint, pages, then the book over the pages' feet, then the hands over the book
+  // drawn in this order: eye frames, pages, then the book over the pages' feet, then the hands over the book
   props: {
-    ...Object.fromEntries(SQUINT_SY.map((_, k) => [`squint${k}`, squintFrame(k)])),
+    ...Object.fromEntries(EYE_SY.map((_, k) => [`eye${k}`, eyeFrame(k)])),
     ...Object.fromEntries(PAGE_SX.map((_, k) => [`page${k}`, pageFrame(k)])),
     book: fullSize(SPINE),
     handL: fullSize(HAND_L),

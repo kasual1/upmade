@@ -1,3 +1,18 @@
 export { idle } from "./idle";
 export { hatSwap } from "./hatSwap";
 export { bouquetReveal } from "./bouquetReveal";
+export { key } from "./key";
+export { cursor } from "./cursor";
+export { plug } from "./plug";
+export { book } from "./book";
+export { wizard } from "./wizard";
+export { painter, painterStage } from "./painter";
+export { handoff, handoffTriangle, handoffCircle } from "./handoff";
+export { shapeShift, shapeShiftCircle, shapeShiftTriangle, shapeShiftSquare } from "./shapeShift";
+export { controlPanel } from "./controlPanel";
+export { devices } from "./devices";
+export { lovestruck } from "./lovestruck";
+export { juggler } from "./juggler";
+export { frameworkSign } from "./frameworkSign";
+export { cyclingGlasses } from "./cyclingGlasses";
+export { toolCycle } from "./toolCycle";

@@ -2,8 +2,8 @@ import { INK, SHAPES } from "../../tokens";
 
 /**
  * The triangle agent's eyes narrowed to `sy` of their height (about their middle), for the squint while it peers at
- * the page. The rig's eyes can only blink, so the animation hides them and shows these instead, a few frames of
- * them for the narrowing and widening. Drawn where the rig's eyes are (the origin is the agent's own (0 0)); the
+ * the page and for its two blinks. The rig's eyes can only do their own fixed blink, so the animation hides them and
+ * shows these instead, one frame per display frame of each narrowing and widening. Drawn where the rig's eyes are (the origin is the agent's own (0 0)); the
  * animation moves them with the gaze.
  */
 export default function Squint({ sy }: { sy: number }) {

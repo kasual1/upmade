@@ -2,6 +2,9 @@ import Agent from "../Agent";
 import Key from "../props/key/Key";
 import Hand from "../props/key/Hand";
 import Sparkle from "../props/key/Sparkle";
+import Lids from "../props/key/Lids";
+import Glints from "../props/key/Glints";
+import TallEyes from "../props/key/TallEyes";
 import { key } from "../animations/key";
 import type { DemoProps } from "./types";
 
@@ -21,7 +24,8 @@ export default function KeyDemo({ className }: DemoProps) {
         shape="squircle"
         colour="violet"
         animation={key}
-        items={{ key: <Key />, sparkle: <Sparkle />, hand: <Hand colour="violet" /> }}
+        items={{ key: <Key />, sparkle: <Sparkle />, hand: <Hand colour="violet" />, lids: <Lids colour="violet" />,
+          glintCovers: <Glints cover />, glints: <Glints />, tallEyes: <TallEyes /> }}
         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", transform: `translate(${SHIFT.x * 100}%, ${SHIFT.y * 100}%)` }}
       />
     </div>

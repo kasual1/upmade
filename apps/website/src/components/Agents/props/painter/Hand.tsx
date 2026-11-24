@@ -2,8 +2,8 @@ import { useId } from "react";
 import { COLOURS, INK, STROKE } from "../../tokens";
 
 /**
- * The painter's brush hand, drawn as a prop of the full-size "stage" agent (see animations/painter.ts): the original
- * draws the painter at 0.62 but this hand at full size, radius 4.5. Same look as a rig hand: the violet gradient and
+ * The painter's brush hand, drawn as a prop of the "stage" agent (see animations/painter.ts): the original draws the
+ * painter at 0.62 but this hand at full size, radius 4.5 (the demo scales it up to make up for the shared 0.62 box). Same look as a rig hand: the violet gradient and
  * an ink outline. Drawn around (0 0).
  */
 export default function Hand() {
