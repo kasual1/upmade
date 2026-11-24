@@ -89,7 +89,7 @@ export function poseAt(anim: AgentAnimation, t: number, shape: ShapeName = "squi
   const hands = { L: hand("L"), R: hand("R") };
   const props: Pose["props"] = {};
   for (const [name, p] of Object.entries(anim.props ?? {})) {
-    const anchor: Vec = p.attach === "head" ? spec.head : p.attach === "world" ? [0, 0] : hands[p.attach].at;
+    const anchor: Vec = p.attach === "head" ? spec.head : p.attach === "world" || p.attach === "scene" ? [0, 0] : hands[p.attach].at;
     const offset = sample(p.offset, t, [0, 0] as Vec);
     props[name] = {
       visible: p.visible ? within(p.visible, t) : true,
