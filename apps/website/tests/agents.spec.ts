@@ -122,3 +122,26 @@ describe("shift", () => {
     expect(validate({ duration: 1000, body: { shift: [[0, 0], [1200, 1]] } })).toHaveLength(1);
   });
 });
+
+describe("eyes", () => {
+  it("a linear blink moves at an even speed", () => {
+    const b = { at: 1000, close: 100, open: 100, depth: 0, ease: "linear" as const };
+    expect(openness([b], 950)).toBeCloseTo(0.5);
+    expect(openness([b], 975)).toBeCloseTo(0.25);
+    expect(openness([b], 1025)).toBeCloseTo(0.25);
+  });
+
+  it("lid, scale and glint are sampled, with neutral defaults", () => {
+    const anim = {
+      duration: 1000,
+      eyes: { lid: [[0, 0], [1000, 0.5, "linear"]] as const, scale: [[0, [1, 1]], [1000, [1, 1.2], "linear"]] as const, glint: [[0, [0, 0]], [1000, [1, -1], "linear"]] as const },
+    };
+    const e = poseAt(anim, 500).eyes;
+    expect(e.lid).toBeCloseTo(0.25);
+    expect(e.scale[1]).toBeCloseTo(1.1);
+    expect(e.glint).toEqual([0.5, -0.5]);
+    const d = poseAt({ duration: 1000 }, 500).eyes;
+    expect([d.lid, d.scale, d.glint]).toEqual([0, [1, 1], [0, 0]]);
+    expect(validate({ duration: 1000, eyes: { lid: [[0, 1.5]] } })).toHaveLength(1);
+  });
+});

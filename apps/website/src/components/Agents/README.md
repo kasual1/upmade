@@ -35,7 +35,9 @@ import { Agent, Hat, hatSwap } from "@site/src/components/Agents";
    (above the head or out to the side), or it will visibly pop through.
 3. Blinks are times (`blinks: [700, 3900]`) or blinks of their own shape
    (`{ at: 1200, close: 100, hold: 300, open: 160, depth: .42 }` is a slow squint); `eyes.blink` sets the shape for
-   the plain times. `body.shift` moves the whole agent sideways (a shake, a step, or a fixed placement), as `lift`
+   the plain times; `ease: "linear"` makes a blink move at an even speed. `eyes.lid` cuts the eyes flat from the top
+   (a sly or sleepy look, independent of blinks), `eyes.scale` stretches them about their lower ends (above 1 is taller
+   than open), and `eyes.glint` moves the white glints within the pupils. `body.shift` moves the whole agent sideways (a shake, a step, or a fixed placement), as `lift`
    does vertically.
 4. Fire `events` at the moments the page should react to, and handle them with `onEvent`.
 5. Export it from `animations/index.ts` (every export there is checked by `tests/agents.spec.ts`) and add a

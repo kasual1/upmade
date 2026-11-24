@@ -61,6 +61,8 @@ export interface Blink {
   hold?: number;
   /** how open the eyes are while shut: 0 closed, 1 open (default .1) */
   depth?: number;
+  /** how the eyes close and reopen: "smooth" eases in and out (default), "linear" moves at an even speed */
+  ease?: "smooth" | "linear";
 }
 
 /** The parts of a blink an animation can set once for all its blinks. */
@@ -100,6 +102,15 @@ export interface AgentAnimation {
     hidden?: readonly Span[];
     /** blushing cheeks under the eyes (0 none, 1 full) */
     blush?: Track<number>;
+    /**
+     * an eyelid: how much of the eyes' height is cut off flat from the top (0 none, .5 half, 1 all). The cut moves
+     * with the gaze but not with blinks or `scale`, so the eyes can blink or stretch under a lid.
+     */
+    lid?: Track<number>;
+    /** [x, y] size of the eyes about their lower ends (1 normal); y above 1 stretches them taller than open */
+    scale?: Track<Vec>;
+    /** where the white glints sit, as an offset from their place in the pupils (they move with the gaze too) */
+    glint?: Track<Vec>;
   };
   hands?: Partial<Record<HandName, HandTrack>>;
   props?: Record<string, PropTrack>;
@@ -113,7 +124,7 @@ export interface AgentAnimation {
 export interface Pose {
   /** `outline` is set only when the animation changes the body's outline */
   body: { lift: number; shift: number; lean: number; scale: Vec; outline?: string };
-  eyes: { look: Vec; open: number; happy: boolean; hidden: boolean; blush: number };
+  eyes: { look: Vec; open: number; happy: boolean; hidden: boolean; blush: number; lid: number; scale: Vec; glint: Vec };
   hands: Record<HandName, { at: Vec; behind: boolean }>;
   props: Record<string, { visible: boolean; behind: boolean; at: Vec; rotate: number; scale: number; opacity: number }>;
 }

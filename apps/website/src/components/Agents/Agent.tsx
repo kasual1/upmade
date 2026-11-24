@@ -30,7 +30,10 @@ export interface AgentProps {
 }
 
 const HANDS: HandName[] = ["L", "R"];
-const f = (n: number) => n.toFixed(2);
+/** numbers written into the SVG: 3 decimals is well under a pixel at any size the agents are drawn */
+const f = (n: number) => String(Math.round(n * 1000) / 1000);
+/** scales get 4 decimals, so slow breathing changes smoothly instead of in visible steps */
+const fs = (n: number) => String(Math.round(n * 10000) / 10000);
 
 interface Parts {
   body: SVGGElement;
@@ -38,6 +41,9 @@ interface Parts {
   blush: SVGGElement;
   gaze: SVGGElement;
   eyes: SVGGElement;
+  glints: SVGGElement;
+  lid: SVGGElement;
+  lidCut: SVGRectElement;
   happy: SVGGElement;
   layered: Array<{ el: SVGGElement; kind: "hand" | "prop"; name: string; behind: boolean }>;
 }
@@ -50,6 +56,9 @@ function findParts(svg: SVGSVGElement): Parts {
     blush: one("blush"),
     gaze: one("gaze"),
     eyes: one("eyes"),
+    glints: one("glints"),
+    lid: one("lid"),
+    lidCut: svg.querySelector<SVGRectElement>('[data-part="lid-cut"]')!,
     happy: one("happy"),
     layered: Array.from(svg.querySelectorAll<SVGGElement>("[data-layer]")).map((el) => ({
       el,
@@ -66,14 +75,23 @@ function applyPose(parts: Parts, pose: Pose, shape: ShapeName) {
   const { lift, shift, lean, scale } = pose.body;
   parts.body.setAttribute(
     "transform",
-    `translate(${f(shift)} ${f(lift)}) rotate(${f(lean)} ${fx} ${fy}) translate(${fx} ${fy}) scale(${f(scale[0])} ${f(scale[1])}) translate(${-fx} ${-fy})`,
+    `translate(${f(shift)} ${f(lift)}) rotate(${f(lean)} ${fx} ${fy}) translate(${fx} ${fy}) scale(${fs(scale[0])} ${fs(scale[1])}) translate(${-fx} ${-fy})`,
   );
   if (pose.body.outline) parts.outline.setAttribute("d", pose.body.outline);
   parts.gaze.setAttribute("transform", `translate(${f(pose.eyes.look[0])} ${f(pose.eyes.look[1])})`);
   parts.gaze.style.display = pose.eyes.hidden ? "none" : "";
   parts.blush.style.opacity = f(pose.eyes.hidden ? 0 : pose.eyes.blush);
-  const cy = SHAPES[shape].eyesY + 3.1;
-  parts.eyes.setAttribute("transform", `translate(0 ${cy}) scale(1 ${f(pose.eyes.open)}) translate(0 ${-cy})`);
+  // eyes: stretched about their lower ends (eyes.scale), then blinked about their middle
+  const top = SHAPES[shape].eyesY, cy = top + 3.1, bottom = top + 6.2;
+  const [sx, sy] = pose.eyes.scale;
+  const stretch = sx === 1 && sy === 1 ? "" : ` translate(32 ${bottom}) scale(${fs(sx)} ${fs(sy)}) translate(-32 ${-bottom})`;
+  parts.eyes.setAttribute("transform", `translate(0 ${cy}) scale(1 ${fs(pose.eyes.open)}) translate(0 ${-cy})${stretch}`);
+  parts.glints.setAttribute("transform", `translate(${f(pose.eyes.glint[0])} ${f(pose.eyes.glint[1])})`);
+  // the lid cuts the eyes flat from the top, in the gaze's space, so it doesn't blink or stretch with them
+  if (pose.eyes.lid > 0) {
+    parts.lidCut.setAttribute("y", f(top + 6.2 * pose.eyes.lid));
+    parts.lid.setAttribute("clip-path", `url(#${parts.lidCut.parentElement!.id})`);
+  } else parts.lid.removeAttribute("clip-path");
   parts.eyes.style.display = pose.eyes.happy ? "none" : "";
   parts.happy.style.display = pose.eyes.happy ? "" : "none";
   for (const p of parts.layered) {
@@ -236,6 +254,9 @@ export default function Agent({
       aria-hidden={label ? undefined : true}
     >
       <defs>
+        <clipPath id={`${gradient}-lid`} clipPathUnits="userSpaceOnUse">
+          <rect data-part="lid-cut" x={-64} y={-64} width={192} height={192} />
+        </clipPath>
         <linearGradient id={gradient} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor={light} />
           <stop offset=".65" stopColor={base} />
@@ -251,11 +272,15 @@ export default function Agent({
         </g>
         {/* data-part="gaze", not data-look: the landing pages' pointer-following eyes script drives every [data-look] */}
         <g data-part="gaze">
-          <g data-part="eyes">
-            <rect x={24.55} y={y} width={4.3} height={6.2} rx={2.15} fill={INK} />
-            <rect x={35.15} y={y} width={4.3} height={6.2} rx={2.15} fill={INK} />
-            <circle cx={27.2} cy={y + 1.7} r={1} fill="#FFFFFF" />
-            <circle cx={37.8} cy={y + 1.7} r={1} fill="#FFFFFF" />
+          <g data-part="lid">
+            <g data-part="eyes">
+              <rect x={24.55} y={y} width={4.3} height={6.2} rx={2.15} fill={INK} />
+              <rect x={35.15} y={y} width={4.3} height={6.2} rx={2.15} fill={INK} />
+              <g data-part="glints">
+                <circle cx={27.2} cy={y + 1.7} r={1} fill="#FFFFFF" />
+                <circle cx={37.8} cy={y + 1.7} r={1} fill="#FFFFFF" />
+              </g>
+            </g>
           </g>
           <g data-part="happy" style={{ display: "none" }}>
             <path d={`M23.7 ${y + 4.3}q3 -4.5 6 0M34.3 ${y + 4.3}q3 -4.5 6 0`} fill="none" stroke={INK} strokeWidth={2.4} strokeLinecap="round" />

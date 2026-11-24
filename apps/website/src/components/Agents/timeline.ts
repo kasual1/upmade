@@ -48,7 +48,7 @@ export function sample(track: Track<number | Vec | string> | undefined, t: numbe
 
 export const within = (spans: readonly Span[] | undefined, t: number) => !!spans?.some(([a, b]) => t >= a && t < b);
 
-export const BLINK: Required<BlinkShape> = { close: 45, open: 45, hold: 0, depth: 0.1 };
+export const BLINK: Required<BlinkShape> = { close: 45, open: 45, hold: 0, depth: 0.1, ease: "smooth" };
 
 /** A blink with every field filled in from the animation's `blink` shape and the defaults. */
 export function blinkOf(b: number | Blink, shape?: BlinkShape): Required<Blink> {
@@ -56,8 +56,8 @@ export function blinkOf(b: number | Blink, shape?: BlinkShape): Required<Blink> 
 }
 
 /**
- * How open the eyes are (1 open) at time t. Each blink eases shut over `close` ms, holds at `depth` for `hold` ms
- * and eases open over `open` ms. Blinks near the ends of the loop wrap round it when `duration` is given.
+ * How open the eyes are (1 open) at time t. Each blink closes over `close` ms, holds at `depth` for `hold` ms
+ * and reopens over `open` ms, smoothly or (with `ease: "linear"`) at an even speed. Blinks near the ends of the loop wrap round it when `duration` is given.
  */
 export function openness(blinks: readonly (number | Blink)[] | undefined, t: number, shape?: BlinkShape, duration?: number): number {
   let open = 1;
@@ -69,8 +69,8 @@ export function openness(blinks: readonly (number | Blink)[] | undefined, t: num
       if (t < at) u = (at - t) / b.close;
       else if (t <= at + b.hold) u = 0;
       else u = (t - at - b.hold) / b.open;
-      const smooth = u * u * (3 - 2 * u);
-      open = Math.min(open, b.depth + (1 - b.depth) * smooth);
+      const eased = b.ease === "linear" ? u : u * u * (3 - 2 * u);
+      open = Math.min(open, b.depth + (1 - b.depth) * eased);
     }
   }
   return open;
@@ -114,6 +114,9 @@ export function poseAt(anim: AgentAnimation, t: number, shape: ShapeName = "squi
       happy: within(anim.eyes?.happy, t),
       hidden: within(anim.eyes?.hidden, t),
       blush: sample(anim.eyes?.blush, t, 0),
+      lid: sample(anim.eyes?.lid, t, 0),
+      scale: sample(anim.eyes?.scale, t, [1, 1] as Vec),
+      glint: sample(anim.eyes?.glint, t, [0, 0] as Vec),
     },
     hands,
     props,
@@ -149,6 +152,12 @@ export function validate(anim: AgentAnimation): string[] {
   keys("body.outline", anim.body?.outline);
   keys("eyes.look", anim.eyes?.look);
   keys("eyes.blush", anim.eyes?.blush);
+  keys("eyes.lid", anim.eyes?.lid);
+  keys("eyes.scale", anim.eyes?.scale);
+  keys("eyes.glint", anim.eyes?.glint);
+  anim.eyes?.lid?.forEach(([t, v]) => {
+    if (v < 0 || v > 1) issues.push(`eyes.lid: ${v} at ${t} ms is outside 0..1`);
+  });
   anim.eyes?.blinks?.forEach((raw) => {
     const b = blinkOf(raw, anim.eyes?.blink);
     if (b.at < 0 || b.at > anim.duration) issues.push(`eyes.blinks: blink at ${b.at} ms is outside the loop`);
