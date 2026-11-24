@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from "react";
 import Agent from "../Agent";
-import { FRAMEWORKS, Hand, Pole, Sign } from "../props/frameworkSign/Sign";
+import Hand from "../props/Hand";
+import { FRAMEWORKS, Pole, Sign } from "../props/frameworkSign/Sign";
 import { FRAMEWORK_SIGN_WIDTHS, frameworkSign } from "../animations/frameworkSign";
 import type { DemoProps } from "./types";
 
@@ -14,7 +15,7 @@ export const order = 130;
 export default function FrameworkSignDemo({ className }: DemoProps) {
   const [n, setN] = useState(0);
   const framework = FRAMEWORKS[n];
-  const items: Record<string, ReactNode> = { pole: <Pole />, hand: <Hand /> };
+  const items: Record<string, ReactNode> = { pole: <Pole />, hand: <Hand colour="pink" /> };
   FRAMEWORK_SIGN_WIDTHS.forEach((w, k) => (items[`sign${k + 1}`] = <Sign framework={framework} width={w} />));
   return (
     <div className={className} style={{ position: "relative" }}>

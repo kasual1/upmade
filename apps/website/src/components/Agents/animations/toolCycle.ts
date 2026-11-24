@@ -1,4 +1,5 @@
 import { SHAPES } from "../tokens";
+import { handAt as cascadeHand, objectAt as cascadeObject, type Cascade } from "./cascade";
 import type { AgentAnimation, Blink, Key, PropTrack, Span, Vec } from "../types";
 
 /**
@@ -15,7 +16,8 @@ import type { AgentAnimation, Blink, Key, PropTrack, Span, Vec } from "../types"
  *   10.53  arrow           3.8 s   pulls out an arrow, tosses it high over its head (two spins), catches it in the
  *                                  left hand and tucks it away behind its back with both hands
  *   14.33  shapeRectangle  4.48 s  three shapes (triangle, square, circle) carried out stacked on the right hand,
- *                                  then juggled in a three-ball cascade over its head, a throw every 0.32 s
+ *                                  then juggled like the juggler does (the same cascade, cascade.ts): hands at the
+ *                                  middle of its sides, the shapes spinning high over its head, a throw every 0.3 s
  *   18.81  type            4.08 s  a typewriter (we see its back: it faces the agent); both hands type over the top,
  *                                  the carriage slides along three lines
  *   22.89  image           3.38 s  holds up a photo with a little wobble, smiling (eyes closed into happy arcs, cheeks
@@ -54,10 +56,17 @@ interface Turn {
   behind?: P; out?: P; hold?: P; holdEnd?: P; lStart?: Vec; lEnd?: Vec;
 }
 
-// cascade: throws alternate right/left every BEAT; each shape is thrown from the inside of one hand, flies over the
-// agent's head to the outside of the other hand, and is carried back inside (a little scoop) to be thrown again
-const BEAT = 0.32, FLY = 2.4, TAU0 = 3, PEAK = -3;
-const JHANDS = { R: { in: [45.5, 45.5] as Vec, out: [56, 43] as Vec }, L: { in: [18.5, 45.5] as Vec, out: [8, 43] as Vec } };
+// juggling: the juggler's cascade (cascade.ts) in this agent's own space, a throw every BEAT s alternating hands;
+// TAU0 is the beat the turn starts on. Like the juggler, the hands juggle at the middle of the body's sides, throwing
+// from just inside its edge and catching just outside it, and the throws peak high over the head (as high above it
+// as the juggler's); a shape rides SIT above the hand that holds it.
+const BEAT = 0.3, TAU0 = 3, SIT = 6.6;
+const JUGGLE: Cascade = {
+  throwAt: [47.3, 31], catchAt: [58.2, 31], top: -30.5 + SIT, rise: 4.8, scoop: 7.4, flight: 2.1,
+  knee: { at: 12 / 21, x: 0.745 },
+};
+/** the shapes spin all the time they are juggled, a third of a turn apart, at 200 degrees a second */
+const SPIN = 200;
 const BUNDLE: Vec[] = [[6.2, -13.8], [-6.6, -8.8], [2, -7.4]];   // the shapes stacked on the right hand
 
 const ez = (u: number) => (u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2);
@@ -66,25 +75,16 @@ function mix<T extends readonly number[]>(a: T, b: readonly number[], u: number)
   return a.map((v, i) => v + (b[i] - v) * u) as unknown as T;
 }
 
-function handAt(side: "R" | "L", tau: number): Vec {
-  const h = JHANDS[side], ph = (((tau - (side === "R" ? 0 : 1)) % 2) + 2) % 2;   // right throws on even beats, left on odd
-  const C = FLY - 1;   // it catches FLY-1 beats after its own throw, then carries the shape back in
-  if (ph < C) {
-    const e = ez(ph / C), p = mix(h.in, h.out, e);
-    return [p[0], p[1] - 1.6 * Math.sin(Math.PI * e)];
-  }
-  const e = (ph - C) / (2 - C), p = mix(h.out, h.in, e);
-  return [p[0], p[1] + 2.2 * Math.sin(Math.PI * e)];
-}
+const handAt = (side: "R" | "L", tau: number): Vec => cascadeHand(JUGGLE, side, tau);
 function ballAt(k: number, tau: number): [number, number, number] {
-  const n = Math.floor((tau - k) / 3), b = k + 3 * n, u = tau - b, thr = b % 2 === 0 ? "R" : "L", cat = thr === "R" ? "L" : "R";
-  if (u < FLY) {
-    const f = u / FLY, A = JHANDS[thr].in, B = JHANDS[cat].out, y0 = A[1] - 6.6, y1 = B[1] - 6.6, H = (y0 + y1) / 2 - PEAK;
-    return [A[0] + (B[0] - A[0]) * f, y0 + (y1 - y0) * f - 4 * H * f * (1 - f), (thr === "R" ? -1 : 1) * 360 * f];
-  }
-  const p = handAt(cat, tau);
-  return [p[0], p[1] - 6.6, 0];
+  const [x, y] = cascadeObject(JUGGLE, k, tau);
+  return [x, y - SIT, k * 120 + SPIN * (tau - TAU0) * BEAT];
 }
+
+/** the typewriter is held up at 1.3 (it comes closer); the hand typing on it is drawn at 1 / that, so it stays an
+ *  ordinary hand's size */
+const TYPER_SCALE = 1.3;
+export const TYPER_HAND = 1 / TYPER_SCALE;
 
 const TURNS: Turn[] = [
   { name: "rest", tool: "cursor", dur: 3.6 },   // looks left, looks right, then blinks twice
@@ -92,7 +92,7 @@ const TURNS: Turn[] = [
   { name: "eraser", tool: "eraser", use: 1.67, behind: [40, 37, -10, 0.7], out: [62, 40, 0, 1], hold: [52.4, 41.5, 0, 1] },
   { name: "arrow", tool: "arrow", dur: 3.8 },
   { name: "juggle", tool: "shapeRectangle", use: 3, behind: [38, 42, -10, 0.7], out: [60, 43, 0, 1] },
-  { name: "typer", tool: "type", use: 2.6, behind: [38, 38, 0, 0.7], out: [78, 44, 0, 1], hold: [45, 46.5, 0, 1.3] },
+  { name: "typer", tool: "type", use: 2.6, behind: [38, 38, 0, 0.7], out: [78, 44, 0, 1], hold: [45, 46.5, 0, TYPER_SCALE] },
   { name: "photo", tool: "image", use: 1.9, behind: [34, 42, -8, 0.75], out: [64.5, 42, 8, 1], hold: [55, 43, 6, 1] },
 ];
 {

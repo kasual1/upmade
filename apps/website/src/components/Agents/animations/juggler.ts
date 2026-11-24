@@ -1,4 +1,5 @@
 import type { AgentAnimation, Key, Track, Vec } from "../types";
+import { handAt, objectAt, type Cascade } from "./cascade";
 
 /**
  * The juggler (the DOM-canvas section of infinite.html): the blue circle agent pulls a vase, an apple and a
@@ -36,68 +37,56 @@ const W = (x: number, y: number): Vec => [+(32 + (x - 32) / S).toFixed(2), +(49.
 
 /** the cascade runs from the first throw to the last catch-and-hold: two full rounds of 1.8 s */
 const C0 = 1650, C1 = 5250;
-/** one object's round: thrown right to left, held in the left hand, thrown back, held in the right hand */
-const ROUND = 1800;
-/** a throw's flight, and a hold in a hand */
-const FLIGHT = 630, HOLD = 270;
-/** the hands' loop: a throw every 0.6 s from each hand */
-const HAND_LOOP = 600;
+/** a beat: one throw every 0.3 s, alternating hands */
+const BEAT = 300;
 /** the original was baked into keys every 30 ms; the cascade is rebuilt here at the same rate */
 const STEP = 30;
 
-/** where the right hand throws from (the inside of its loop) and catches at (the outside), in the box */
-const THROW: Vec = [42.1, 45.1], CATCH: Vec = [49.3, 45.1];
-/** the top of every throw, the depth of a hand's scoop while holding, and the hand's rise when empty */
-const TOP = 10.1, SCOOP = 4.9, RISE = 3.2;
-const mirror = ([x, y]: Vec): Vec => [64 - x, y];
+/** how much lower than the original the hands juggle: at the middle of the body rather than up by the face */
+const DROP = 6;
+/**
+ * The cascade, in the box (see cascade.ts): the right hand throws from (42.1 51.1) and catches at (49.3 51.1), the
+ * throws peak at y 10.1, an empty hand rises 3.2 on its way out and a full one scoops down 4.9 on its way back in.
+ * A throw flies for 2.1 beats (630 ms), its x running fast to 21.7 for the first 12/21 of it (as the original does).
+ * The original juggles at y 45.1; here the hands are DROP lower.
+ */
+const JUGGLE: Cascade = {
+  throwAt: [42.1, 45.1 + DROP], catchAt: [49.3, 45.1 + DROP], top: 10.1, rise: 3.2, scoop: 4.9, flight: 2.1,
+  knee: { at: 12 / 21, x: (42.1 - 21.7) / (42.1 - 14.7) },
+};
+/** the same at the original's height: the lead-in and wind-down below were made to meet that one */
+const ORIGINAL: Cascade = { ...JUGGLE, throwAt: [42.1, 45.1], catchAt: [49.3, 45.1] };
+
+/** beats since the cascade started */
+const beats = (t: number) => (t - C0) / BEAT;
+/** the objects: the vase is thrown first (beat 0, right hand), the apple next (left), then the calculator (right) */
+const VASE = 0, APPLE = 1, CALCULATOR = 2;
+
+type Points = [number, number, number][];
+const ease = (u: number) => { const v = Math.max(0, Math.min(1, u)); return v * v * (3 - 2 * v); };
 
 /**
- * An object's place in the box, `p` ms into its round (0: leaving the right hand). The flight from the right hand's
- * throw point (42.1 45.1) to the left hand's catch point (14.7 45.1) is a parabola peaking at y 10.1; its x runs
- * fast to 21.7 for the first 12/21 of the flight, then on at the hand's own speed (as the original does). The hold
- * scoops down 4.9 and across to the left hand's throw point. The second half of the round is the first, mirrored.
+ * A path in the box: the original's keys for the lead-in and the wind-down (linear), around the cascade. The lead-in
+ * and wind-down were made to meet the original cascade; the difference to this one (the lower hands) is eased into
+ * them over the 0.3 s next to the cascade, so they still meet it.
  */
-function objectAt(p: number): Vec {
-  p = ((p % ROUND) + ROUND) % ROUND;
-  if (p >= ROUND / 2) return mirror(objectAt(p - ROUND / 2));
-  const [catchX] = mirror(CATCH), [throwX] = mirror(THROW);
-  if (p <= FLIGHT) {
-    const s = p / FLIGHT, knee = 12 / 21, kneeX = 21.7;
-    const x = s <= knee ? THROW[0] + ((kneeX - THROW[0]) * s) / knee : kneeX + ((catchX - kneeX) * (s - knee)) / (1 - knee);
-    return [x, THROW[1] - (THROW[1] - TOP) * (1 - (2 * s - 1) ** 2)];
-  }
-  const s = (p - FLIGHT) / HOLD;
-  return [catchX + (throwX - catchX) * s, CATCH[1] + SCOOP * Math.sin(Math.PI * s)];
+function path(before: Points, at: (c: Cascade, tau: number) => Vec, after: Points): Track<Vec> {
+  const shift = (t: number): Vec => {
+    const tau = beats(t), a = at(ORIGINAL, tau), b = at(JUGGLE, tau);
+    return [b[0] - a[0], b[1] - a[1]];
+  };
+  const din = shift(C0), dout = shift(C1);
+  const moved = (keys: Points, d: Vec, w: (t: number) => number) =>
+    keys.map(([t, x, y]): Key<Vec> => [t, W(x + d[0] * w(t), y + d[1] * w(t)), "linear"]);
+  const cascade: Key<Vec>[] = [];
+  for (let t = C0; t <= C1; t += STEP) cascade.push([t, W(...at(JUGGLE, beats(t))), "linear"]);
+  return [
+    [0, W(before[0][1], before[0][2])],
+    ...moved(before, din, (t) => ease((t - (C0 - 300)) / 300)),
+    ...cascade,
+    ...moved(after, dout, (t) => 1 - ease((t - C1) / 300)),
+  ];
 }
-
-/**
- * The right hand, `q` ms into its loop (0: just thrown, at the throw point): it rises 3.2 in an eased arc out to the
- * catch point (330 ms), then holds the caught object through its scoop back to the throw point (270 ms).
- */
-function rightHandAt(q: number): Vec {
-  q = ((q % HAND_LOOP) + HAND_LOOP) % HAND_LOOP;
-  const empty = HAND_LOOP - HOLD;
-  if (q <= empty) {
-    const u = (1 - Math.cos((Math.PI * q) / empty)) / 2;
-    return [THROW[0] + (CATCH[0] - THROW[0]) * u, THROW[1] - RISE * Math.sin(Math.PI * u)];
-  }
-  return mirror(objectAt(FLIGHT + (q - empty)));
-}
-
-/** Linear keys every 30 ms through the cascade, from a function of the time since it started. */
-function cascade(at: (t: number) => Vec): Key<Vec>[] {
-  const keys: Key<Vec>[] = [];
-  for (let t = C0; t <= C1; t += STEP) keys.push([t, W(...at(t - C0)), "linear"]);
-  return keys;
-}
-
-/** The original's keys (in the box, linear) for the lead-in and the wind-down, around the generated cascade. */
-const path = (before: [number, number, number][], at: (t: number) => Vec, after: [number, number, number][]): Track<Vec> => [
-  [0, W(before[0][1], before[0][2])],
-  ...before.map(([t, x, y]): Key<Vec> => [t, W(x, y), "linear"]),
-  ...cascade(at),
-  ...after.map(([t, x, y]): Key<Vec> => [t, W(x, y), "linear"]),
-];
 
 /** The right hand, with the vase in it, rises a little and comes in to its throw point by 1.65 s; after the last
  *  round it carries the vase back down to (46 55). The vase sits right in the hand while held. */
@@ -113,7 +102,7 @@ const rightOut: [number, number, number][] = [
   [5880, 46, 55],
 ];
 /** the vase: thrown first, at 1.65 s */
-const vasePath = path(rightIn, (t) => objectAt(t), rightOut);
+const vasePath = path(rightIn, (c, tau) => objectAt(c, VASE, tau), rightOut);
 
 /** the calculator: tossed straight up out of the right hand from 1.26 s, it tops its arc (39 10.1) at 1.65 s, a
  *  third of a round ahead of the vase; it falls last, into the right hand at 5.6 s, and goes down with it */
@@ -123,7 +112,7 @@ const calculatorPath = path(
     [1320, 44, 43], [1350, 43.7, 38.4], [1410, 42.7, 29.8], [1440, 42.3, 25.9], [1470, 41.6, 22], [1500, 40.8, 18.7],
     [1530, 40.2, 15.8], [1560, 39.8, 13.3], [1590, 39.3, 11.6], [1620, 39, 10.4],
   ],
-  (t) => objectAt(t - ROUND / 3),
+  (c, tau) => objectAt(c, CALCULATOR, tau),
   [
     [5280, 39, 10.6], [5310, 39.3, 11.8], [5340, 39.8, 13.9], [5370, 40.4, 16.7], [5400, 41.1, 20], [5430, 42.1, 23.9],
     [5460, 42.5, 28.1], [5490, 43, 32.6], [5520, 43.5, 37.5], [5550, 43.7, 42.9], [5580, 44, 48.7], [5610, 44.2, 54.3],
@@ -140,7 +129,7 @@ const applePath = path(
     [1230, 16.7, 52.1], [1260, 16.4, 51.5], [1290, 16.2, 51.1], [1320, 16, 51.1], [1350, 15.9, 51.4], [1380, 15.9, 52],
     [1440, 15.7, 47.4], [1470, 15.7, 45.4], [1530, 15.6, 41.9], [1560, 15.6, 40.5], [1590, 15.5, 39.6], [1620, 15.5, 39],
   ],
-  (t) => objectAt(t - (2 * ROUND) / 3),
+  (c, tau) => objectAt(c, APPLE, tau),
   [
     [5280, 15.5, 39], [5310, 15.5, 39.8], [5340, 15.6, 40.8], [5370, 15.6, 42.4], [5400, 15.6, 44.2], [5430, 15.7, 46.3],
     [5490, 15.9, 51.2], [5520, 16, 51.8], [5550, 16.1, 51.8], [5580, 16.4, 52.1], [5610, 16.6, 52.6], [5700, 17.5, 54.5],
@@ -155,7 +144,7 @@ const leftPath = path(
     [1260, 16.2, 51], [1290, 15.9, 50.6], [1320, 15.7, 50.4], [1380, 15.5, 51.1], [1410, 15.3, 51.6], [1440, 15.3, 52],
     [1470, 15.2, 50.3], [1500, 15.1, 48.8], [1530, 15, 47.6], [1560, 15, 46.3], [1590, 14.9, 45.6], [1620, 14.8, 45.1],
   ],
-  (t) => mirror(rightHandAt(t - HAND_LOOP / 2)),
+  (c, tau) => handAt(c, "L", tau),
   [
     [5280, 14.8, 45.1], [5310, 14.9, 45.7], [5340, 15, 46.6], [5370, 15.1, 47.9], [5400, 15.1, 49.4], [5430, 15.2, 51.2],
     [5460, 15.3, 51.8], [5490, 15.4, 51.3], [5520, 15.6, 51], [5550, 15.8, 51.1], [5580, 16, 51.5], [5610, 16.4, 52.1],
@@ -163,7 +152,7 @@ const leftPath = path(
     [5880, 18, 55],
   ],
 );
-const rightPath = path(rightIn, (t) => rightHandAt(t), rightOut);
+const rightPath = path(rightIn, (c, tau) => handAt(c, "R", tau), rightOut);
 
 /**
  * The spin: still while they come out; at 1.35 s each object turns (in one 30 ms key, as in the original) to its place
@@ -187,7 +176,8 @@ const SHOWN = [[1000, 5860]] as const;
 
 const object = (offset: Track<Vec>, rotate: Track<number>) =>
   ({ attach: "world", offset, rotate, scale: size, opacity: fade, visible: SHOWN }) as const;
-const hand = (offset: Track<Vec>) => ({ attach: "world", offset, scale: [[0, 1 / S]] }) as const;
+/** the hands at the agent's own size, like every agent's hands */
+const hand = (offset: Track<Vec>) => ({ attach: "world", offset }) as const;
 
 /** where the rig's own hands wait: behind the middle of the body */
 const HIDDEN = { path: [[0, [32, 40]]], behind: [[0, D]] } as const;

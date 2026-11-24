@@ -73,19 +73,3 @@ export function Sign({ framework, width = 1 }: { framework: Framework; width?: n
   );
 }
 
-/** The hand gripping the stick, in the pink agent's gradient with an ink outline. */
-export function Hand() {
-  const id = `fw-hand-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
-  const [light, base] = COLOURS.pink;
-  return (
-    <g>
-      <defs>
-        <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor={light} />
-          <stop offset=".65" stopColor={base} />
-        </linearGradient>
-      </defs>
-      <circle r={4.5} fill={`url(#${id})`} stroke={INK} strokeWidth={2.4} />
-    </g>
-  );
-}

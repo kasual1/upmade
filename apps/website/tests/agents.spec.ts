@@ -177,3 +177,20 @@ describe("scene props", () => {
     for (const [, p] of paint) expect(p.attach).toBe("scene");
   });
 });
+
+describe("hands", () => {
+  // the body's left outer edge (outline + half its 3.6 stroke) at each shape's hand height, measured in the browser
+  // (isPointInFill / isPointInStroke on the outline path); squircle and triangle were the reference (1.14 and 0.87)
+  const OUTER_EDGE = { squircle: 10.34, circle: 14.6, bullet: 10.44, pill: 10.72, triangle: 9.87 } as const;
+
+  it("rest about 1 past the body's outer edge, so they overlap its outline, mirrored about the middle", () => {
+    for (const [name, spec] of Object.entries(SHAPES)) {
+      const [lx, ly] = spec.hands.L, [rx, ry] = spec.hands.R;
+      const past = OUTER_EDGE[name as keyof typeof OUTER_EDGE] - lx;
+      expect(past, name).toBeGreaterThan(0.6);
+      expect(past, name).toBeLessThan(1.4);
+      expect(rx, name).toBeCloseTo(64 - lx, 5);
+      expect(ry, name).toBe(ly);
+    }
+  });
+});

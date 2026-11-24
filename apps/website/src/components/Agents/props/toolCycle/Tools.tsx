@@ -1,5 +1,5 @@
 import { INK } from "../../tokens";
-import Hand from "./Hand";
+import Hand from "../Hand";
 
 /**
  * The tools the hero agent of infinite.html cycles through, drawn exactly as the original page draws them (ink
@@ -80,7 +80,7 @@ export function Photo() {
       <rect x={-6.5} y={-20} width={13} height={11.5} rx={0.6} fill="#8FD0FF" {...line} strokeWidth={1.2} />
       <circle cx={3} cy={-16.4} r={1.8} fill="#FFD60A" stroke={INK} strokeWidth={0.9} />
       <path d="M-6.5 -10.6Q-2.6 -15 1 -11.6Q3.6 -14.2 6.5 -11.2V-8.5H-6.5Z" fill="#4ADE80" {...line} strokeWidth={1} />
-      <Hand />
+      <Hand colour="pink" />
     </g>
   );
 }

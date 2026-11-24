@@ -3,6 +3,7 @@ import { flushSync } from "react-dom";
 import { hopAt, randomHop, type Hop } from "./reactions";
 import { createClock, subscribe } from "./runtime";
 import { poseAt } from "./timeline";
+import { HAND_RADIUS } from "./props/Hand";
 import { COLOURS, INK, SHAPES, STROKE, type Colour, type ShapeName } from "./tokens";
 import type { AgentAnimation, HandName, Pose } from "./types";
 
@@ -251,7 +252,7 @@ export default function Agent({
 
   const hand = (name: HandName, layer: "behind" | "front") => (
     <g key={`${name}-${layer}`} data-hand={name} data-layer={layer} transform={`translate(${spec.hands[name][0]} ${spec.hands[name][1]})`}>
-      <circle r={4.6} fill={`url(#${gradient})`} stroke={INK} strokeWidth={STROKE.hand} />
+      <circle r={HAND_RADIUS} fill={`url(#${gradient})`} stroke={INK} strokeWidth={STROKE.hand} />
     </g>
   );
   const prop = (name: string, layer: "behind" | "front") => (

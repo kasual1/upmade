@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import Agent from "../Agent";
-import Hand from "../props/plug/Hand";
+import Hand from "../props/Hand";
 import Cord from "../props/plug/Cord";
 import { Plug, PlugProngs, Socket, SocketHoles } from "../props/plug/Connectors";
 import { CORD_PIECE, CORD_PIECES, plug } from "../animations/plug";

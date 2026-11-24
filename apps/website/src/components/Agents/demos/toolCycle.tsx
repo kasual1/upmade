@@ -1,10 +1,10 @@
 import { useState, type ReactNode } from "react";
 import Agent from "../Agent";
-import Hand from "../props/toolCycle/Hand";
+import Hand from "../props/Hand";
 import Paint from "../props/toolCycle/Paint";
 import { Smile, Tongue } from "../props/toolCycle/Face";
 import { Arrow, Brush, Eraser, Photo, Shape, TypewriterBase, TypewriterCarriage } from "../props/toolCycle/Tools";
-import { PAINT_FRAMES, toolCycle } from "../animations/toolCycle";
+import { PAINT_FRAMES, TYPER_HAND, toolCycle } from "../animations/toolCycle";
 import type { DemoProps } from "./types";
 
 export const label = "Tool cycle";
@@ -16,17 +16,17 @@ const items: Record<string, ReactNode> = {
   smile: <Smile />,
   tongue: <Tongue />,
   arrow: <Arrow />,
-  handL: <Hand />,
-  handR: <Hand />,
+  handL: <Hand colour="pink" />,
+  handR: <Hand colour="pink" />,
   brush: <Brush />,
-  brushHand: <Hand />,
-  eraserHand: <Hand />,
+  brushHand: <Hand colour="pink" />,
+  eraserHand: <Hand colour="pink" />,
   eraser: <Eraser />,
   shape0: <Shape kind="triangle" />,
   shape1: <Shape kind="square" />,
   shape2: <Shape kind="circle" />,
-  juggleHand: <Hand />,
-  typerHand: <Hand small />,
+  juggleHand: <Hand colour="pink" />,
+  typerHand: <Hand colour="pink" size={TYPER_HAND} />,
   typerBase: <TypewriterBase />,
   typerCarriage: <TypewriterCarriage />,
   photo: <Photo />,

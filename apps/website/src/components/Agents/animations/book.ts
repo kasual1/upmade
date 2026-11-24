@@ -97,6 +97,8 @@ const fullSize = (p: Vec, extra: Partial<PropTrack> = {}): PropTrack => ({ attac
 
 /** The book's (and the pages') origin: the middle of the spine. */
 const SPINE: Vec = [32, 52];
+/** Hands are drawn at the agent's own size, like every agent's hands: the body's squash and the frame cancel out. */
+const HAND_SIZE: Track<number> = [[0, 1]];
 const HAND_L: Vec = [15.8, 52.6];
 const HAND_R: Vec = [48.2, 52.6];
 
@@ -134,14 +136,14 @@ export const book: AgentAnimation = {
   props: {
     ...Object.fromEntries(PAGE_SX.map((_, k) => [`page${k}`, pageFrame(k)])),
     book: fullSize(SPINE),
-    handL: fullSize(HAND_L),
+    handL: fullSize(HAND_L, { scale: HAND_SIZE }),
     handR: {
       attach: "world",
       offset: keyTimes(lift, handROffset).map((t) => {
         const o = sample(handROffset, t, [0, 0]);
         return [t, unsquash([HAND_R[0] + o[0], HAND_R[1] + o[1]], t), "linear"] as const;
       }),
-      scale: [[0, 1 / SCALE]],
+      scale: HAND_SIZE,
     },
   },
   events: TURNS.map(([a]) => [a, "turn"] as const),

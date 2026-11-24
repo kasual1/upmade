@@ -239,7 +239,8 @@ export const frameworkSign: AgentAnimation = {
     R: { path: [[0, [32, 32]]], behind: [[0, D]] },
   },
   // drawn in the original's order: the stick, the sign over it, then the hand gripping the stick
-  props: { pole: held(), ...signs, hand: held() },
+  // the hand at the agent's own size, like every agent's hand (the body's squash and the frame cancel out)
+  props: { pole: held(), ...signs, hand: { ...held(), scale: [[0, 1]] } },
   // the page swaps the logo 250 ms into each flip, while the sign is edge-on
   events: FLIPS.map((s) => [s + FLIP / 2, "flip"] as const),
 };

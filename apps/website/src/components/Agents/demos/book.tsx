@@ -1,7 +1,7 @@
 import Agent from "../Agent";
 import Book from "../props/book/Book";
 import Page from "../props/book/Page";
-import Hand from "../props/book/Hand";
+import Hand from "../props/Hand";
 import { book, PAGE_SX } from "../animations/book";
 import type { DemoProps } from "./types";
 
@@ -12,8 +12,8 @@ export const order = 40;
 const items = {
   ...Object.fromEntries(PAGE_SX.map((sx, k) => [`page${k}`, <Page sx={sx} />])),
   book: <Book />,
-  handL: <Hand />,
-  handR: <Hand />,
+  handL: <Hand colour="orange" />,
+  handR: <Hand colour="orange" />,
 };
 
 export default function BookDemo({ className }: DemoProps) {

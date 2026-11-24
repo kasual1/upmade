@@ -1,6 +1,6 @@
 import Agent from "../Agent";
 import Key from "../props/key/Key";
-import Hand from "../props/key/Hand";
+import Hand from "../props/Hand";
 import Sparkle from "../props/key/Sparkle";
 import { key } from "../animations/key";
 import type { DemoProps } from "./types";
