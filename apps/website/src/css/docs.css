@@ -187,19 +187,28 @@ html.plugin-docs .theme-doc-markdown strong {
   color: var(--lp-ink);
 }
 
-/* links in the text: the framework's text colour, underlined in its agent colour */
-html.plugin-docs .theme-doc-markdown a:not(.doc-card):not([class*="hash-link"]):not([data-live-demo] *) {
+/* links in the text (and the footnote's): the framework's text colour, no underline until hovered; then an underline
+   in the agent colour sweeps in from the left, like the landing footer's links (LandingFooter .link) */
+html.plugin-docs .theme-doc-markdown a:not(.doc-card):not([class*="hash-link"]):not([data-live-demo] *),
+html.plugin-docs .docs-footnote__text a,
+html.plugin-docs .docs-footnote__copyright a {
   color: var(--fw-text);
   font-weight: 500;
-  text-decoration: underline;
-  text-decoration-color: var(--fw);
-  text-decoration-thickness: 2px;
-  text-underline-offset: 3px;
-  transition: text-decoration-thickness 0.15s;
+  text-decoration: none;
+  background-image: linear-gradient(var(--fw), var(--fw));
+  background-size: 0 2.5px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  padding-bottom: 2px;
+  transition: background-size 0.25s;
 }
 
-html.plugin-docs .theme-doc-markdown a:not(.doc-card):not([class*="hash-link"]):not([data-live-demo] *):hover {
-  text-decoration-thickness: 3.5px;
+html.plugin-docs .theme-doc-markdown a:not(.doc-card):not([class*="hash-link"]):not([data-live-demo] *):hover,
+html.plugin-docs .docs-footnote__text a:hover,
+html.plugin-docs .docs-footnote__copyright a:hover {
+  color: var(--fw-text);
+  text-decoration: none;
+  background-size: 100% 2.5px;
 }
 
 /* inline code: a quiet chip */
@@ -444,6 +453,8 @@ html.plugin-docs .table-of-contents ul .table-of-contents__link--active::before 
 @media (prefers-reduced-motion: reduce) {
   html.plugin-docs .theme-doc-sidebar-menu .menu__link,
   html.plugin-docs .theme-doc-markdown a,
+  html.plugin-docs .docs-footnote__text a,
+  html.plugin-docs .docs-footnote__copyright a,
   html.plugin-docs .doc-card,
   html.plugin-docs .pagination-nav__link {
     transition: none;
