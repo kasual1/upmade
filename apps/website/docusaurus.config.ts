@@ -86,8 +86,6 @@ const config: Config = {
           changefreq: "weekly",
           priority: 0.5,
           filename: "sitemap.xml",
-          // the /landing-next/ preview of the new "/" (deleted at the cutover) stays out of search engines
-          ignorePatterns: ["/landing-next", "/landing-next/**"],
         },
         theme: {
           customCss: [

@@ -35,12 +35,12 @@ const footers = (html: string) => [...html.matchAll(/data-footer="(\w+)"/g)].map
 
 describe("theme/Footer: exactly one footer per page type", () => {
   it("landing pages with footer: landing get only the landing footer", () => {
-    expect(footers(render("/landing-next/", "landing"))).toEqual(["landing"]);
-    expect(render("/landing-next/", "landing")).not.toContain("data-wordmark");
+    expect(footers(render("/", "landing"))).toEqual(["landing"]);
+    expect(render("/", "landing")).not.toContain("data-wordmark");
   });
 
   it("landing pages with footer: docusaurus keep the Docusaurus footer", () => {
-    expect(footers(render("/landing-next/", "docusaurus"))).toEqual(["docusaurus"]);
+    expect(footers(render("/", "docusaurus"))).toEqual(["docusaurus"]);
   });
 
   it("other pages keep the Docusaurus footer, the blog with the wordmark, and docs none", () => {

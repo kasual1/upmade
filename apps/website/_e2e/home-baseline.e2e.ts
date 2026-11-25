@@ -1,13 +1,10 @@
-// Baseline screenshot of TODAY's "/" (the page before the landing overhaul).
-//
-// This one is expected to change: at the cutover milestone (M9) "/" becomes the new landing page. Then
-// update these baselines on purpose with
+// Baseline screenshot of "/", the config-driven landing page since the cutover (M9). Until then it held the
+// pre-overhaul landing page. Update it on purpose when the landing page changes:
 //   npm run e2e:website:update -- home-baseline
-// (or replace this spec with the new page's screenshots). Until then it guards "/" against accidental
-// changes from the groundwork milestones.
+// The agents are placeholders while the agents stream finishes them (plan §0), so expect to update it with them.
 import { PAGES, expect, fullPageFor, gotoForScreenshot, test } from './fixtures';
 
-test('"/" baseline (pre-overhaul landing page)', async ({ page }, testInfo) => {
+test('"/" baseline (the landing page)', async ({ page }, testInfo) => {
   await gotoForScreenshot(page, PAGES.home);
   await expect(page).toHaveScreenshot('home.png', { fullPage: fullPageFor(testInfo.project.name) });
 });

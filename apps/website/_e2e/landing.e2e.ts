@@ -1,18 +1,19 @@
-// Checks for the new landing page, previewed at /landing-next/ until the cutover (M9), when they move to "/".
-// The preview exists since M3. Every check is enabled (none is fixme); the milestone that enabled each is listed here:
+// Checks for the landing page at "/" (the config-driven LandingPage). Until the cutover (M9) they ran against the
+// /landing-next/ preview. Every check is enabled (none is fixme); the milestone that enabled each is listed here:
 //   - no pageerror / console errors                         (M3)
 //   - no horizontal overflow at all four project widths     (M3, M4 onwards)
 //   - FAQ accordion keyboard flow, find-in-page opens items (M5)
 //   - agents do not flash misaligned before hydration       (M4)
 //   - toolbar keyboard flow                                 (M7)
 //   - navbar shown only after scrolling past the hero       (M7)
-//   - one h1, one footer (the landing footer), FAQ answers and unique ids in the served HTML, not in the sitemap
+//   - one h1, one footer (the landing footer), FAQ answers and unique ids in the served HTML, indexable and in the
+//     sitemap, and the old /landing-next/ preview is gone                                                    (M9)
 //   - with the minimum font size (minFont.ts), each media frame keeps its size and its content in its box
 import type { Page } from '@playwright/test';
 import { expect, horizontalOverflow, settle, test } from './fixtures';
 import { expect as minFontExpect, test as minFontTest } from './minFont';
 
-const LANDING_NEXT = '/landing-next/';
+const LANDING = '/';
 
 /** Errors of third-party analytics, which the offline suite blocks (fixtures.ts stubs every external request). */
 const THIRD_PARTY_ANALYTICS = /googletagmanager|google-analytics|gtag|plausible|umami|clarity/i;
@@ -56,9 +57,9 @@ async function mediaFrames(page: Page) {
   );
 }
 
-test.describe('/landing-next/ (new landing page preview)', () => {
+test.describe('"/" (the landing page)', () => {
   test('loads without errors', async ({ page, pageErrors }) => {
-    const response = await page.goto(LANDING_NEXT);
+    const response = await page.goto(LANDING);
     expect(response?.status()).toBe(200);
     await settle(page);
     // Scroll through once so the agents, timers and media that start in view run too.
@@ -72,10 +73,11 @@ test.describe('/landing-next/ (new landing page preview)', () => {
     // with scripts off, the page is what the server sent
     const context = await browser.newContext({ javaScriptEnabled: false, baseURL });
     const page = await context.newPage();
-    await page.goto(LANDING_NEXT);
+    await page.goto(LANDING);
     await expect(page.locator('h1')).toHaveCount(1);
     await expect(page.locator('main[data-lp-page]')).toHaveCount(1);
-    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex,nofollow');
+    // indexable: no robots noindex (the /landing-next/ preview had one)
+    await expect(page.locator('meta[name="robots"][content*="noindex"]')).toHaveCount(0);
     for (const id of ['hero', 'features', 'dom-canvas', 'get-started', 'performance', 'faq']) {
       await expect(page.locator(`section[aria-labelledby="${id}-heading"] #${id}-heading`)).toHaveCount(1);
     }
@@ -130,7 +132,7 @@ test.describe('/landing-next/ (new landing page preview)', () => {
           };
         }),
       );
-    await page.goto(LANDING_NEXT, { waitUntil: 'commit' });
+    await page.goto(LANDING, { waitUntil: 'commit' });
     await page.waitForSelector('footer', { state: 'attached' });
     await page.evaluate(() => document.fonts.ready);
     const before = await agents();
@@ -147,16 +149,19 @@ test.describe('/landing-next/ (new landing page preview)', () => {
     });
   });
 
-  test('is not in the sitemap', async ({ request }) => {
+  test('is in the sitemap, and the /landing-next/ preview is gone', async ({ request, baseURL }) => {
     const response = await request.get('/sitemap.xml');
     expect(response.ok()).toBe(true);
     const sitemap = await response.text();
     expect(sitemap).toContain('<urlset');
+    expect(sitemap).toMatch(/<loc>[^<]*\/<\/loc>/); // the site root
     expect(sitemap).not.toContain('landing-next');
+    const preview = await request.get(new URL('/landing-next/', baseURL).toString(), { maxRedirects: 0 });
+    expect(preview.status()).toBe(404);
   });
 
   test('has no horizontal overflow', async ({ page }) => {
-    await page.goto(LANDING_NEXT);
+    await page.goto(LANDING);
     await settle(page);
     await scrollThrough(page);
     await settle(page);
@@ -166,7 +171,7 @@ test.describe('/landing-next/ (new landing page preview)', () => {
 
   test('FAQ accordion works by keyboard', async ({ page }) => {
     // M5: Tab to a question, Enter/Space toggles it, aria-expanded follows, the answer is shown, one open at a time.
-    await page.goto(LANDING_NEXT);
+    await page.goto(LANDING);
     await settle(page);
     const faq = page.locator('section[aria-labelledby="faq-heading"]');
     const questions = faq.locator('h3 > button[aria-expanded]');
@@ -213,7 +218,7 @@ test.describe('/landing-next/ (new landing page preview)', () => {
   test('toolbar works by keyboard', async ({ page }) => {
     // M7: one tab stop on the selected tool; arrows/Home/End move focus; Enter/Space select (aria-pressed).
     // Jumping the agent to the tool's turn waits for the final agents (plan §0, M11).
-    await page.goto(LANDING_NEXT);
+    await page.goto(LANDING);
     await settle(page);
     const toolbar = page.getByRole('toolbar', { name: 'Canvas tools' });
     const tool = (name: string) => toolbar.getByRole('button', { name, exact: true });
@@ -245,7 +250,7 @@ test.describe('/landing-next/ (new landing page preview)', () => {
 
   test('navbar appears only after scrolling past the hero', async ({ page }) => {
     // M7: the navbar is hidden at the top and shown once the hero header has left the viewport.
-    await page.goto(LANDING_NEXT);
+    await page.goto(LANDING);
     await settle(page);
     const html = page.locator('html');
     const navbar = page.locator('.navbar').first();
@@ -266,14 +271,14 @@ test.describe('/landing-next/ (new landing page preview)', () => {
   });
 });
 
-minFontTest.describe('/landing-next/ with a minimum font size', () => {
+minFontTest.describe('"/" with a minimum font size', () => {
   // Plan §3.7: media lay their content out on a ScaledStage, so clamped small type cannot push it out of its frame.
   minFontTest('each media frame keeps its content inside its box', async ({ page, minFontPage }) => {
-    await page.goto(LANDING_NEXT);
+    await page.goto(LANDING);
     await settle(page);
     await scrollThrough(page);
     const reference = await mediaFrames(page);
-    await minFontPage.goto(LANDING_NEXT);
+    await minFontPage.goto(LANDING);
     await settle(minFontPage);
     await scrollThrough(minFontPage);
     // the profile pref really applies (min-font.e2e.ts checks the technique itself)

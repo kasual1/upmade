@@ -4,7 +4,7 @@
  * (`satisfies LandingPageConfig`) and tests/landing-config.spec.ts runs validateLandingConfig on it (unique ids, one
  * hero, registered agent and media keys, docs pages that exist for every framework).
  *
- * Previewed at /landing-next/ until the cutover (M9), when src/pages/index.tsx renders it.
+ * src/pages/index.tsx renders it.
  */
 import { REPO_URL } from "../../components/Brand/links";
 import type { LandingPageConfig } from "../../components/LandingPage/types";

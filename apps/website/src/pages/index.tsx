@@ -1,48 +1,11 @@
 import type { ReactNode } from "react";
-import Layout from "@theme/Layout";
-import { HtmlClassNameProvider } from "@docusaurus/theme-common";
-import Head from "@docusaurus/Head";
-import Hero from "@site/src/components/Landing/Hero";
-import {
-  CliSection,
-  DomCanvasSection,
-  Faq,
-  Features,
-  PerformanceSection,
-  Wordmark,
-} from "@site/src/components/Landing/Sections";
-import styles from "@site/src/components/Landing/styles.module.css";
-import { usePreferredDocsPath } from "@site/src/components/LandingPage/hooks/usePreferredDocsPath";
+import LandingPage from "@site/src/components/LandingPage";
+import { infinitePage } from "@site/src/content/landing/infinite";
 
-const TITLE = "Upmade - Infinite Canvas Library for React, Vue & Angular";
-const DESCRIPTION =
-  "Upmade helps you build infinite canvas experiences featuring real-time collaboration and high-performance drawing tools. Fully open-source and easy to integrate into React, Vue & Angular.";
-
+/**
+ * "/": the config-driven landing page. Its sections, copy and meta live in src/content/landing/infinite.ts; how to
+ * add, reorder or hide a section is in src/components/LandingPage/README.md.
+ */
 export default function Home(): ReactNode {
-  const docsPath = usePreferredDocsPath();
-
-  return (
-    <HtmlClassNameProvider className="landing-page">
-      <Layout description={DESCRIPTION}>
-        <Head>
-          {/* Set directly so the site-wide title is not appended to the page title. */}
-          <title>{TITLE}</title>
-          <meta property="og:title" content={TITLE} />
-          <meta name="twitter:title" content={TITLE} />
-        </Head>
-        <main className={styles.page}>
-          <div className={styles.heroArea}>
-            <Hero docsPath={docsPath} />
-            <div aria-hidden="true" className={styles.heroSpacer} />
-            <Features />
-          </div>
-          <DomCanvasSection />
-          <CliSection layout="split" />
-          <PerformanceSection />
-          <Faq />
-          <Wordmark />
-        </main>
-      </Layout>
-    </HtmlClassNameProvider>
-  );
+  return <LandingPage config={infinitePage} />;
 }

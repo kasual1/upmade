@@ -90,7 +90,7 @@ const r = (top: number, right: number, bottom: number, left: number): AgentReach
  * Re-measure with scripts/measure-agent-reach.mjs when the agents change.
  */
 /**
- * The corner agents' `body` insets were measured on /landing-next/ (production build of a34bf8cf, reduced motion so
+ * The corner agents' `body` insets were measured on the new landing page (then previewed at /landing-next/; production build of a34bf8cf, reduced motion so
  * each shows its rest pose): the bounding rect of the agent's [data-part="outline"] against its box, at 1440 and
  * 390 px wide (the same fractions at both sizes). Re-measure when the agents stream changes these demos.
  */

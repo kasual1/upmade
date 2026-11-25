@@ -1,8 +1,8 @@
 # LandingPage: config-driven landing pages
 
 A landing page is a typed, JSX-free config object (`src/content/landing/*.ts`) rendered by `<LandingPage config={…}/>`.
-The "/" page is `src/content/landing/infinite.ts`, previewed at `/landing-next/` until the cutover (M9). The plan is
-`landing-overhaul-plan.md` at the repo root.
+The "/" page is `src/content/landing/infinite.ts`, rendered by `src/pages/index.tsx` (until the cutover, M9, it was
+previewed at `/landing-next/`). The plan is `landing-overhaul-plan.md` at the repo root.
 
 ## Layout
 
@@ -69,7 +69,11 @@ without a path), `{ kind: "app", path? }`, `{ kind: "route", to }` (baseUrl-awar
   each rule has a failing fixture.
 - `tests/landing-utils.spec.ts`: `buildFaqJsonLd`, `buildSoftwareAppJsonLd`, `resolveLink`.
 - `tests/landing-agents.spec.ts`: every agent key is a real /agent demo; AgentSlot's server output.
-- `_e2e/landing-next.e2e.ts`: no errors, server-rendered structure, no horizontal overflow (more per milestone).
+- `_e2e/landing.e2e.ts`: "/" loads without errors, server-rendered structure, no horizontal overflow, FAQ and toolbar
+  keyboard flows, navbar after the hero, media frames under a minimum font size, in the sitemap. `_e2e/home-baseline`
+  screenshots "/" (update on purpose with `npm run e2e:website:update -- home-baseline`).
+- `tests/landing-output.spec.ts` (`npm run test:landing`, after `npm run build`): "/" in the built HTML (one h1, every
+  FAQ answer, unique ids, meta and JSON-LD, the toggle, one footer; no /landing-next/ left).
 
 ## File ownership for the parallel milestones
 
