@@ -1,0 +1,529 @@
+/*
+ * The docs in the landing pages' art style (src/components/LandingPage, tokens.css), with each framework's agent
+ * colour as its accent: Angular the pink squircle, React the blue circle, Vue the green triangle
+ * (src/components/Agents/tokens.ts COLOURS). Scoped to html.plugin-docs, so the landing pages and the blog are
+ * unaffected; the live demos inside the docs are not restyled.
+ *
+ * Accent tokens (per framework, on html.plugin-id-<framework>):
+ *   --fw        the agent's colour (its gradient's base): dots, markers, outlines on light ground
+ *   --fw-light  the gradient's light end: the picker's dot gradient
+ *   --fw-tint   a 16% wash of --fw over white: hover and quiet backgrounds
+ *   --fw-tint-2 a 28% wash: active backgrounds (the current page in the sidebar, the picker)
+ *   --fw-text   --fw darkened along its own hue until it reads as text: 4.6:1 or more on --fw-tint-2, 5.5:1 or more
+ *               on white (WCAG AA): links, the active page, the current heading; also the selection colour
+ * The agent colours themselves are too light for text on white (1.6 to 2.2:1), hence the derived --fw-text.
+ */
+
+html.plugin-id-angular {
+  --fw: #ff6ab5;
+  --fw-light: #ff8bc5;
+  --fw-tint: #ffe7f3;
+  --fw-tint-2: #ffd5ea;
+  --fw-text: #c10564;
+}
+
+html.plugin-id-react {
+  --fw: #6fc3ff;
+  --fw-light: #8fd0ff;
+  --fw-tint: #e8f5ff;
+  --fw-tint-2: #d7eeff;
+  --fw-text: #056bb4;
+}
+
+html.plugin-id-vue {
+  --fw: #4ade80;
+  --fw-light: #72e59c;
+  --fw-tint: #e2faeb;
+  --fw-tint-2: #ccf6db;
+  --fw-text: #19793c;
+}
+
+/* The live demos (components/LiveDemo, marked data-live-demo) are not restyled: the content rules below skip them,
+   and inside them the link colour stays what it was before the restyle. */
+html.plugin-id-angular [data-live-demo] {
+  --ifm-link-color: #dd0031;
+}
+
+html.plugin-id-react [data-live-demo] {
+  --ifm-link-color: #4a7dff;
+}
+
+html.plugin-id-vue [data-live-demo] {
+  --ifm-link-color: #33a06f;
+}
+
+html.plugin-docs [data-live-demo] {
+  --ifm-font-color-base: var(--ifm-color-content);
+  --ifm-pre-line-height: 1.45;
+  --ifm-pre-padding: 1rem;
+  /* what the demo inherited from the page before (body 1.2rem, Infima's line height and text colour) */
+  color: var(--ifm-color-content);
+  font-size: 1.2rem;
+  line-height: var(--ifm-line-height-base);
+}
+
+/* ---- the page ---- */
+html.plugin-docs {
+  --ifm-font-color-base: var(--lp-text-strong);
+  --ifm-heading-color: var(--lp-ink);
+  --ifm-link-color: var(--fw-text);
+  --ifm-link-hover-color: var(--fw-text);
+  --ifm-toc-link-color-active: var(--fw-text);
+  --ifm-menu-color: var(--lp-soft);
+  --ifm-menu-color-active: var(--fw-text);
+  --ifm-menu-color-background-active: var(--fw-tint-2);
+  --ifm-menu-color-background-hover: var(--fw-tint);
+  --ifm-toc-border-color: var(--lp-divider);
+  --ifm-pre-line-height: 1.65;
+  --ifm-pre-padding: 20px 22px;
+  color-scheme: light;
+}
+
+html.plugin-docs body {
+  background: var(--lp-paper);
+}
+
+html.plugin-docs :focus-visible {
+  outline: 2.5px solid var(--fw-text);
+  outline-offset: 3px;
+}
+
+/* ---- the navbar: the framework picker as a chip with the framework's agent dot ---- */
+html.plugin-docs .navbar-framework-picker > .navbar__link {
+  gap: 8px;
+  border: var(--lp-stroke-s) solid var(--lp-ink);
+  border-radius: var(--lp-r-pill);
+  background: var(--fw-tint);
+  color: var(--lp-ink);
+  font-weight: 650;
+}
+
+html.plugin-docs .navbar-framework-picker > .navbar__link::before {
+  content: "";
+  flex: none;
+  width: 11px;
+  height: 11px;
+  border: 2px solid var(--lp-ink);
+  border-radius: 50%;
+  background: linear-gradient(var(--fw-light), var(--fw) 65%);
+}
+
+html.plugin-docs .navbar-framework-picker > .navbar__link:hover {
+  background: var(--fw-tint-2);
+}
+
+/* the picker's menu: each framework with its own agent colour */
+html.plugin-docs .navbar-framework-picker .dropdown__menu {
+  border: var(--lp-stroke-s) solid var(--lp-ink);
+  border-radius: 16px;
+  box-shadow: var(--lp-float);
+}
+
+html.plugin-docs .navbar-framework-picker .dropdown__link--active {
+  background: var(--fw-tint-2);
+  color: var(--fw-text);
+  font-weight: 650;
+}
+
+/* ---- the sidebar ---- */
+html.plugin-docs .theme-doc-sidebar-container {
+  border-right: 1px solid var(--lp-divider) !important;
+}
+
+html.plugin-docs .theme-doc-sidebar-menu .menu__link {
+  border-radius: 10px;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+html.plugin-docs .theme-doc-sidebar-menu .menu__link--sublist {
+  color: var(--lp-ink);
+}
+
+html.plugin-docs .theme-doc-sidebar-menu .menu__link:not(.menu__link--sublist):hover {
+  background: var(--fw-tint);
+  color: var(--lp-ink);
+}
+
+/* the current page: the framework's wash, its text colour and a marker in its agent colour */
+html.plugin-docs .theme-doc-sidebar-menu .menu__link--active:not(.menu__link--sublist) {
+  position: relative;
+  background: var(--fw-tint-2);
+  color: var(--fw-text);
+  font-weight: 650;
+}
+
+html.plugin-docs .theme-doc-sidebar-menu .menu__link--active:not(.menu__link--sublist)::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 0;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--fw-text);
+}
+
+/* ---- the content ---- */
+html.plugin-docs .theme-doc-markdown {
+  color: var(--lp-text-strong);
+  font-size: 17px;
+  line-height: 1.72;
+}
+
+html.plugin-docs .theme-doc-markdown header h1 {
+  margin-bottom: 24px;
+  color: var(--lp-ink);
+  font-size: clamp(34px, 4vw, 48px);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+}
+
+html.plugin-docs .theme-doc-markdown h2 {
+  color: var(--lp-ink);
+  font-size: 28px;
+  font-weight: 650;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+}
+
+html.plugin-docs .theme-doc-markdown h3 {
+  color: var(--lp-ink);
+  font-size: 21px;
+  font-weight: 650;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+
+html.plugin-docs .theme-doc-markdown strong {
+  color: var(--lp-ink);
+}
+
+/* links in the text: the framework's text colour, underlined in its agent colour */
+html.plugin-docs .theme-doc-markdown a:not(.doc-card):not([class*="hash-link"]):not([data-live-demo] *) {
+  color: var(--fw-text);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: var(--fw);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+  transition: text-decoration-thickness 0.15s;
+}
+
+html.plugin-docs .theme-doc-markdown a:not(.doc-card):not([class*="hash-link"]):not([data-live-demo] *):hover {
+  text-decoration-thickness: 3.5px;
+}
+
+/* inline code: a quiet chip */
+html.plugin-docs .theme-doc-markdown :not(pre) > code:not([data-live-demo] *) {
+  padding: 0.12em 0.4em;
+  border: 0;
+  border-radius: 6px;
+  background: var(--lp-chip);
+  color: var(--lp-ink);
+  font-family: var(--lp-font-mono) !important;
+  vertical-align: 0.04em;
+}
+
+/* code blocks: the landing pages' code window (ink outline, round corners, the window gradient) */
+html.plugin-docs .theme-doc-markdown div[class*="codeBlockContainer"]:not([data-live-demo] *) {
+  overflow: hidden;
+  border: var(--lp-stroke-s) solid var(--lp-ink);
+  border-radius: 18px;
+  background: var(--lp-grad-window);
+  box-shadow: none;
+}
+
+html.plugin-docs .theme-doc-markdown div[class*="codeBlockContainer"]:not([data-live-demo] *) pre {
+  border-radius: 0;
+  background: transparent !important;
+}
+
+html.plugin-docs .theme-doc-markdown div[class*="codeBlockContainer"]:not([data-live-demo] *) pre,
+html.plugin-docs .theme-doc-markdown div[class*="codeBlockContainer"]:not([data-live-demo] *) pre * {
+  font-family: var(--lp-font-mono) !important;
+}
+
+/* typography.css gives code a 1.1 line height sitewide (!important); in the docs' code windows, 1.65 */
+html.plugin-docs .theme-doc-markdown div[class*="codeBlockContainer"]:not([data-live-demo] *) pre code,
+html.plugin-docs .theme-doc-markdown div[class*="codeBlockContainer"]:not([data-live-demo] *) .token-line,
+html.plugin-docs .theme-doc-markdown div[class*="codeBlockContainer"]:not([data-live-demo] *) .token-line * {
+  font-size: 15px;
+  line-height: 1.65 !important;
+}
+
+/* a code block's file name: the window's title bar */
+html.plugin-docs .theme-doc-markdown div[class*="codeBlockTitle"]:not([data-live-demo] *) {
+  border-bottom: var(--lp-stroke-s) solid var(--lp-ink);
+  background: transparent;
+  color: var(--lp-ink);
+  padding: 10px 20px;
+  font-family: var(--lp-font-mono) !important;
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+/* tabs (e.g. package managers, file variants): the active one marked in the framework's colour */
+html.plugin-docs .theme-doc-markdown .tabs__item:not([data-live-demo] *) {
+  border-radius: 10px 10px 0 0;
+  color: var(--lp-soft);
+  font-weight: 600;
+}
+
+html.plugin-docs .theme-doc-markdown .tabs__item:not([data-live-demo] *):hover {
+  background: var(--fw-tint);
+}
+
+html.plugin-docs .theme-doc-markdown .tabs__item--active:not([data-live-demo] *) {
+  border-bottom-color: var(--fw-text);
+  color: var(--fw-text);
+}
+
+/* quotes, admonitions and tables, as on the blog */
+html.plugin-docs .theme-doc-markdown blockquote {
+  padding: 14px 20px;
+  border-left: 4px solid var(--fw);
+  border-radius: 0 14px 14px 0;
+  background: var(--fw-tint);
+  color: var(--lp-text-strong);
+}
+
+html.plugin-docs .theme-doc-markdown .theme-admonition {
+  border: var(--lp-stroke-s) solid var(--lp-ink);
+  border-radius: var(--lp-r-card);
+  background: var(--lp-grad-card);
+  box-shadow: none;
+  color: var(--lp-text-strong);
+}
+
+html.plugin-docs .theme-doc-markdown .theme-admonition-tip,
+html.plugin-docs .theme-doc-markdown .theme-admonition-info,
+html.plugin-docs .theme-doc-markdown .theme-admonition-note {
+  background: linear-gradient(#ffffff, var(--fw-tint));
+}
+
+html.plugin-docs .theme-doc-markdown table:not([data-live-demo] *) {
+  /* a block that scrolls: a wide table scrolls inside itself instead of widening the page */
+  display: block;
+  overflow-x: auto;
+  width: max-content;
+  max-width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  border: var(--lp-stroke-s) solid var(--lp-ink);
+  border-radius: 14px;
+}
+
+html.plugin-docs .theme-doc-markdown table thead tr {
+  background: var(--fw-tint);
+}
+
+html.plugin-docs .theme-doc-markdown table tr {
+  border: 0;
+}
+
+html.plugin-docs .theme-doc-markdown table tr:nth-child(2n) {
+  background: transparent;
+}
+
+html.plugin-docs .theme-doc-markdown table th,
+html.plugin-docs .theme-doc-markdown table td {
+  border: 0;
+  border-bottom: 1px solid var(--lp-divider);
+  text-align: left;
+  vertical-align: top;
+}
+
+html.plugin-docs .theme-doc-markdown table th {
+  color: var(--lp-ink);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+/* code in a cell (values, defaults, types) stays on one line; the table scrolls when it has to. Docusaurus sets
+   pre-wrap and break-word on inline code with a stronger selector, hence !important. */
+html.plugin-docs .theme-doc-markdown table:not([data-live-demo] *) code {
+  white-space: nowrap !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+}
+
+html.plugin-docs .theme-doc-markdown table tr:last-child td {
+  border-bottom: 0;
+}
+
+/* overview cards (.doc-card, general.css): outlined like the landing cards, the framework's wash on hover */
+html.plugin-docs .doc-card {
+  border: var(--lp-stroke-s) solid var(--lp-ink);
+  border-radius: var(--lp-r-card);
+  transition: transform 0.2s var(--lp-spring), background-color 0.2s;
+}
+
+html.plugin-docs .doc-card:hover {
+  border-color: var(--lp-ink);
+  background: var(--fw-tint);
+  box-shadow: none;
+  transform: translateY(-2px);
+}
+
+html.plugin-docs .doc-card__icon {
+  border-bottom: var(--lp-stroke-s) solid var(--lp-ink);
+  background: var(--fw-tint);
+}
+
+html.plugin-docs .doc-card__title {
+  color: var(--lp-ink);
+}
+
+/* ---- previous / next: ink-outlined cards ---- */
+html.plugin-docs .pagination-nav__link {
+  border: var(--lp-stroke-s) solid var(--lp-ink);
+  border-radius: var(--lp-r-card);
+  background: var(--lp-grad-card);
+  transition: transform 0.2s var(--lp-spring), background-color 0.2s;
+}
+
+html.plugin-docs .pagination-nav__link:hover {
+  border-color: var(--lp-ink);
+  background: var(--fw-tint);
+  box-shadow: none;
+  transform: translateY(-2px);
+}
+
+html.plugin-docs .pagination-nav__sublabel {
+  color: var(--lp-meta);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+html.plugin-docs .pagination-nav__label {
+  color: var(--lp-ink);
+  font-weight: 650;
+}
+
+/* ---- the table of contents: a marker in the framework's colour on the current heading ---- */
+html.plugin-docs .table-of-contents {
+  font-size: 14.5px;
+}
+
+html.plugin-docs .table-of-contents__link {
+  color: var(--lp-soft);
+}
+
+html.plugin-docs .table-of-contents__link:hover {
+  color: var(--lp-ink);
+}
+
+html.plugin-docs .table-of-contents__link--active {
+  position: relative;
+  color: var(--fw-text);
+  font-weight: 600;
+}
+
+html.plugin-docs .table-of-contents > li > .table-of-contents__link--active::before,
+html.plugin-docs .table-of-contents ul .table-of-contents__link--active::before {
+  content: "";
+  position: absolute;
+  top: 0.1em;
+  bottom: 0.1em;
+  left: calc(-1 * var(--ifm-toc-padding-horizontal) - 1.5px);
+  width: 3px;
+  border-radius: 2px;
+  background: var(--fw-text);
+}
+
+/* ---- phones ---- */
+@media (max-width: 620px) {
+  html.plugin-docs .theme-doc-markdown {
+    font-size: 16.5px;
+  }
+
+  html.plugin-docs .theme-doc-markdown h2 {
+    font-size: 24px;
+  }
+
+  html.plugin-docs .theme-doc-markdown div[class*="codeBlockContainer"]:not([data-live-demo] *) pre code,
+  html.plugin-docs .theme-doc-markdown div[class*="codeBlockContainer"]:not([data-live-demo] *) .token-line,
+  html.plugin-docs .theme-doc-markdown div[class*="codeBlockContainer"]:not([data-live-demo] *) .token-line * {
+    font-size: 13.5px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.plugin-docs .theme-doc-sidebar-menu .menu__link,
+  html.plugin-docs .theme-doc-markdown a,
+  html.plugin-docs .doc-card,
+  html.plugin-docs .pagination-nav__link {
+    transition: none;
+  }
+}
+
+/* the mobile menu's categories in ink, like the sidebar's (navbar.css colours them with the menu colour, which is
+   the soft grey of the pages here) */
+html.plugin-docs .navbar-sidebar .menu__link--sublist {
+  color: var(--lp-ink) !important;
+}
+
+/* the docs' footnote (components/DocsFootnote, footer.css): its star button as the landing pages' light button */
+html.plugin-docs .docs-footnote__star {
+  border: 0;
+  border-radius: var(--lp-r-s);
+  background: var(--lp-chip);
+  color: var(--lp-ink);
+  font-weight: 600;
+  box-shadow: none;
+}
+
+html.plugin-docs .docs-footnote__star:hover {
+  background: var(--lp-chip-h);
+  color: var(--lp-ink);
+}
+
+/* phones: the new logo is wider than the old one, so on small phones it is set a little smaller, which leaves room
+   for the GitHub icon and the framework picker; the picker gets a little tighter too */
+@media (max-width: 480px) {
+  html.plugin-docs .navbar__inner a.navbar__brand {
+    margin-right: 8px;
+    font-size: 19px;
+  }
+
+  html.plugin-docs .navbar__inner a.navbar__brand > svg {
+    width: 28px;
+    height: 28px;
+    margin-left: calc(28px * -0.158);
+  }
+
+  html.plugin-docs .navbar-framework-picker > .navbar__link {
+    gap: 6px;
+    padding-inline: 10px;
+  }
+}
+
+/* the smallest phones (320px): logo, GitHub icon, picker and menu don't fit side by side. The GitHub icon gives way
+   (every docs page ends with "Star on GitHub" in its footnote) and the logo shrinks a little more. */
+@media (max-width: 360px) {
+  html.plugin-docs .navbar__inner a.navbar-framework-github-link {
+    display: none !important;
+  }
+
+  html.plugin-docs .navbar__inner a.navbar__brand {
+    margin-right: 4px;
+    font-size: 17px;
+  }
+
+  html.plugin-docs .navbar-framework-picker > .navbar__link {
+    gap: 5px;
+    padding-inline: 8px;
+    font-size: 14.5px;
+  }
+
+  html.plugin-docs .navbar__inner a.navbar__brand > svg {
+    width: 25px;
+    height: 25px;
+    margin-left: calc(25px * -0.158);
+  }
+}

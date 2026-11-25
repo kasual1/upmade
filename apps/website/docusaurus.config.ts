@@ -103,6 +103,9 @@ const config: Config = {
             require.resolve("./src/css/footer.css"),
             // the blog in the landing pages' art style (scoped to html.plugin-blog; reads the --lp-* tokens)
             require.resolve("./src/css/blog.css"),
+            // the docs in the landing pages' style, with each framework's agent colour as its accent
+            // (scoped to html.plugin-docs; reads the --lp-* tokens)
+            require.resolve("./src/css/docs.css"),
           ],
         },
       } satisfies Preset.Options,

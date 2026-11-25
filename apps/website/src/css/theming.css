@@ -16,38 +16,8 @@
   --button-icon-color: #ffffff;
 }
 
-html.plugin-id-angular .menu__link:not(.menu__link--sublist) {
-  --ifm-menu-color-active: #dd0031;
-  --ifm-menu-color-background-active: rgba(221, 0, 48, 0.08);
-  --ifm-menu-color-hover: rgba(221, 0, 48, 0.08);
-}
-
-html.plugin-id-react .menu__link:not(.menu__link--sublist) {
-  --ifm-menu-color-active: #4a7dff;
-  --ifm-menu-color-background-active: #4a7dff1a;
-  --ifm-menu-color-hover: rgba(255, 0, 0, 0.05);
-}
-
-html.plugin-id-vue .menu__link:not(.menu__link--sublist) {
-  --ifm-menu-color-active: #33a06f;
-  --ifm-menu-color-background-active: rgba(66, 184, 131, 0.1);
-  --ifm-menu-color-hover: rgba(255, 0, 0, 0.05);
-}
-
-html.plugin-id-angular .navbar__item.dropdown .dropdown__link--active {
-  background-color: rgba(221, 0, 48, 0.08);
-  color: #dd0031;
-}
-
-html.plugin-id-react .navbar__item.dropdown .dropdown__link--active {
-  background-color: #4a7dff1a;
-  color: #4a7dff;
-}
-
-html.plugin-id-vue .navbar__item.dropdown .dropdown__link--active {
-  background-color: rgba(66, 184, 131, 0.1);
-  color: #33a06f;
-}
+/* The framework accents (Angular pink, React blue, Vue green: the agents' colours) and the docs' styling are in
+   src/css/docs.css. */
 
 .menu__link--sublist {
   font-size: 1.1em;
@@ -66,31 +36,4 @@ li[class*='theme-doc-sidebar-item-category-level-']:not(.theme-doc-sidebar-item-
 
 .menu__link {
   line-height: 1.4;
-}
-
-html.plugin-id-angular {
-  --ifm-toc-link-color-active: #dd0031;
-  --ifm-link-color: #dd0031;
-}
-
-html.plugin-id-angular .table-of-contents__link--active {
-  color: var(--ifm-toc-link-color-active);
-}
-
-html.plugin-id-react {
-  --ifm-toc-link-color-active: #4a7dff;
-  --ifm-link-color: #4a7dff;
-}
-
-html.plugin-id-react .table-of-contents__link--active {
-  color: var(--ifm-toc-link-color-active);
-}
-
-html.plugin-id-vue {
-  --ifm-toc-link-color-active: #33a06f;
-  --ifm-link-color: #33a06f;
-}
-
-html.plugin-id-vue .table-of-contents__link--active {
-  color: var(--ifm-toc-link-color-active);
 }

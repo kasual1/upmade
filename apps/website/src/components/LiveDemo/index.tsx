@@ -276,6 +276,8 @@ export default function LiveDemo({
 
   return (
     <div
+      // marks the demo so the docs' styling (src/css/docs.css) leaves it as it is
+      data-live-demo=""
       style={{
         marginBlock: '1.5rem',
         border: '1px solid var(--ifm-color-emphasis-300)',

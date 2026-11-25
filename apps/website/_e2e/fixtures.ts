@@ -13,6 +13,8 @@ export const PAGES = {
   blogPost: '/blog/2026/11/01/agentic-canvas/',
   blogArchive: '/blog/archive/',
   docs: '/docs/react/getting-started/quick-start/',
+  docsVue: '/docs/vue/fundamentals/objects/',
+  docsAngular: '/docs/angular/customization/themes/',
 } as const;
 
 const STUB_BODIES: Record<string, { contentType: string; body: string }> = {

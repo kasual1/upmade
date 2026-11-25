@@ -4,7 +4,7 @@
 a.landingBrand,
 a.landingBrand:hover {
   height: auto;
-  color: var(--lp-ink);
+  color: var(--lp-ink, #0a0a0a);
 }
 
 @media (max-width: 768px) {
