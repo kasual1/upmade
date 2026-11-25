@@ -112,11 +112,11 @@ function clear(): void {
 .calculator-card { display: grid; grid-template-rows: auto minmax(0, 42px) minmax(0, 1fr); gap: clamp(4px, 2cqh, 10px); height: 100%; min-height: 0; padding: clamp(8px, 4cqh, 16px) clamp(6px, 3cqw, 12px); border: 1px solid #e5e7eb; border-radius: 12px; box-sizing: border-box; overflow: hidden; font-family: Roboto, sans-serif; background: #ffffff; }
 header { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 0; }
 h3 { margin: 0; font-size: clamp(12px, 5cqh, 16px); line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-header strong { color: #42b883; font-size: 13px; }
+header strong { color: #19793c; font-size: 13px; }
 output { display: flex; align-items: center; justify-content: flex-end; min-height: 0; padding: 0 12px; border: 1px solid #e0e0e0; border-radius: 6px; background: #fafafa; color: #202124; font-size: clamp(16px, 8cqh, 24px); font-weight: 700; overflow: hidden; }
 .keypad { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(5, minmax(0, 1fr)); gap: clamp(4px, 1.5cqh, 6px); min-height: 0; overflow: hidden; }
 button { min-width: 0; min-height: 0; border: 1px solid #dadce0; border-radius: 6px; background: #ffffff; color: #202124; cursor: var(--upmade-global-pointer-cursor, pointer); font-size: clamp(11px, 5cqh, 15px); font-weight: 600; }
-.operator { border-color: #42b883; color: #167a55; }
-.equals { grid-row: span 2; background: #42b883; border-color: #42b883; color: #ffffff; }
+.operator { border-color: #19793c; color: #19793c; }
+.equals { grid-row: span 2; background: #19793c; border-color: #19793c; color: #ffffff; }
 .zero { grid-column: span 2; }
 </style>

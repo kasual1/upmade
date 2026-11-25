@@ -33,7 +33,7 @@ const toolbarItems: UpmadeToolbarItem[] = [
       size: 6,
       palette: [
         { light: '#1f2937', dark: '#f3f4f6', label: 'Ink' },
-        { light: '#42b883', dark: '#7ee2b8', label: 'Vue Green' },
+        { light: '#19793c', dark: '#7ee2b8', label: 'Vue Green' },
       ],
     },
   },
@@ -63,7 +63,7 @@ const toolbarItems: UpmadeToolbarItem[] = [
       fontFamily: 'Arial',
       palette: [
         { light: '#1f2937', dark: '#f3f4f6' },
-        { light: '#42b883', dark: '#7ee2b8' },
+        { light: '#19793c', dark: '#7ee2b8' },
       ],
     },
   },

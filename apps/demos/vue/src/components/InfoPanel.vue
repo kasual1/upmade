@@ -158,13 +158,14 @@ function stopPointerEvent(event: PointerEvent) {
     height: 36px;
     align-items: center;
     justify-content: center;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    border: 2px solid #0a0a0a;
+    border-radius: 50%;
     background: #fff;
     box-shadow: 0 2px 8px rgb(0 0 0 / 12%);
     cursor: pointer;
     pointer-events: auto;
-  }
+  font-weight: 600;
+}
 
   .info-panel.has-toolbar-toggle > .info-panel-toggle {
     display: none;
@@ -203,23 +204,24 @@ function stopPointerEvent(event: PointerEvent) {
     align-items: center;
     justify-content: center;
     padding: 0;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    border: 2px solid #0a0a0a;
+    border-radius: 50%;
     background: #fff;
-    color: #333;
+    color: #0a0a0a;
     cursor: pointer;
-  }
+  font-weight: 600;
+}
 
   .info-panel-close:hover,
   .info-panel-close:focus-visible {
-    border-color: #42b883;
-    background: #42b883;
-    color: #fff;
+    border-color: #0a0a0a;
+    background: #e2faeb;
+    color: #0a0a0a;
     outline: 0;
   }
 
   .info-panel-close:focus-visible {
-    box-shadow: 0 0 0 2px rgb(66 184 131 / 25%);
+    box-shadow: 0 0 0 2px rgb(25 121 60 / 25%);
   }
 
   .info-panel.show-on-mobile.is-open > .info-panel-body {

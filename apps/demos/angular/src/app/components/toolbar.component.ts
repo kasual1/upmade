@@ -17,8 +17,8 @@ import {
         align-items: center;
         gap: 8px;
         padding: 8px 12px;
-        background: #f5f5f5;
-        border-bottom: 1px solid #ebebeb;
+        background: #fafaf8;
+        border-bottom: 2px solid #0a0a0a;
         flex-wrap: wrap;
       }
 
@@ -34,23 +34,24 @@ import {
 
       app-toolbar > button {
         padding: 6px 12px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
+        border: 2px solid #0a0a0a;
+        border-radius: 999px;
         background: #fff;
         cursor: pointer;
         font-size: 13px;
-      }
+  font-weight: 600;
+}
 
       app-toolbar > button:hover:not(:disabled) {
-        background: #dd0031;
-        color: #fff;
-        border-color: #dd0031;
+        background: #ffe7f3;
+        color: #0a0a0a;
+        border-color: #0a0a0a;
       }
 
       app-toolbar > button.active {
-        background: #dd0031;
+        background: #c10564;
         color: #fff;
-        border-color: #dd0031;
+        border-color: #0a0a0a;
       }
 
       app-toolbar > button:disabled {
@@ -77,8 +78,8 @@ import {
       app-toolbar > input {
         width: 70px;
         padding: 4px 8px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
+        border: 2px solid #0a0a0a;
+        border-radius: 10px;
         font-size: 13px;
       }
     `,

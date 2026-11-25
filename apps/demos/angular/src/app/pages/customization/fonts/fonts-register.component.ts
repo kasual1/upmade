@@ -36,7 +36,7 @@ const customFontConfig: UpmadeFontMap = {
   styles: [`
     :host { display: flex; flex-direction: column; height: 100%; font-family: Roboto, sans-serif; }
     .editor-wrap { flex: 1; position: relative; }
-    .status-bar { display: flex; align-items: center; gap: 12px; padding: 8px 12px; background: #f5f5f5; border-top: 1px solid #ebebeb; font-size: 13px; font-family: monospace; }
+    .status-bar { display: flex; align-items: center; gap: 12px; padding: 8px 12px; background: #fafaf8; border-top: 2px solid #0a0a0a; font-size: 13px; font-family: monospace; }
   `],
 })
 export class FontsRegisterComponent {
@@ -63,7 +63,7 @@ export class FontsRegisterComponent {
           translateY: -50,
           fontSize: 24,
           fontFamily: 'Pacifico',
-          fontColor: { light: '#dd0031', dark: '#ef4444' },
+          fontColor: { light: '#c10564', dark: '#ef4444' },
         } as any),
       ],
     }),
@@ -77,7 +77,7 @@ export class FontsRegisterComponent {
       translateY: position.y,
       fontSize: 24,
       fontFamily: 'Pacifico',
-      fontColor: { light: '#dd0031', dark: '#ef4444' },
+      fontColor: { light: '#c10564', dark: '#ef4444' },
     } as any);
     await this.editor.addObject(textObj as any);
   }

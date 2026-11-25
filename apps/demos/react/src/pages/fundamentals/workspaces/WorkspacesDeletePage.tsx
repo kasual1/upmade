@@ -20,14 +20,15 @@ const syncConfig: UpmadeSyncConfig = {
 const tabStyle: CSSProperties = {
   display: "inline-flex",
   alignItems: "center",
-  border: "1px solid #cccccc",
-  borderRadius: "4px",
+  border: "2px solid #0a0a0a",
+  borderRadius: "999px",
   background: "#ffffff",
   overflow: "hidden",
   fontSize: "13px",
+  fontWeight: 600,
 };
 const workspaceButtonStyle: CSSProperties = {
-  padding: "6px 10px",
+  padding: "6px 12px",
   border: 0,
   background: "transparent",
   color: "inherit",
@@ -110,9 +111,8 @@ export function WorkspacesDeletePage() {
               key={workspace.id}
               style={{
                 ...tabStyle,
-                borderColor: isActive ? "#4A7DFF" : "#cccccc",
-                background: isActive ? "#4A7DFF" : "#ffffff",
-                color: isActive ? "#ffffff" : "#333333",
+                background: isActive ? "#056bb4" : "#ffffff",
+                color: isActive ? "#ffffff" : "#0a0a0a",
               }}
             >
               <button

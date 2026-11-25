@@ -54,7 +54,7 @@ async function seedSlides() {
       height: 450,
       shapeType: ShapeType.Rectangle,
       fillColor: { light: '#ffffff', dark: '#1b1b1e' },
-      strokeColor: { light: '#42b883', dark: '#369a6e' },
+      strokeColor: { light: '#19793c', dark: '#146533' },
       strokeWidth: 4,
     }),
   )
@@ -65,7 +65,7 @@ async function seedSlides() {
       translateX: -350,
       translateY: -150,
       fontSize: 36,
-      fontColor: { light: '#42b883', dark: '#7ee2b8' },
+      fontColor: { light: '#19793c', dark: '#7ee2b8' },
     }),
   )
 
@@ -87,8 +87,8 @@ async function seedSlides() {
       width: 120,
       height: 120,
       shapeType: ShapeType.Ellipse,
-      fillColor: { light: '#e3f2fd', dark: '#1a237e' },
-      strokeColor: { light: '#1565c0', dark: '#90caf9' },
+      fillColor: { light: '#d7eeff', dark: '#2b5674' },
+      strokeColor: { light: '#6fc3ff', dark: '#6fc3ff' },
       strokeWidth: 2,
     }),
   )
@@ -102,7 +102,7 @@ async function seedSlides() {
       height: 450,
       shapeType: ShapeType.Rectangle,
       fillColor: { light: '#ffffff', dark: '#1b1b1e' },
-      strokeColor: { light: '#42b883', dark: '#369a6e' },
+      strokeColor: { light: '#19793c', dark: '#146533' },
       strokeWidth: 4,
     }),
   )
@@ -113,7 +113,7 @@ async function seedSlides() {
       translateX: 850,
       translateY: -150,
       fontSize: 36,
-      fontColor: { light: '#42b883', dark: '#7ee2b8' },
+      fontColor: { light: '#19793c', dark: '#7ee2b8' },
     }),
   )
 
@@ -135,8 +135,8 @@ async function seedSlides() {
       width: 120,
       height: 100,
       shapeType: ShapeType.Triangle,
-      fillColor: { light: '#fce4ec', dark: '#880e4f' },
-      strokeColor: { light: '#c62828', dark: '#ef9a9a' },
+      fillColor: { light: '#ffd5ea', dark: '#7a2e55' },
+      strokeColor: { light: '#ff6ab5', dark: '#ff6ab5' },
       strokeWidth: 2,
     }),
   )
@@ -150,7 +150,7 @@ async function seedSlides() {
       height: 450,
       shapeType: ShapeType.Rectangle,
       fillColor: { light: '#ffffff', dark: '#1b1b1e' },
-      strokeColor: { light: '#42b883', dark: '#369a6e' },
+      strokeColor: { light: '#19793c', dark: '#146533' },
       strokeWidth: 4,
     }),
   )
@@ -161,7 +161,7 @@ async function seedSlides() {
       translateX: 2050,
       translateY: -150,
       fontSize: 36,
-      fontColor: { light: '#42b883', dark: '#7ee2b8' },
+      fontColor: { light: '#19793c', dark: '#7ee2b8' },
     }),
   )
 
@@ -284,7 +284,7 @@ async function navigateToSlide(index: number) {
   padding: 12px 24px;
   background: #ffffff;
   border-bottom: 1px solid #d4ece0;
-  box-shadow: 0 1px 3px rgba(66, 184, 131, 0.06);
+  box-shadow: 0 1px 3px rgba(25, 121, 60, 0.06);
 }
 
 .brand {
@@ -298,8 +298,8 @@ async function navigateToSlide(index: number) {
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  background-color: rgba(66, 184, 131, 0.1);
-  color: #42b883;
+  background-color: rgba(25, 121, 60, 0.1);
+  color: #19793c;
   padding: 2px 8px;
   border-radius: 99px;
   letter-spacing: 0.5px;
@@ -322,7 +322,7 @@ async function navigateToSlide(index: number) {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(66, 184, 131, 0.08);
+  background: rgba(25, 121, 60, 0.08);
   padding: 4px;
   border-radius: 8px;
 }
@@ -338,14 +338,14 @@ async function navigateToSlide(index: number) {
   cursor: pointer;
   font-size: 13px;
   font-weight: 500;
-  color: #42b883;
-  box-shadow: 0 1px 2px rgba(66, 184, 131, 0.08);
+  color: #19793c;
+  box-shadow: 0 1px 2px rgba(25, 121, 60, 0.08);
   transition: all 0.2s ease;
 }
 
 .nav-btn:hover:not(:disabled) {
-  background: #42b883;
-  color: #ffffff;
+  background: #e2faeb;
+  color: #0a0a0a;
 }
 
 .nav-btn:disabled {

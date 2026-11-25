@@ -12,7 +12,7 @@ a.landingBrand:hover {
     font-size: 22px;
   }
 
-  a.landingBrand > svg {
+  a.landingBrand > :first-child {
     width: 32px;
     height: 32px;
     margin-left: calc(32px * -0.158);

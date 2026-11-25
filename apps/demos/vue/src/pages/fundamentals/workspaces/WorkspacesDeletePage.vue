@@ -37,13 +37,14 @@ function workspaceTabStyle(active: boolean): CSSProperties {
     display: 'inline-flex',
     alignItems: 'center',
     gap: '6px',
-    padding: '6px 10px',
-    border: `1px solid ${active ? '#42b883' : '#cccccc'}`,
-    borderRadius: '4px',
-    background: active ? '#42b883' : '#ffffff',
-    color: active ? '#ffffff' : '#333333',
+    padding: '6px 12px',
+    border: '2px solid #0a0a0a',
+    borderRadius: '999px',
+    background: active ? '#19793c' : '#ffffff',
+    color: active ? '#ffffff' : '#0a0a0a',
     cursor: 'pointer',
     fontSize: '13px',
+    fontWeight: 600,
   }
 }
 const deleteButtonStyle: CSSProperties = {

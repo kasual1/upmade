@@ -28,7 +28,7 @@ const valueStyle: CSSProperties = { margin: 0, overflow: "hidden", fontWeight: 6
 const actionsStyle: CSSProperties = { display: "flex", flexWrap: "wrap", gap: 6 };
 const buttonStyle: CSSProperties = { flex: "1 1 auto", height: 28, padding: "0 10px", border: "1px solid #dadce0", borderRadius: 8, background: "#ffffff", color: "#202124", cursor: "pointer", font: "inherit", fontWeight: 600 };
 const toggleButtonStyle: CSSProperties = { ...buttonStyle, flexBasis: "100%" };
-const activeButtonStyle: CSSProperties = { borderColor: "#4a7dff", background: "#4a7dff", color: "#ffffff" };
+const activeButtonStyle: CSSProperties = { borderColor: "#056bb4", background: "#056bb4", color: "#ffffff" };
 
 /** Short, readable description of an element inside the iframe, e.g. `checkout "Checkout"`. */
 function describe(element: UpmadeObjectElementInfo): string {

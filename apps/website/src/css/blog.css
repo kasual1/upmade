@@ -5,7 +5,7 @@
  * so docs and the landing pages are unaffected. The --lp-* tokens are defined for html.plugin-blog in tokens.css.
  *
  * Page shapes (Docusaurus' BlogLayout: .container > .row > main, plus the table of contents column on posts):
- *   html.blog-list-page     the intro (theme/BlogListPage) and the posts as a grid, the newest one featured
+ *   html.blog-list-page     the posts as a grid (theme/BlogListPage), no intro above them
  *   html.blog-post-page     one post: back link, framed media, title, meta, the text and the table of contents
  *   the archive             its own component and styles (theme/BlogArchivePage)
  * Breakpoints as on the landing pages: 960px (one column of posts, no table of contents column), 620px (phones).
@@ -58,27 +58,17 @@ html.plugin-blog :focus-visible {
   outline-offset: 3px;
 }
 
-/* ---- the list: intro ---- */
-html.plugin-blog .blog-intro {
-  display: grid;
-  gap: 14px;
-  padding: 72px 0 56px;
-}
-
-html.plugin-blog .blog-intro h1 {
-  margin: 0;
-  font-size: var(--lp-fs-h2);
-  font-weight: 650;
-  line-height: 1.08;
-  letter-spacing: -0.035em;
-}
-
-html.plugin-blog .blog-intro p {
-  margin: 0;
-  max-width: 44ch;
-  color: var(--lp-soft);
-  font-size: var(--lp-fs-body-l);
-  line-height: 1.6;
+/* ---- the list: the page's h1, for screen readers only (nothing sits above the grid) ---- */
+html.plugin-blog .blog-title {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* ---- the list: posts ---- */
@@ -87,10 +77,10 @@ html.blog-list-page main {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 72px 56px;
   align-items: start;
+  padding-top: 72px;
   padding-bottom: 112px;
 }
 
-html.blog-list-page main > .blog-intro,
 html.blog-list-page main > nav {
   grid-column: 1 / -1;
 }
@@ -114,36 +104,6 @@ html.blog-list-page main > article > header > a:first-child {
 
 html.blog-list-page main > article > header > a:first-child > span {
   margin-bottom: 0;
-}
-
-/* the newest post: media and text side by side across the whole width */
-html.blog-list-page main > article:first-of-type {
-  grid-column: 1 / -1;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-  column-gap: 56px;
-  align-items: center;
-}
-
-html.blog-list-page main > article:first-of-type > header {
-  display: contents;
-}
-
-html.blog-list-page main > article:first-of-type > header > a:first-child {
-  grid-column: 1;
-  grid-row: 1 / span 6;
-  margin: 0;
-}
-
-html.blog-list-page main > article:first-of-type > header > :not(a:first-child),
-html.blog-list-page main > article:first-of-type > .markdown,
-html.blog-list-page main > article:first-of-type > footer {
-  grid-column: 2;
-}
-
-html.blog-list-page main > article:first-of-type > header > h2 {
-  align-self: end;
-  font-size: clamp(28px, 3vw, 38px);
-  letter-spacing: -0.035em;
 }
 
 /* title, meta, excerpt, read more */
@@ -226,7 +186,7 @@ html.plugin-blog article a[aria-label^="Read more about "] {
   font-weight: 600;
   line-height: 1.2;
   text-decoration: none;
-  transition: background-color 0.15s, transform 0.2s var(--lp-spring);
+  transition: background-color 0.15s;
 }
 
 html.plugin-blog article a[aria-label^="Read more about "]::after {
@@ -239,7 +199,6 @@ html.plugin-blog article a[aria-label^="Read more about "] b {
 
 html.plugin-blog article a[aria-label^="Read more about "]:hover {
   background: var(--lp-chip-h);
-  transform: translateY(-2px);
 }
 
 /* ---- a post ---- */
@@ -428,13 +387,14 @@ html.plugin-blog .pagination-nav__link {
   border: var(--lp-stroke-s) solid var(--lp-ink);
   border-radius: var(--lp-r-card);
   background: var(--lp-grad-card);
-  transition: transform 0.2s var(--lp-spring), background-color 0.2s;
+  transition: background-color 0.2s;
 }
 
+/* hover: the open card's gradient only, the card stays in place */
 html.plugin-blog .pagination-nav__link:hover {
   border-color: var(--lp-ink);
   background: var(--lp-grad-card-open);
-  transform: translateY(-2px);
+  transform: none;
 }
 
 html.plugin-blog .pagination-nav__sublabel {
@@ -508,33 +468,11 @@ html.blog-post-page .table-of-contents ul .table-of-contents__link--active::befo
     grid-template-columns: minmax(0, 1fr);
     gap: 64px;
   }
-
-  html.blog-list-page main > article:first-of-type {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  html.blog-list-page main > article:first-of-type > header {
-    display: grid;
-  }
-
-  html.blog-list-page main > article:first-of-type > header > a:first-child {
-    grid-row: auto;
-    margin-bottom: 6px;
-  }
-
-  html.blog-list-page main > article:first-of-type > header > :not(a:first-child),
-  html.blog-list-page main > article:first-of-type > .markdown,
-  html.blog-list-page main > article:first-of-type > footer {
-    grid-column: auto;
-  }
 }
 
 @media (max-width: 620px) {
-  html.plugin-blog .blog-intro {
-    padding: 48px 0 40px;
-  }
-
   html.blog-list-page main {
+    padding-top: 48px;
     padding-bottom: 72px;
   }
 

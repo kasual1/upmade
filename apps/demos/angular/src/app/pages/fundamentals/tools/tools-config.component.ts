@@ -57,11 +57,11 @@ export class ToolsConfigComponent {
       icon: 'pen',
       isDefault: true,
       config: {
-        color: { light: '#dd0031', dark: '#ff5b79', label: 'Angular Red' },
+        color: { light: '#c10564', dark: '#ff5b79', label: 'Angular Red' },
         size: 8,
         opacity: 1,
         palette: [
-          { light: '#dd0031', dark: '#ff5b79', label: 'Angular Red' },
+          { light: '#c10564', dark: '#ff5b79', label: 'Angular Red' },
           { light: '#1f2937', dark: '#f3f4f6', label: 'Ink' },
           { light: '#0284c7', dark: '#38bdf8', label: 'Sky' },
         ],
@@ -96,14 +96,14 @@ export class ToolsConfigComponent {
       config: {
         shapeType: ShapeType.Ellipse,
         fillColor: { light: '#fee2e2', dark: '#4c1d1d' },
-        strokeColor: { light: '#dd0031', dark: '#ff5b79', label: 'Angular Red' },
+        strokeColor: { light: '#c10564', dark: '#ff5b79', label: 'Angular Red' },
         strokeWidth: 4,
         opacity: 1,
         fontColor: { light: '#1f2937', dark: '#f3f4f6', label: 'Ink' },
         fontSize: 16,
         fontFamily: 'Arial',
         palette: [
-          { light: '#dd0031', dark: '#ff5b79', label: 'Angular Red' },
+          { light: '#c10564', dark: '#ff5b79', label: 'Angular Red' },
           { light: '#f59e0b', dark: '#fbbf24', label: 'Amber' },
           { light: '#1f2937', dark: '#f3f4f6', label: 'Ink' },
         ],
@@ -126,7 +126,7 @@ export class ToolsConfigComponent {
         availableFonts: ['Georgia', 'Courier New'],
         palette: [
           { light: '#1f2937', dark: '#f3f4f6', label: 'Ink' },
-          { light: '#dd0031', dark: '#ff5b79', label: 'Angular Red' },
+          { light: '#c10564', dark: '#ff5b79', label: 'Angular Red' },
         ],
         sizes: [8, 12, 24],
       },

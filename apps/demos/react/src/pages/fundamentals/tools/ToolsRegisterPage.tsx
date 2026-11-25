@@ -31,7 +31,7 @@ const toolbarItems: UpmadeToolbarItem[] = [
       size: 6,
       palette: [
         { light: "#1f2937", dark: "#f3f4f6", label: "Ink" },
-        { light: "#4A7DFF", dark: "#5B8CFF", label: "React Blue" },
+        { light: "#056bb4", dark: "#056bb4", label: "React Blue" },
       ],
     },
   },
@@ -61,7 +61,7 @@ const toolbarItems: UpmadeToolbarItem[] = [
       fontFamily: "Arial",
       palette: [
         { light: "#1f2937", dark: "#f3f4f6" },
-        { light: "#4A7DFF", dark: "#5B8CFF" },
+        { light: "#056bb4", dark: "#056bb4" },
       ],
     },
   },

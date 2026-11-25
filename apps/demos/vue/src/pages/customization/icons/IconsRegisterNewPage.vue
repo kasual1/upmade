@@ -31,11 +31,11 @@ const toolbarItems: UpmadeToolbarItem[] = [
     tool: UpmadeBrushTool,
     icon: 'pen',
     config: {
-      color: { light: '#42b883', dark: '#5ee0a8', label: 'Vue Green' },
+      color: { light: '#19793c', dark: '#5ee0a8', label: 'Vue Green' },
       size: 8,
       opacity: 1,
       palette: [
-        { light: '#42b883', dark: '#5ee0a8', label: 'Vue Green' },
+        { light: '#19793c', dark: '#5ee0a8', label: 'Vue Green' },
         { light: '#1f2937', dark: '#f3f4f6', label: 'Ink' },
         { light: '#0284c7', dark: '#38bdf8', label: 'Sky' },
       ],

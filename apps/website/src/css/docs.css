@@ -38,8 +38,8 @@ html.plugin-id-vue {
   --fw-text: #19793c;
 }
 
-/* The live demos (components/LiveDemo, marked data-live-demo) are not restyled: the content rules below skip them,
-   and inside them the link colour stays what it was before the restyle. */
+/* The live demos (components/LiveDemo, marked data-live-demo) bring their own styles (LiveDemo/styles.module.css): the
+   content rules below skip them, and inside them the link colour stays what it was before the restyle. */
 html.plugin-id-angular [data-live-demo] {
   --ifm-link-color: #dd0031;
 }
@@ -88,28 +88,28 @@ html.plugin-docs :focus-visible {
   outline-offset: 3px;
 }
 
-/* ---- the navbar: the framework picker as a chip with the framework's agent dot ---- */
+/* ---- the navbar: the framework picker as a white outlined chip ---- */
 html.plugin-docs .navbar-framework-picker > .navbar__link {
   gap: 8px;
   border: var(--lp-stroke-s) solid var(--lp-ink);
   border-radius: var(--lp-r-pill);
-  background: var(--fw-tint);
+  background: var(--lp-paper);
   color: var(--lp-ink);
   font-weight: 650;
 }
 
+html.plugin-docs .navbar-framework-picker > .navbar__link:hover {
+  background: var(--lp-chip-h);
+}
+
+/* a dot in the current framework's colour before its name */
 html.plugin-docs .navbar-framework-picker > .navbar__link::before {
   content: "";
   flex: none;
-  width: 11px;
-  height: 11px;
-  border: 2px solid var(--lp-ink);
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  background: linear-gradient(var(--fw-light), var(--fw) 65%);
-}
-
-html.plugin-docs .navbar-framework-picker > .navbar__link:hover {
-  background: var(--fw-tint-2);
+  background: var(--fw);
 }
 
 /* the picker's menu: each framework with its own agent colour */
@@ -117,6 +117,14 @@ html.plugin-docs .navbar-framework-picker .dropdown__menu {
   border: var(--lp-stroke-s) solid var(--lp-ink);
   border-radius: 16px;
   box-shadow: var(--lp-float);
+}
+
+/* compact items: the docs' text line height (1.65) would make each one 50px tall */
+html.plugin-docs .navbar-framework-picker .dropdown__link {
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 15px;
+  line-height: 1.35;
 }
 
 html.plugin-docs .navbar-framework-picker .dropdown__link--active {
@@ -379,14 +387,15 @@ html.plugin-docs .pagination-nav__link {
   border: var(--lp-stroke-s) solid var(--lp-ink);
   border-radius: var(--lp-r-card);
   background: var(--lp-grad-card);
-  transition: transform 0.2s var(--lp-spring), background-color 0.2s;
+  transition: background-color 0.2s;
 }
 
+/* hover: the framework's wash only, the card stays in place */
 html.plugin-docs .pagination-nav__link:hover {
   border-color: var(--lp-ink);
   background: var(--fw-tint);
   box-shadow: none;
-  transform: translateY(-2px);
+  transform: none;
 }
 
 html.plugin-docs .pagination-nav__sublabel {
@@ -402,9 +411,14 @@ html.plugin-docs .pagination-nav__label {
   font-weight: 650;
 }
 
-/* ---- the table of contents: a marker in the framework's colour on the current heading ---- */
+/* ---- the table of contents: no line on its left; the current heading in ink, semibold, marked on its left with a bar
+   in the framework's colour (like a blog post's table of contents, blog.css) ---- */
 html.plugin-docs .table-of-contents {
   font-size: 14.5px;
+}
+
+html.plugin-docs .table-of-contents__left-border {
+  border-left: 0;
 }
 
 html.plugin-docs .table-of-contents__link {
@@ -415,9 +429,10 @@ html.plugin-docs .table-of-contents__link:hover {
   color: var(--lp-ink);
 }
 
-html.plugin-docs .table-of-contents__link--active {
+html.plugin-docs .table-of-contents__link--active,
+html.plugin-docs .table-of-contents__link--active:hover {
   position: relative;
-  color: var(--fw-text);
+  color: var(--lp-ink);
   font-weight: 600;
 }
 
@@ -430,7 +445,7 @@ html.plugin-docs .table-of-contents ul .table-of-contents__link--active::before 
   left: calc(-1 * var(--ifm-toc-padding-horizontal) - 1.5px);
   width: 3px;
   border-radius: 2px;
-  background: var(--fw-text);
+  background: var(--fw);
 }
 
 /* ---- phones ---- */

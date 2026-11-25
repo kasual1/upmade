@@ -34,17 +34,17 @@ const workspaceVariants: WorkspaceVariant[] = [
   {
     name: 'Project Board',
     shapeType: ShapeType.Rectangle,
-    fill: { light: '#fce4ec', dark: '#880e4f' },
-    stroke: { light: '#c62828', dark: '#ef9a9a' },
-    accent: { light: '#ff9800', dark: '#ffb74d' },
+    fill: { light: '#ffd5ea', dark: '#7a2e55' },
+    stroke: { light: '#ff6ab5', dark: '#ff6ab5' },
+    accent: { light: '#ff9f5a', dark: '#ffb47e' },
     rotation: 0,
   },
   {
     name: 'Sprint Planning',
     shapeType: ShapeType.Ellipse,
-    fill: { light: '#e3f2fd', dark: '#1a237e' },
-    stroke: { light: '#1565c0', dark: '#90caf9' },
-    accent: { light: '#4caf50', dark: '#81c784' },
+    fill: { light: '#d7eeff', dark: '#2b5674' },
+    stroke: { light: '#6fc3ff', dark: '#6fc3ff' },
+    accent: { light: '#4ade80', dark: '#72e59c' },
     rotation: 15,
   },
   {

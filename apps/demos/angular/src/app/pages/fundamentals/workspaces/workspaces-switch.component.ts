@@ -151,8 +151,8 @@ export class WorkspacesSwitchComponent {
   };
 
   workspaces = signal<UpmadeWorkspace[]>([
-    new UpmadeWorkspace({ id: 'coral', name: 'Coral', objects: createWorkspaceObjects({ fill: '#fce4ec', stroke: '#c62828', accent: '#ff9800' }) }),
-    new UpmadeWorkspace({ id: 'ocean', name: 'Ocean', objects: createWorkspaceObjects({ fill: '#e3f2fd', stroke: '#1565c0', accent: '#00bcd4' }) }),
+    new UpmadeWorkspace({ id: 'coral', name: 'Coral', objects: createWorkspaceObjects({ fill: '#ffd5ea', stroke: '#ff6ab5', accent: '#ff9f5a' }) }),
+    new UpmadeWorkspace({ id: 'ocean', name: 'Ocean', objects: createWorkspaceObjects({ fill: '#d7eeff', stroke: '#6fc3ff', accent: '#00bcd4' }) }),
     new UpmadeWorkspace({ id: 'violet', name: 'Violet', objects: createWorkspaceObjects({ fill: '#f3e5f5', stroke: '#6a1b9a', accent: '#e91e63' }) }),
     new UpmadeWorkspace({ id: 'meadow', name: 'Meadow', objects: createWorkspaceObjects({ fill: '#e8f5e9', stroke: '#2e7d32', accent: '#8bc34a' }) }),
     new UpmadeWorkspace({ id: 'amber', name: 'Amber', objects: createWorkspaceObjects({ fill: '#fff3e0', stroke: '#ef6c00', accent: '#795548' }) }),

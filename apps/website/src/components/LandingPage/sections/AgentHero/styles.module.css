@@ -240,10 +240,6 @@
   cursor: default;
 }
 
-.send:not(:disabled):hover {
-  transform: translateY(-1px);
-}
-
 .send:not(:disabled):active,
 .send.press {
   transform: scale(0.88);

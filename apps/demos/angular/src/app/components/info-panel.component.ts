@@ -110,13 +110,14 @@ let nextInfoPanelId = 0;
           height: 36px;
           align-items: center;
           justify-content: center;
-          border: 1px solid #ccc;
-          border-radius: 4px;
+          border: 2px solid #0a0a0a;
+          border-radius: 50%;
           background: #fff;
           box-shadow: 0 2px 8px rgb(0 0 0 / 12%);
           cursor: pointer;
           pointer-events: auto;
-        }
+  font-weight: 600;
+}
 
         app-info-panel.has-toolbar-toggle > .info-panel-toggle {
           display: none;
@@ -155,18 +156,19 @@ let nextInfoPanelId = 0;
           align-items: center;
           justify-content: center;
           padding: 0;
-          border: 1px solid #ccc;
-          border-radius: 4px;
+          border: 2px solid #0a0a0a;
+          border-radius: 50%;
           background: #fff;
-          color: #333;
+          color: #0a0a0a;
           cursor: pointer;
-        }
+  font-weight: 600;
+}
 
         .info-panel-close:hover,
         .info-panel-close:focus-visible {
-          border-color: #dd0031;
-          background: #dd0031;
-          color: #fff;
+          border-color: #0a0a0a;
+          background: #ffe7f3;
+          color: #0a0a0a;
           outline: 0;
         }
 
@@ -238,18 +240,19 @@ export class InfoPanelComponent {
         align-items: center;
         justify-content: center;
         padding: 0;
-        border: 1px solid #ccc;
-        border-radius: 4px;
+        border: 2px solid #0a0a0a;
+        border-radius: 50%;
         background: #fff;
-        color: #333;
+        color: #0a0a0a;
         cursor: pointer;
-      }
+  font-weight: 600;
+}
 
       .info-panel-toolbar-toggle:hover,
       .info-panel-toolbar-toggle:focus-visible {
-        border-color: #dd0031;
-        background: #dd0031;
-        color: #fff;
+        border-color: #0a0a0a;
+        background: #ffe7f3;
+        color: #0a0a0a;
         outline: 0;
       }
 

@@ -35,8 +35,8 @@ async function addRectangle() {
     width: 120,
     height: 80,
     shapeType: ShapeType.Rectangle,
-    fillColor: { light: '#e3f2fd', dark: '#1a237e' },
-    strokeColor: { light: '#1565c0', dark: '#90caf9' },
+    fillColor: { light: '#d7eeff', dark: '#2b5674' },
+    strokeColor: { light: '#6fc3ff', dark: '#6fc3ff' },
     strokeWidth: 3,
   }))
   await refreshObjects()
@@ -49,8 +49,8 @@ async function addEllipse() {
     width: 100,
     height: 100,
     shapeType: ShapeType.Ellipse,
-    fillColor: { light: '#fce4ec', dark: '#880e4f' },
-    strokeColor: { light: '#c62828', dark: '#ef9a9a' },
+    fillColor: { light: '#ffd5ea', dark: '#7a2e55' },
+    strokeColor: { light: '#ff6ab5', dark: '#ff6ab5' },
     strokeWidth: 3,
   }))
   await refreshObjects()
@@ -70,7 +70,7 @@ async function addPath() {
     translateX: randomOffset(),
     translateY: randomOffset(),
     strokeWidth: 6,
-    fill: { light: '#ff9800', dark: '#ffb74d' },
+    fill: { light: '#ff9f5a', dark: '#ffb47e' },
   }))
   await refreshObjects()
 }

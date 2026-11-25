@@ -12,32 +12,33 @@
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  background: #f5f5f5;
-  border-bottom: 1px solid #ebebeb;
+  background: #fafaf8;
+  border-bottom: 2px solid #0a0a0a;
   flex-wrap: wrap;
 }
 
 .demo-toolbar > button {
   padding: 6px 12px;
-  border: 1px solid #d9d9d9;
-  border-radius: 6px;
+  border: 2px solid #0a0a0a;
+  border-radius: 999px;
   background: #ffffff;
-  color: #333333;
+  color: #0a0a0a;
   font-size: 13px;
   font-family: inherit;
   cursor: pointer;
+  font-weight: 600;
 }
 
 .demo-toolbar > button:hover:not(:disabled) {
-  background: #42b883;
-  color: #ffffff;
-  border-color: #42b883;
+  background: #e2faeb;
+  color: #0a0a0a;
+  border-color: #0a0a0a;
 }
 
 .demo-toolbar > button.active {
-  background: #42b883;
+  background: #19793c;
   color: #ffffff;
-  border-color: #42b883;
+  border-color: #0a0a0a;
 }
 
 .demo-toolbar > button:disabled {
@@ -64,8 +65,8 @@
 .demo-toolbar > input {
   width: 70px;
   padding: 4px 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  border: 2px solid #0a0a0a;
+  border-radius: 10px;
   font-size: 13px;
 }
 </style>

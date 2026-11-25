@@ -86,17 +86,17 @@ const workspaces = shallowRef<UpmadeWorkspace[]>([
     id: 'coral',
     name: 'Coral',
     objects: createWorkspaceObjects({
-      fill: '#fce4ec',
-      stroke: '#c62828',
-      accent: '#ff9800',
+      fill: '#ffd5ea',
+      stroke: '#ff6ab5',
+      accent: '#ff9f5a',
     }),
   }),
   new UpmadeWorkspace({
     id: 'ocean',
     name: 'Ocean',
     objects: createWorkspaceObjects({
-      fill: '#e3f2fd',
-      stroke: '#1565c0',
+      fill: '#d7eeff',
+      stroke: '#6fc3ff',
       accent: '#00bcd4',
     }),
   }),

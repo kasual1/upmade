@@ -15,14 +15,14 @@ input[type='checkbox'] {
   width: 16px;
   height: 16px;
   margin: 0;
-  border: 1px solid #167a55;
+  border: 1px solid #19793c;
   border-radius: 3px;
   background-color: #fff;
   place-content: center;
 }
 
 input[type='checkbox']:checked {
-  background-color: #167a55;
+  background-color: #19793c;
 }
 
 input[type='checkbox']:checked::before {
@@ -35,6 +35,6 @@ input[type='checkbox']:checked::before {
 }
 
 input[type='checkbox']:focus-visible {
-  outline: 2px solid #167a55;
+  outline: 2px solid #19793c;
   outline-offset: 2px;
 }

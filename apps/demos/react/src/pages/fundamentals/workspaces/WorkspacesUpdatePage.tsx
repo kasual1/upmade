@@ -34,8 +34,8 @@ const syncConfig: UpmadeSyncConfig = {
   providers: [InMemorySyncProvider],
 };
 const workspaceVariants: WorkspaceVariant[] = [
-  { name: "Project Board", shapeType: ShapeType.Rectangle, fill: { light: "#fce4ec", dark: "#880e4f" }, stroke: { light: "#c62828", dark: "#ef9a9a" }, accent: { light: "#ff9800", dark: "#ffb74d" }, rotation: 0 },
-  { name: "Sprint Planning", shapeType: ShapeType.Ellipse, fill: { light: "#e3f2fd", dark: "#1a237e" }, stroke: { light: "#1565c0", dark: "#90caf9" }, accent: { light: "#4caf50", dark: "#81c784" }, rotation: 15 },
+  { name: "Project Board", shapeType: ShapeType.Rectangle, fill: { light: "#ffd5ea", dark: "#7a2e55" }, stroke: { light: "#ff6ab5", dark: "#ff6ab5" }, accent: { light: "#ff9f5a", dark: "#ffb47e" }, rotation: 0 },
+  { name: "Sprint Planning", shapeType: ShapeType.Ellipse, fill: { light: "#d7eeff", dark: "#2b5674" }, stroke: { light: "#6fc3ff", dark: "#6fc3ff" }, accent: { light: "#4ade80", dark: "#72e59c" }, rotation: 15 },
   { name: "Design Review", shapeType: ShapeType.Triangle, fill: { light: "#f3e5f5", dark: "#4a148c" }, stroke: { light: "#6a1b9a", dark: "#ce93d8" }, accent: { light: "#00bcd4", dark: "#4dd0e1" }, rotation: 30 },
   { name: "Retrospective", shapeType: ShapeType.Rectangle, fill: { light: "#e8f5e9", dark: "#1b5e20" }, stroke: { light: "#2e7d32", dark: "#a5d6a7" }, accent: { light: "#e91e63", dark: "#f06292" }, rotation: 45 },
   { name: "Roadmap", shapeType: ShapeType.Ellipse, fill: { light: "#fff3e0", dark: "#e65100" }, stroke: { light: "#ef6c00", dark: "#ffcc80" }, accent: { light: "#3f51b5", dark: "#7986cb" }, rotation: 60 },

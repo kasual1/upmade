@@ -5,8 +5,8 @@ import { createSeedObjects } from '../getting-started/seed-objects'
 
 export { getEditorRef }
 
-export const accent = '#42b883'
-export const accentDark = '#369a6e'
+export const accent = '#19793c'
+export const accentDark = '#146533'
 
 export const hostStyle: CSSProperties = {
   display: 'flex',
@@ -20,8 +20,8 @@ export const toolbarStyle: CSSProperties = {
   alignItems: 'center',
   gap: '8px',
   padding: '8px 12px',
-  background: '#f5f5f5',
-  borderBottom: '1px solid #ebebeb',
+  background: '#fafaf8',
+  borderBottom: '2px solid #0a0a0a',
   flexWrap: 'wrap',
 }
 
@@ -30,8 +30,8 @@ export const statusBarStyle: CSSProperties = {
   alignItems: 'center',
   gap: '12px',
   padding: '8px 12px',
-  background: '#f5f5f5',
-  borderTop: '1px solid #ebebeb',
+  background: '#fafaf8',
+  borderTop: '2px solid #0a0a0a',
   fontSize: '13px',
 }
 
@@ -44,10 +44,11 @@ export const editorStyle: CSSProperties = {
 export function buttonStyle(active = false): CSSProperties {
   return {
     padding: '6px 12px',
-    border: `1px solid ${active ? accent : '#d9d9d9'}`,
-    borderRadius: '6px',
+    border: `2px solid #0a0a0a`,
+    borderRadius: '999px',
     background: active ? accent : '#ffffff',
-    color: active ? '#ffffff' : '#333333',
+    color: active ? '#ffffff' : '#0a0a0a',
+    fontWeight: 600,
     fontSize: '13px',
     cursor: 'pointer',
     fontFamily: 'inherit',

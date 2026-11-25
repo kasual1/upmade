@@ -54,7 +54,7 @@ export const infinitePage = {
       body: "Unlike a classic HTML canvas, Upmade renders real DOM nodes. Place full HTML elements like forms, videos or entire web apps on the board, and your users can interact with them just like anywhere else on the page.",
       media: { key: "domCanvas" },
       cta: { label: "Dynamic Objects", link: { kind: "docs", path: "advanced/dynamic-objects" } },
-      cornerAgent: { key: "juggler", corner: "bl", size: "l" },
+      cornerAgent: { key: "juggler", corner: "bl", size: "s" },
     },
     {
       type: "showcase",
@@ -64,7 +64,7 @@ export const infinitePage = {
       body: "Upmade comes with detailed documentation and extensive examples to ensure a quick and effortless integration into your app.",
       media: { key: "codeTyper", props: { frameworks: CODE_FRAMEWORKS } },
       cta: { label: "Quick Start", link: { kind: "docs" } },
-      cornerAgent: { key: "frameworkSign", corner: "br", size: "m" },
+      cornerAgent: { key: "frameworkSign", corner: "br", size: "s" },
     },
     {
       type: "showcase",

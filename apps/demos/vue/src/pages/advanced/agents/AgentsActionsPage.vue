@@ -34,8 +34,8 @@ function createActionSeeds() {
     width: 140,
     height: 90,
     shapeType: ShapeType.Rectangle,
-    fillColor: { light: '#fce4ec', dark: '#880e4f' },
-    strokeColor: { light: '#c62828', dark: '#ef9a9a' },
+    fillColor: { light: '#ffd5ea', dark: '#7a2e55' },
+    strokeColor: { light: '#ff6ab5', dark: '#ff6ab5' },
     strokeWidth: 3,
   })
   rectangle.id = RECTANGLE_ID
@@ -45,8 +45,8 @@ function createActionSeeds() {
     width: 120,
     height: 120,
     shapeType: ShapeType.Ellipse,
-    fillColor: { light: '#e3f2fd', dark: '#1a237e' },
-    strokeColor: { light: '#1565c0', dark: '#90caf9' },
+    fillColor: { light: '#d7eeff', dark: '#2b5674' },
+    strokeColor: { light: '#6fc3ff', dark: '#6fc3ff' },
     strokeWidth: 3,
   })
   ellipse.id = ELLIPSE_ID

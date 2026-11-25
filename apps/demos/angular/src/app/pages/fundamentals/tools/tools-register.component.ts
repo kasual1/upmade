@@ -44,8 +44,8 @@ import { createSeedObjects } from '../../../const/seed-objects';
         align-items: center;
         gap: 8px;
         padding: 8px 12px;
-        background: #f5f5f5;
-        border-top: 1px solid #ebebeb;
+        background: #fafaf8;
+        border-top: 2px solid #0a0a0a;
         font-size: 13px;
       }
     `,
@@ -74,7 +74,7 @@ export class ToolsRegisterComponent {
         size: 6,
         palette: [
           { light: '#1f2937', dark: '#f3f4f6', label: 'Ink' },
-          { light: '#dd0031', dark: '#ff5b79', label: 'Accent' },
+          { light: '#c10564', dark: '#ff5b79', label: 'Accent' },
         ],
       },
     },
@@ -104,7 +104,7 @@ export class ToolsRegisterComponent {
         fontFamily: 'Arial',
         palette: [
           { light: '#1f2937', dark: '#f3f4f6' },
-          { light: '#dd0031', dark: '#ff5b79' },
+          { light: '#c10564', dark: '#ff5b79' },
         ],
       },
     },

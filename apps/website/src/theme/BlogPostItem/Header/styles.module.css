@@ -13,11 +13,6 @@
   border-radius: var(--lp-r-frame);
   background: var(--lp-panel);
   margin-bottom: 28px;
-  transition: transform 0.25s var(--lp-spring);
-}
-
-.link:hover .frame {
-  transform: translateY(-3px);
 }
 
 .image {
@@ -60,7 +55,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .frame,
   .back {
     transition: none;
   }

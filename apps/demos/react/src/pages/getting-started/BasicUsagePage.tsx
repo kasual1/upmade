@@ -108,8 +108,8 @@ export function BasicUsagePage() {
           gap: "8px",
           flexWrap: "wrap",
           padding: "8px 12px",
-          borderBottom: "1px solid #ebebeb",
-          background: "#f5f5f5",
+          borderBottom: "2px solid #0a0a0a",
+          background: "#fafaf8",
         }}
       >
         <button
@@ -173,10 +173,11 @@ export function BasicUsagePage() {
 function buttonStyle(active: boolean): React.CSSProperties {
   return {
     padding: "6px 12px",
-    border: `1px solid ${active ? "#4A7DFF" : "#d9d9d9"}`,
-    borderRadius: "6px",
-    background: active ? "#4A7DFF" : "#ffffff",
-    color: active ? "#ffffff" : "#333333",
+    border: `2px solid #0a0a0a`,
+    borderRadius: "999px",
+    background: active ? "#056bb4" : "#ffffff",
+    color: active ? "#ffffff" : "#0a0a0a",
+    fontWeight: 600,
     fontSize: "13px",
     cursor: "pointer",
     fontFamily: "inherit",

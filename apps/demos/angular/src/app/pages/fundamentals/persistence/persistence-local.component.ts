@@ -32,7 +32,7 @@ import { createSeedObjects } from '../../../const/seed-objects';
   styles: [
     `
       :host {
-        --angular-primary: #dd0031;
+        --angular-primary: #c10564;
         --angular-primary-hover: #b30027;
         --angular-text: #333333;
         --angular-border: #ebebeb;

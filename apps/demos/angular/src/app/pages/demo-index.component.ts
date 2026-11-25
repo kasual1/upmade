@@ -130,7 +130,7 @@ const INDEX_PATH = 'demos';
     }
 
     input:focus {
-      border-color: #dd0031;
+      border-color: #c10564;
       outline: 2px solid rgb(221 0 49 / 15%);
       outline-offset: 0;
     }
@@ -179,7 +179,7 @@ const INDEX_PATH = 'demos';
     }
 
     h2 button:focus-visible {
-      box-shadow: inset 3px 0 #dd0031;
+      box-shadow: inset 3px 0 #c10564;
     }
 
     h2 svg {
@@ -227,7 +227,7 @@ const INDEX_PATH = 'demos';
     }
 
     a:focus-visible {
-      box-shadow: inset 3px 0 #dd0031;
+      box-shadow: inset 3px 0 #c10564;
     }
 
     .link-copy {

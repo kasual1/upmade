@@ -37,7 +37,7 @@ type ToolName = 'select' | 'brush' | 'eraser' | 'line' | 'shape' | 'text';
   styles: [`
     :host { display: flex; flex-direction: column; height: 100%; font-family: Roboto, sans-serif; }
     upmade-editor { flex: 1; }
-    .status-bar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #f5f5f5; border-top: 1px solid #ebebeb; font-size: 13px; }
+    .status-bar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #fafaf8; border-top: 2px solid #0a0a0a; font-size: 13px; }
   `],
 })
 export class ToolsChangeComponent {

@@ -10,8 +10,8 @@ import BlogListPageStructuredData from '@theme/BlogListPage/StructuredData';
 import type { Props } from '@theme/BlogListPage';
 
 /**
- * The blog list (Docusaurus' BlogListPage), with an intro (the page's h1 and the blog description) above the posts
- * and no sidebar; the posts are laid out as cards (src/css/blog.css).
+ * The blog list (Docusaurus' BlogListPage) without a sidebar: the posts are laid out as cards in a grid
+ * (src/css/blog.css). The page's h1 is there for screen readers only; nothing sits above the grid.
  */
 function BlogListPageMetadata({ metadata }: Props): ReactNode {
   const {
@@ -34,10 +34,7 @@ export default function BlogListPage(props: Props): ReactNode {
       <BlogListPageMetadata {...props} />
       <BlogListPageStructuredData {...props} />
       <BlogLayout sidebar={{ ...sidebar, items: [] }}>
-        <header className="blog-intro">
-          <h1>{metadata.blogTitle}</h1>
-          {metadata.blogDescription && <p>{metadata.blogDescription}</p>}
-        </header>
+        <h1 className="blog-title">{metadata.blogTitle}</h1>
         <BlogPostItems items={items} />
         <BlogListPaginator metadata={metadata} />
       </BlogLayout>

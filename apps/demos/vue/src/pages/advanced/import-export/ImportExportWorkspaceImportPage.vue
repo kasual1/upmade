@@ -24,8 +24,8 @@ function createImportedWorkspaceObjects(): UpmadeBaseObject[] {
       width: 120,
       height: 120,
       shapeType: ShapeType.Ellipse,
-      fillColor: { light: '#e3f2fd', dark: '#e3f2fd' },
-      strokeColor: { light: '#1565c0', dark: '#1565c0' },
+      fillColor: { light: '#d7eeff', dark: '#d7eeff' },
+      strokeColor: { light: '#6fc3ff', dark: '#6fc3ff' },
       strokeWidth: 3,
     }),
     new UpmadeShape({
@@ -34,7 +34,7 @@ function createImportedWorkspaceObjects(): UpmadeBaseObject[] {
       width: 120,
       height: 120,
       shapeType: ShapeType.Rectangle,
-      fillColor: { light: '#e3f2fd', dark: '#e3f2fd' },
+      fillColor: { light: '#d7eeff', dark: '#d7eeff' },
       strokeColor: { light: '#00bcd4', dark: '#00bcd4' },
       strokeWidth: 3,
     }),
@@ -61,7 +61,7 @@ function createImportedWorkspaceObjects(): UpmadeBaseObject[] {
       translateX: -125,
       translateY: 125,
       strokeWidth: 8,
-      fill: { light: '#1565c0', dark: '#1565c0' },
+      fill: { light: '#0a0a0a', dark: '#0a0a0a' },
     }),
   ]
 }

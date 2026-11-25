@@ -32,7 +32,7 @@ import { createSeedObjects } from '../../../const/seed-objects';
   `,
   styles: `
     :host { display: flex; flex-direction: column; height: 100%; font-family: Roboto, sans-serif; }
-    .control-panel { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #f5f5f5; border-bottom: 1px solid #ebebeb; }
+    .control-panel { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #fafaf8; border-bottom: 2px solid #0a0a0a; }
     .checkbox-control { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: #333; cursor: pointer; }
     upmade-editor { flex: 1; }
   `,

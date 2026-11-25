@@ -391,7 +391,7 @@ async function ensureSeedImage() {
 }
 
 .action-btn.primary {
-  background: rgba(66, 184, 131, 0.92);
+  background: rgba(25, 121, 60, 0.92);
   border-color: rgba(255, 255, 255, 0.35);
   color: #ffffff;
 }

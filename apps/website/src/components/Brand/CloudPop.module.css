@@ -1,0 +1,30 @@
+/* CloudPop: the agent and its cloud on one spot, filling the logo's agent box (BrandLogo's .agent sets its size and
+   margin). */
+.box {
+  position: relative;
+  display: inline-block;
+}
+
+/* the agent pops up about the middle of its body, low down (32 40 in its 64x64 drawing), as in shapeShift.ts */
+.content {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 62.5%;
+}
+
+.content > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* the cloud puffs about (32 30) of the same drawing, and may grow a little past the box */
+.cloud {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transform-origin: 50% 46.875%;
+  pointer-events: none;
+}

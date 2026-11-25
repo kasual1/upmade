@@ -18,7 +18,7 @@ const workspaces = [new UpmadeWorkspace({ objects: createSeedObjects() })]
 const user = ref<IUpmadeUser | undefined>({
   id: 'user-google-1',
   displayName: 'Ada Lovelace',
-  color: '#42b883',
+  color: '#19793c',
   isGuest: false,
 })
 const loginConfig: UpmadeLoginConfig = {
@@ -39,7 +39,7 @@ async function onLogin(event: CustomEvent<LoginEvent>): Promise<void> {
   user.value = {
     id: `user-${provider}-1`,
     displayName: 'Ada Lovelace',
-    color: '#42b883',
+    color: '#19793c',
     isGuest: false,
   }
   await editor.value?.closeLoginDialog()

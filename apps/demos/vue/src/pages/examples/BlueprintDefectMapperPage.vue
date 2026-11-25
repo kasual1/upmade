@@ -479,7 +479,7 @@ function statusClass(status: DefectStatus): string {
   top: 16px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(66, 184, 131, 0.96);
+  background: rgba(25, 121, 60, 0.96);
   color: white;
   padding: 8px 20px;
   border-radius: 99px;
@@ -501,7 +501,7 @@ function statusClass(status: DefectStatus): string {
   display: flex;
   flex-direction: column;
   height: 100%;
-  box-shadow: -1px 0 3px rgba(66, 184, 131, 0.05);
+  box-shadow: -1px 0 3px rgba(25, 121, 60, 0.05);
 }
 
 @media (max-width: 720px) {
@@ -528,8 +528,8 @@ function statusClass(status: DefectStatus): string {
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  background-color: rgba(66, 184, 131, 0.1);
-  color: #42b883;
+  background-color: rgba(25, 121, 60, 0.1);
+  color: #19793c;
   padding: 2px 8px;
   border-radius: 99px;
   letter-spacing: 0.5px;
@@ -554,17 +554,17 @@ function statusClass(status: DefectStatus): string {
   display: flex;
   gap: 8px;
   padding: 12px 16px;
-  background: rgba(66, 184, 131, 0.03);
+  background: rgba(25, 121, 60, 0.03);
   border-bottom: 1px solid #d4ece0;
 }
 
 .action-btn {
   flex: 1;
   padding: 8px 12px;
-  border: 1px solid #42b883;
+  border: 1px solid #19793c;
   border-radius: 6px;
   background: #ffffff;
-  color: #42b883;
+  color: #19793c;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -576,7 +576,7 @@ function statusClass(status: DefectStatus): string {
 
 .action-btn:hover,
 .action-btn.active {
-  background: #42b883;
+  background: #19793c;
   color: #ffffff;
 }
 
@@ -593,7 +593,7 @@ function statusClass(status: DefectStatus): string {
 }
 
 .reset-btn:hover {
-  background: rgba(66, 184, 131, 0.07);
+  background: rgba(25, 121, 60, 0.07);
 }
 
 .defects-section {
@@ -642,8 +642,8 @@ function statusClass(status: DefectStatus): string {
 }
 
 .defect-card:hover {
-  border-color: #42b883;
-  box-shadow: 0 2px 4px rgba(66, 184, 131, 0.08);
+  border-color: #19793c;
+  box-shadow: 0 2px 4px rgba(25, 121, 60, 0.08);
 }
 
 .defect-header {
@@ -661,7 +661,7 @@ function statusClass(status: DefectStatus): string {
 }
 
 .status-indicator.outstanding {
-  background-color: #42b883;
+  background-color: #19793c;
 }
 
 .status-indicator.in-progress {
@@ -684,7 +684,7 @@ function statusClass(status: DefectStatus): string {
 
 .defect-cat {
   font-size: 10px;
-  background: rgba(66, 184, 131, 0.08);
+  background: rgba(25, 121, 60, 0.08);
   color: #2c5f49;
   padding: 2px 6px;
   border-radius: 99px;
@@ -710,10 +710,10 @@ function statusClass(status: DefectStatus): string {
 .status-select {
   font-size: 11px;
   padding: 3px 6px;
-  border: 1px solid #c9e6d8;
-  border-radius: 4px;
+  border: 2px solid #0a0a0a;
+  border-radius: 8px;
   background: white;
-  color: #214f3d;
+  color: #0a0a0a;
 }
 
 .delete-btn {
@@ -726,6 +726,6 @@ function statusClass(status: DefectStatus): string {
 }
 
 .delete-btn:hover {
-  color: #42b883;
+  color: #19793c;
 }
 </style>

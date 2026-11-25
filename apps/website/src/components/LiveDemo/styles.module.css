@@ -1,0 +1,168 @@
+/* The live demo as one of the docs' windows (like the code blocks in src/css/docs.css): an ink outline, round
+   corners, a title bar with the Preview/Code toggle and the StackBlitz link, and file tabs above the code. */
+.demo {
+  margin-block: 1.5rem;
+  overflow: hidden;
+  border: var(--lp-stroke-s) solid var(--lp-ink);
+  border-radius: 18px;
+  background: var(--lp-paper);
+  font-family: var(--lp-font-sans, var(--ifm-font-family-base));
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: var(--lp-stroke-s) solid var(--lp-ink);
+  background: var(--lp-grad-window);
+}
+
+/* Preview / Code: a segmented pill; the current view is a white chip outlined in ink */
+.toggle {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--lp-r-pill);
+  background: var(--lp-chip);
+}
+
+.tab {
+  padding: 5px 14px;
+  border: 0;
+  border-radius: var(--lp-r-pill);
+  background: transparent;
+  color: var(--lp-soft);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 650;
+  line-height: 1.3;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.tab:hover {
+  color: var(--lp-ink);
+}
+
+.tab[aria-selected="true"] {
+  background: var(--lp-paper);
+  box-shadow: inset 0 0 0 var(--lp-stroke-s) var(--lp-ink);
+  color: var(--lp-ink);
+  cursor: default;
+}
+
+/* open in StackBlitz: a round outlined icon button */
+.open {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 34px;
+  height: 34px;
+  margin-left: auto;
+  border: var(--lp-stroke-s) solid var(--lp-ink);
+  border-radius: 50%;
+  background: var(--lp-paper);
+  color: var(--lp-ink);
+  transition: background-color 0.15s;
+}
+
+.open:hover {
+  background: var(--lp-chip-h);
+  color: var(--lp-ink);
+}
+
+.preview iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* the file tabs above the code: file names in mono, the current one underlined in the framework's colour */
+.files {
+  display: flex;
+  overflow-x: auto;
+  border-bottom: var(--lp-stroke-s) solid var(--lp-ink);
+  background: var(--lp-grad-window);
+}
+
+.file {
+  flex: none;
+  padding: 10px 18px 8px;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: var(--lp-soft);
+  font-family: var(--lp-font-mono) !important;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.file:hover {
+  color: var(--lp-ink);
+}
+
+.file[aria-selected="true"] {
+  border-bottom-color: var(--fw, var(--ifm-color-primary));
+  color: var(--lp-ink);
+  font-weight: 700;
+}
+
+.status {
+  padding: 2rem;
+  color: var(--lp-soft);
+  font-size: 15px;
+  text-align: center;
+}
+
+.error {
+  padding: 1rem;
+  color: var(--ifm-color-danger-dark);
+  font-size: 15px;
+}
+
+/* the code: flush with the window, in the docs' mono font */
+.code div[class*="codeBlockContainer"] {
+  margin: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* a single file's name (codeTitle): a title bar like the file tabs */
+.code div[class*="codeBlockTitle"] {
+  padding: 10px 18px;
+  border-bottom: var(--lp-stroke-s) solid var(--lp-ink);
+  background: var(--lp-grad-window);
+  color: var(--lp-ink);
+  font-family: var(--lp-font-mono) !important;
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+.code div[class*="codeBlockContainer"] pre {
+  border-radius: 0;
+}
+
+.code div[class*="codeBlockContainer"] pre,
+.code div[class*="codeBlockContainer"] pre * {
+  font-family: var(--lp-font-mono) !important;
+}
+
+.code div[class*="codeBlockContainer"] pre code,
+.code div[class*="codeBlockContainer"] .token-line,
+.code div[class*="codeBlockContainer"] .token-line * {
+  font-size: 14px;
+  line-height: 1.65 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab,
+  .open,
+  .file {
+    transition: none;
+  }
+}

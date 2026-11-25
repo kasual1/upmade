@@ -53,9 +53,9 @@ const overlayStyle: CSSProperties = {
 function countButtonStyle(active: boolean): CSSProperties {
   return {
     padding: "4px 10px",
-    border: `1px solid ${active ? "#4A7DFF" : "#d9d9d9"}`,
+    border: `1px solid ${active ? "#056bb4" : "#d9d9d9"}`,
     borderRadius: "6px",
-    background: active ? "#4A7DFF" : "#ffffff",
+    background: active ? "#056bb4" : "#ffffff",
     color: active ? "#ffffff" : "#333333",
     fontSize: "13px",
     fontFamily: "inherit",

@@ -50,23 +50,24 @@ const props = defineProps<{ panel: InfoPanelController }>()
   align-items: center;
   justify-content: center;
   padding: 0;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  border: 2px solid #0a0a0a;
+  border-radius: 50%;
   background: #fff;
-  color: #333;
+  color: #0a0a0a;
   cursor: pointer;
+  font-weight: 600;
 }
 
 .demo-toolbar > .info-panel-toolbar-toggle:hover,
 .demo-toolbar > .info-panel-toolbar-toggle:focus-visible {
-  border-color: #42b883;
-  background: #42b883;
-  color: #fff;
+  border-color: #0a0a0a;
+  background: #e2faeb;
+  color: #0a0a0a;
   outline: 0;
 }
 
 .demo-toolbar > .info-panel-toolbar-toggle:focus-visible {
-  box-shadow: 0 0 0 2px rgb(66 184 131 / 25%);
+  box-shadow: 0 0 0 2px rgb(25 121 60 / 25%);
 }
 
 @media (max-width: 720px) {

@@ -21,7 +21,7 @@ const workspaces = [
         translateY: -50,
         fontSize: 24,
         fontFamily: "Pacifico",
-        fontColor: { light: "#4A7DFF", dark: "#5B8CFF" },
+        fontColor: { light: "#056bb4", dark: "#056bb4" },
       }),
     ],
   }),
@@ -44,7 +44,7 @@ export function FontsRegisterPage() {
       translateY: visibleTop + visibleHeight * (0.2 + Math.random() * 0.6),
       fontSize: 24,
       fontFamily: "Pacifico",
-      fontColor: { light: "#4A7DFF", dark: "#5B8CFF" },
+      fontColor: { light: "#056bb4", dark: "#056bb4" },
     }));
   }
 

@@ -72,19 +72,20 @@ import { createSeedObjects } from '../../../const/seed-objects';
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        padding: 6px 10px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
+        padding: 6px 12px;
+        border: 2px solid #0a0a0a;
+        border-radius: 999px;
         background: #fff;
+        color: #0a0a0a;
         cursor: pointer;
         font-size: 13px;
+        font-weight: 600;
       }
-      .workspace-tab:hover,
-      .workspace-tab.active {
-        border-color: #dd0031;
+      .workspace-tab:hover {
+        background: #ffe7f3;
       }
       .workspace-tab.active {
-        background: #dd0031;
+        background: #c10564;
         color: #fff;
       }
       .delete-workspace {
@@ -100,7 +101,7 @@ import { createSeedObjects } from '../../../const/seed-objects';
         cursor: pointer;
       }
       .delete-workspace:hover {
-        color: #7a001b;
+        color: #86034a;
       }
     `,
   ],

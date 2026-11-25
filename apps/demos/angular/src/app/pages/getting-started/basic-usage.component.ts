@@ -75,32 +75,33 @@ import { createSeedObjects } from '../../const/seed-objects';
         gap: 8px;
         flex-wrap: wrap;
         padding: 8px 12px;
-        border-bottom: 1px solid #ebebeb;
-        background: #f5f5f5;
+        border-bottom: 2px solid #0a0a0a;
+        background: #fafaf8;
       }
 
       button {
         padding: 6px 12px;
-        border: 1px solid #d9d9d9;
-        border-radius: 6px;
+        border: 2px solid #0a0a0a;
+        border-radius: 999px;
         background: #ffffff;
-        color: #333333;
+        color: #0a0a0a;
         font-size: 13px;
         cursor: pointer;
         transition: all 0.2s ease;
         font-family: inherit;
-      }
+  font-weight: 600;
+}
 
       button:hover {
-        background: #dd0031;
-        color: #ffffff;
-        border-color: #dd0031;
+        background: #ffe7f3;
+        color: #0a0a0a;
+        border-color: #0a0a0a;
       }
 
       button.active {
-        background: #dd0031;
+        background: #c10564;
         color: #ffffff;
-        border-color: #dd0031;
+        border-color: #0a0a0a;
       }
 
       .status {

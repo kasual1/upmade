@@ -28,7 +28,7 @@ export function createHtmlCalculator(initialState: CalculatorState): HtmlCalcula
   heading.textContent = 'HTML Calculator'
   heading.style.cssText = 'margin:0;font-size:16px'
   const operatorLabel = document.createElement('strong')
-  operatorLabel.style.color = '#42b883'
+  operatorLabel.style.color = '#19793c'
   header.append(heading, operatorLabel)
 
   const display = document.createElement('output')
@@ -96,7 +96,7 @@ export function createHtmlCalculator(initialState: CalculatorState): HtmlCalcula
     const button = document.createElement('button')
     button.type = 'button'
     button.textContent = label
-    button.style.cssText = `min-width:0;min-height:0;border:1px solid ${accent ? '#42b883' : '#dadce0'};border-radius:6px;background:${label === '=' ? '#42b883' : '#fff'};color:${label === '=' ? '#fff' : accent ? '#167a55' : '#202124'};cursor:pointer;font-weight:600${span ? ';grid-column:span 2' : ''}${label === '=' ? ';grid-row:span 2' : ''}`
+    button.style.cssText = `min-width:0;min-height:0;border:1px solid ${accent ? '#19793c' : '#dadce0'};border-radius:6px;background:${label === '=' ? '#19793c' : '#fff'};color:${label === '=' ? '#fff' : accent ? '#19793c' : '#202124'};cursor:pointer;font-weight:600${span ? ';grid-column:span 2' : ''}${label === '=' ? ';grid-row:span 2' : ''}`
     button.addEventListener('click', onClick)
     cleanupCallbacks.push(() => button.removeEventListener('click', onClick))
     keypad.appendChild(button)

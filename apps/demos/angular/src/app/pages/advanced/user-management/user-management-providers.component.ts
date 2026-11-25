@@ -46,12 +46,12 @@ const providerIcons: Record<string, string> = {
         align-items: center;
         gap: 8px;
         padding: 8px 12px;
-        background: #f5f5f5;
-        border-bottom: 1px solid #ebebeb;
+        background: #fafaf8;
+        border-bottom: 2px solid #0a0a0a;
         font: 13px Roboto, sans-serif;
       }
       .toolbar-note strong {
-        color: #dd0031;
+        color: #c10564;
       }
       .toolbar-note span {
         color: #555;

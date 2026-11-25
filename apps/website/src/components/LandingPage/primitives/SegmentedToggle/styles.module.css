@@ -30,7 +30,8 @@
 
 .item[aria-current="page"] {
   background: var(--lp-paper);
-  box-shadow: var(--lp-shadow-toggle);
+  /* outlined in ink, like the live demos' Preview/Code switch (components/LiveDemo) */
+  box-shadow: inset 0 0 0 var(--lp-stroke-s) var(--lp-ink);
 }
 
 .item:not([aria-current]):hover {

@@ -37,7 +37,7 @@ const workspaces = [new UpmadeWorkspace({
     translateY: -50,
     fontSize: 24,
     fontFamily: 'Pacifico',
-    fontColor: { light: '#42b883', dark: '#5ee0a8' },
+    fontColor: { light: '#19793c', dark: '#5ee0a8' },
   })],
 })]
 
@@ -56,7 +56,7 @@ async function addPacificoText() {
     translateY: visibleTop + visibleHeight * (0.2 + Math.random() * 0.6),
     fontSize: 24,
     fontFamily: 'Pacifico',
-    fontColor: { light: '#42b883', dark: '#5ee0a8' },
+    fontColor: { light: '#19793c', dark: '#5ee0a8' },
   }))
 }
 </script>

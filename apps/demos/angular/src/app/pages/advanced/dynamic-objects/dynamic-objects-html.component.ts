@@ -86,14 +86,14 @@ function createHtmlCalculatorElement(initialState: HtmlCalculatorState): HtmlCal
     .html-calculator-card { display: grid; grid-template-rows: auto minmax(0, 42px) minmax(0, 1fr); gap: clamp(4px, 2cqh, 10px); height: 100%; min-height: 0; padding: clamp(8px, 4cqh, 16px) clamp(6px, 3cqw, 12px); border: 1px solid #e5e7eb; border-radius: 12px; box-sizing: border-box; overflow: hidden; font-family: Roboto, sans-serif; background: #ffffff; }
     .html-calculator-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 0; }
     .html-calculator-heading { margin: 0; font-size: clamp(12px, 5cqh, 16px); line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .html-calculator-operator-label { color: #dd0031; font-size: 13px; font-weight: 700; }
+    .html-calculator-operator-label { color: #c10564; font-size: 13px; font-weight: 700; }
     .html-calculator-display { display: flex; align-items: center; justify-content: flex-end; min-height: 0; padding: 0 12px; border: 1px solid #e0e0e0; border-radius: 6px; background: #fafafa; color: #202124; font-size: clamp(16px, 8cqh, 24px); font-weight: 700; line-height: 1; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .html-calculator-keypad { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(5, minmax(0, 1fr)); gap: clamp(4px, 1.5cqh, 6px); min-height: 0; overflow: hidden; }
     .html-calculator-button { min-width: 0; min-height: 0; height: auto; border: 1px solid #dadce0; border-radius: 6px; background: #ffffff; color: #202124; cursor: var(--upmade-global-pointer-cursor, pointer); font-size: clamp(11px, 5cqh, 15px); font-weight: 600; line-height: 1; }
     .html-calculator-button:hover { background: #f8f9fa; }
-    .html-calculator-button--operator { border-color: #dd0031; color: #dd0031; }
+    .html-calculator-button--operator { border-color: #c10564; color: #c10564; }
     .html-calculator-button--muted { color: #5f6368; }
-    .html-calculator-button--equals { grid-row: span 2; height: auto; background: #dd0031; border-color: #dd0031; color: #ffffff; }
+    .html-calculator-button--equals { grid-row: span 2; height: auto; background: #c10564; border-color: #c10564; color: #ffffff; }
     .html-calculator-button--equals:hover { background: #c3002f; }
     .html-calculator-button--zero { grid-column: span 2; }
   `;
@@ -285,8 +285,8 @@ function createHtmlCalculatorElement(initialState: HtmlCalculatorState): HtmlCal
   `,
   styles: [`
     :host { display: flex; flex-direction: column; height: 100%; }
-    .toolbar-note { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #f5f5f5; border-bottom: 1px solid #ebebeb; font: 13px Roboto, sans-serif; }
-    .toolbar-note strong { color: #dd0031; }
+    .toolbar-note { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #fafaf8; border-bottom: 2px solid #0a0a0a; font: 13px Roboto, sans-serif; }
+    .toolbar-note strong { color: #c10564; }
     .toolbar-note span { color: #555; }
     upmade-editor { flex: 1; min-height: 0; }
   `],

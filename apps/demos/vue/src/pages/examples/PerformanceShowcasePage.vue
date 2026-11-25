@@ -139,18 +139,19 @@ onBeforeUnmount(() => {
 
 .count-switcher button {
   padding: 4px 10px;
-  border: 1px solid #d9d9d9;
-  border-radius: 6px;
+  border: 2px solid #0a0a0a;
+  border-radius: 999px;
   background: #ffffff;
-  color: #333333;
+  color: #0a0a0a;
   font-size: 13px;
   font-family: inherit;
   cursor: pointer;
+  font-weight: 600;
 }
 
 .count-switcher button.active {
-  border-color: #42b883;
-  background: #42b883;
+  border-color: #0a0a0a;
+  background: #19793c;
   color: #ffffff;
 }
 </style>

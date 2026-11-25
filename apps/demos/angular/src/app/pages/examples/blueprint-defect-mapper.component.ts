@@ -233,8 +233,8 @@ interface Defect {
       font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
-      background-color: rgba(221, 0, 48, 0.1);
-      color: #dd0031;
+      background-color: rgba(193, 5, 100, 0.1);
+      color: #c10564;
       padding: 2px 8px;
       border-radius: 99px;
       letter-spacing: 0.5px;
@@ -266,10 +266,10 @@ interface Defect {
     .action-btn {
       flex: 1;
       padding: 8px 12px;
-      border: 1px solid #dd0031;
+      border: 1px solid #c10564;
       border-radius: 6px;
       background: #ffffff;
-      color: #dd0031;
+      color: #c10564;
       font-size: 13px;
       font-weight: 600;
       cursor: pointer;
@@ -280,21 +280,21 @@ interface Defect {
     }
 
     .action-btn:hover {
-      background: #dd0031;
-      color: #ffffff;
+      background: #ffe7f3;
+      color: #0a0a0a;
     }
 
     .action-btn.active {
-      background: #dd0031;
+      background: #c10564;
       color: #ffffff;
     }
 
     .reset-btn {
       padding: 8px 12px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
+      border: 2px solid #0a0a0a;
+      border-radius: 999px;
       background: #ffffff;
-      color: #333333;
+      color: #0a0a0a;
       font-size: 13px;
       font-weight: 500;
       cursor: pointer;
@@ -351,7 +351,7 @@ interface Defect {
     }
 
     .defect-card:hover {
-      border-color: #dd0031;
+      border-color: #c10564;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
     }
 
@@ -370,7 +370,7 @@ interface Defect {
     }
 
     .status-indicator.outstanding {
-      background-color: #dd0031;
+      background-color: #c10564;
     }
 
     .status-indicator.in-progress {
@@ -419,10 +419,10 @@ interface Defect {
     .status-select {
       font-size: 11px;
       padding: 3px 6px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+      border: 2px solid #0a0a0a;
+      border-radius: 8px;
       background: white;
-      color: #333;
+      color: #0a0a0a;
     }
 
     .delete-btn {
@@ -435,7 +435,7 @@ interface Defect {
     }
 
     .delete-btn:hover {
-      color: #dd0031;
+      color: #c10564;
     }
   `,
 })
@@ -624,7 +624,7 @@ export class BlueprintDefectMapperComponent {
   }
 
   getPinColor(status: 'Outstanding' | 'In Progress' | 'Resolved') {
-    if (status === 'Outstanding') return { light: '#dd0031', dark: '#ef4444' };
+    if (status === 'Outstanding') return { light: '#c10564', dark: '#ef4444' };
     if (status === 'In Progress') return { light: '#f59e0b', dark: '#f59e0b' };
     return { light: '#10b981', dark: '#10b981' };
   }

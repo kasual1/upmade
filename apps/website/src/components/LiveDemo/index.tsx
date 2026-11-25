@@ -3,6 +3,7 @@ import CodeBlock from '@theme/CodeBlock';
 import { ExternalLink } from 'lucide-react';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import { useLocation } from '@docusaurus/router';
+import styles from './styles.module.css';
 
 
 interface CodeFile {
@@ -259,179 +260,85 @@ export default function LiveDemo({
       .finally(() => setIsFetching(false));
   }, [view, rawBase, rawBaseCandidates, repoFiles, resolvedDemoFramework]);
 
+  // typography.css sets the font family sitewide with !important, so the buttons set theirs the same way
   const viewToggleRef = useCallback((node: HTMLButtonElement | null) => {
-    if (!node) {
-      return;
-    }
-
-    node.style.setProperty('font-family', 'var(--ifm-font-family-base)', 'important');
+    node?.style.setProperty('font-family', 'var(--lp-font-body, var(--ifm-font-family-base))', 'important');
   }, []);
   const codeTabRef = useCallback((node: HTMLButtonElement | null) => {
-    if (!node) {
-      return;
-    }
-
-    node.style.setProperty('font-family', 'var(--ifm-font-family-base)', 'important');
+    node?.style.setProperty('font-family', 'var(--lp-font-mono, var(--ifm-font-family-monospace))', 'important');
   }, []);
 
+  const fileTabs = (files: readonly { filename: string }[]) => (
+    <div role="tablist" aria-label="Files" className={styles.files}>
+      {files.map((file, idx) => (
+        <button
+          key={file.filename}
+          ref={codeTabRef}
+          role="tab"
+          aria-selected={activeTab === idx}
+          onClick={() => setActiveTab(idx)}
+          className={styles.file}
+        >
+          {file.filename}
+        </button>
+      ))}
+    </div>
+  );
+
   return (
-    <div
-      // marks the demo so the docs' styling (src/css/docs.css) leaves it as it is
-      data-live-demo=""
-      style={{
-        marginBlock: '1.5rem',
-        border: '1px solid var(--ifm-color-emphasis-300)',
-        borderRadius: '8px',
-        overflow: 'hidden',
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-          padding: '0.5rem 0.75rem',
-          borderBottom: '1px solid var(--ifm-color-emphasis-200)',
-          background: 'var(--ifm-color-emphasis-100)',
-        }}
-      >
-        {hasCode && (
-          <div
-            role="tablist"
-            aria-label="Live demo view"
-            style={{
-              display: 'inline-flex',
-              gap: '0.15rem',
-              padding: '0.15rem',
-              borderRadius: '999px',
-              background: 'var(--ifm-color-emphasis-200)',
-            }}
+    // data-live-demo: the docs' content rules (src/css/docs.css) leave the demo to its own styles
+    <div data-live-demo="" className={styles.demo}>
+      <div className={styles.bar}>
+        <div role="tablist" aria-label="Live demo view" className={styles.toggle}>
+          <button
+            ref={viewToggleRef}
+            role="tab"
+            aria-selected={view === 'preview'}
+            onClick={() => setView('preview')}
+            className={styles.tab}
           >
-            <button
-              ref={viewToggleRef}
-              role="tab"
-              aria-selected={view === 'preview'}
-              onClick={() => setView('preview')}
-              style={{
-                border: 'none',
-                borderRadius: '999px',
-                padding: '0.3rem 0.9rem',
-                cursor: 'pointer',
-                lineHeight: 1.3,
-                fontSize: '0.8rem',
-                fontWeight: 600,
-                color: 'var(--ifm-font-color-base)',
-                background: view === 'preview' ? 'var(--ifm-background-surface-color)' : 'transparent',
-                boxShadow:
-                  view === 'preview'
-                    ? '0 1px 2px rgba(0, 0, 0, 0.14), inset 0 0 0 1px rgba(0, 0, 0, 0.04)'
-                    : 'none',
-              }}
-            >
-              Preview
-            </button>
+            Preview
+          </button>
+          {hasCode && (
             <button
               ref={viewToggleRef}
               role="tab"
               aria-selected={view === 'code'}
               onClick={() => setView('code')}
-              style={{
-                border: 'none',
-                borderRadius: '999px',
-                padding: '0.3rem 0.9rem',
-                cursor: 'pointer',
-                lineHeight: 1.3,
-                fontSize: '0.8rem',
-                fontWeight: 600,
-                color: 'var(--ifm-font-color-base)',
-                background: view === 'code' ? 'var(--ifm-background-surface-color)' : 'transparent',
-                boxShadow:
-                  view === 'code'
-                    ? '0 1px 2px rgba(0, 0, 0, 0.14), inset 0 0 0 1px rgba(0, 0, 0, 0.04)'
-                    : 'none',
-              }}
+              className={styles.tab}
             >
               Code
             </button>
-          </div>
-        )}
-        {!hasCode && (
-          <button
-            ref={viewToggleRef}
-            className="button button--sm button--primary"
-            style={{ cursor: 'default' }}
-          >
-            Preview
-          </button>
-        )}
+          )}
+        </div>
         {resolvedStackBlitzUrl && (
           <a
             href={resolvedStackBlitzUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="button button--sm button--secondary"
+            className={styles.open}
             aria-label="Open in StackBlitz"
             title="Open in StackBlitz"
-            style={{
-              marginLeft: 'auto',
-              width: '2rem',
-              height: '2rem',
-              padding: 0,
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
           >
-            <ExternalLink size={14} aria-hidden="true" />
+            <ExternalLink size={15} strokeWidth={2.25} aria-hidden="true" />
           </a>
         )}
       </div>
       {view === 'preview' && (
-        <div style={{ height }}>
-          {resolvedIframeUrl && (
-            <iframe
-              src={resolvedIframeUrl}
-              style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
-              title="Live demo preview"
-            />
-          )}
+        <div className={styles.preview} style={{ height }}>
+          {resolvedIframeUrl && <iframe src={resolvedIframeUrl} title="Live demo preview" />}
         </div>
       )}
       {view === 'code' && (
-        <div style={{ margin: 0 }}>
+        <div className={styles.code}>
           {repoFiles?.length ? (
             isFetching ? (
-              <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--ifm-color-emphasis-600)', fontFamily: 'var(--ifm-font-family-base)' }}>
-                Loading files…
-              </div>
+              <div className={styles.status}>Loading files…</div>
             ) : fetchError ? (
-              <div style={{ padding: '1rem', color: 'var(--ifm-color-danger-dark)', fontFamily: 'var(--ifm-font-family-base)' }}>
-                Failed to load: {fetchError}
-              </div>
+              <div className={styles.error}>Failed to load: {fetchError}</div>
             ) : (
               <>
-                {fetchedFiles.length > 1 && (
-                  <div style={{ display: 'flex', borderBottom: '1px solid var(--ifm-color-emphasis-200)', background: 'var(--ifm-background-surface-color)', fontFamily: 'var(--ifm-font-family-base)' }}>
-                    {fetchedFiles.map((file, idx) => (
-                      <button
-                        key={file.filename}
-                        ref={codeTabRef}
-                        onClick={() => setActiveTab(idx)}
-                        style={{
-                          border: 'none',
-                          background: 'none',
-                          padding: '0.5rem 1rem',
-                          cursor: 'pointer',
-                          fontWeight: activeTab === idx ? 'bold' : 'normal',
-                          borderBottom: activeTab === idx ? '2px solid var(--ifm-color-primary)' : '2px solid transparent',
-                          fontFamily: 'var(--ifm-font-family-base)',
-                        }}
-                      >
-                        {file.filename}
-                      </button>
-                    ))}
-                  </div>
-                )}
+                {fetchedFiles.length > 1 && fileTabs(fetchedFiles)}
                 {fetchedFiles[activeTab] && (
                   <CodeBlock language={fetchedFiles[activeTab].language ?? codeLang}>
                     {fetchedFiles[activeTab].code}
@@ -443,26 +350,7 @@ export default function LiveDemo({
             children
           ) : codeFiles && codeFiles.length > 0 ? (
             <>
-              <div style={{ display: 'flex', borderBottom: '1px solid var(--ifm-color-emphasis-200)', background: 'var(--ifm-background-surface-color)', fontFamily: 'var(--ifm-font-family-base)' }}>
-                {codeFiles.map((file, idx) => (
-                  <button
-                    key={file.filename}
-                    ref={codeTabRef}
-                    onClick={() => setActiveTab(idx)}
-                    style={{
-                      border: 'none',
-                      background: 'none',
-                      padding: '0.5rem 1rem',
-                      cursor: 'pointer',
-                      fontWeight: activeTab === idx ? 'bold' : 'normal',
-                      borderBottom: activeTab === idx ? '2px solid var(--ifm-color-primary)' : '2px solid transparent',
-                      fontFamily: 'var(--ifm-font-family-base)',
-                    }}
-                  >
-                    {file.filename}
-                  </button>
-                ))}
-              </div>
+              {fileTabs(codeFiles)}
               <CodeBlock language={codeFiles[activeTab].language || codeLang}>
                 {codeFiles[activeTab].code}
               </CodeBlock>
