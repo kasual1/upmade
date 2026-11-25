@@ -8,6 +8,14 @@ import type { ComponentType } from "react";
  */
 export interface DemoProps {
   className?: string;
+  /**
+   * Optional hooks for pages that pair an agent with something else (the landing pages); /agent passes none, so the
+   * demos look and play the same there. `onEvent` is called with each animation event, after the demo's own state
+   * update for it; `start` and `rate` are passed to the demo's main <Agent> (see AgentProps).
+   */
+  onEvent?: (name: string) => void;
+  start?: number;
+  rate?: number;
 }
 export interface DemoEntry {
   key: string;

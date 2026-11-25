@@ -21,6 +21,8 @@ The animated agents are being iterated on in a separate stream of work (`src/com
 
 Where a later section of this plan disagrees with this revision, this revision wins.
 
+**Exception for M11 (2026-11-25, on request).** Wiring the hook points needs the demos to report their events. So `Agents/` got one small, additive change: `DemoProps` gained optional `onEvent`, `start` and `rate`, which toolCycle, frameworkSign, cyclingGlasses, hatSwap, bouquetReveal and lovestruck forward (after their own state update), and `<Agent>` gained optional `start` (where the loop starts; changing it restarts there) and `rate` (playback speed). With none of them passed, as on `/agent`, nothing changes. Everything else in `Agents/` stays read-only for this effort.
+
 **Status (2026-11-25).** M0–M9 are done: `/` renders `src/content/landing/infinite.ts`, and the `/landing-next/` preview is gone. The §7 decisions were taken at their defaults (landing-only footer; toolbar clicks only select; footer meta text `#6E6E68`; no install chip or typewriter; `<title>` and description kept; M10 and the social card not in this round). Changes after review: corner agents are placed by their body so it overlaps the frame corner (`CORNER_OVERLAP`, needs `body` insets per corner agent in `agents.ts`); the floating navbar shows the new logo on kit pages. Left: M10 (`/agentic` onto the kit, then deleting the legacy landing code), M11 (wire the final agents' events, re-enable the deferred validate rules, polish), the social card (the site's `og:image` file is missing; `tests/landing-output.spec.ts` marks it `test.fails`), and real-device checks (Android Chrome at the largest font, the Instagram in-app browser, iOS Safari with large Dynamic Type).
 
 ## 1. Goals and non-goals

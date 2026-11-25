@@ -14,16 +14,19 @@ export const order = 70;
 const HEARTS = { position: "absolute", left: "-57%", right: "-57%", bottom: "-4%", height: "274%", zIndex: 0 } as const;
 
 /** The yellow bullet, in love: hearts bubble up from behind it, and two more burst up as it smiles. */
-export default function LovestruckDemo({ className }: DemoProps) {
+export default function LovestruckDemo({ className, onEvent: onPageEvent, start, rate }: DemoProps) {
   const box = useRef<HTMLDivElement>(null);
   const hearts = useRef<HeartBubblesHandle>(null);
+  const pageEvent = useRef(onPageEvent);
+  pageEvent.current = onPageEvent;
   const onEvent = useCallback((name: string) => {
     if (name === "smile") hearts.current?.burst(2);
+    pageEvent.current?.(name);
   }, []);
   return (
     <div ref={box} className={className} style={{ position: "relative" }}>
       <HeartBubbles agent={box} ref={hearts} style={HEARTS} />
-      <Agent shape="bullet" colour="yellow" animation={lovestruck} onEvent={onEvent} style={{ position: "relative", zIndex: 1, width: "100%", height: "100%" }} />
+      <Agent shape="bullet" colour="yellow" animation={lovestruck} onEvent={onEvent} start={start} rate={rate} style={{ position: "relative", zIndex: 1, width: "100%", height: "100%" }} />
     </div>
   );
 }

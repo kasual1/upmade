@@ -15,6 +15,8 @@ const items = {
   hand: <Hand colour="green" />,
 };
 
-export default function CyclingGlassesDemo({ className }: DemoProps) {
-  return <Agent className={className} shape="triangle" colour="green" animation={cyclingGlasses} items={items} />;
+export default function CyclingGlassesDemo({ className, onEvent, start, rate }: DemoProps) {
+  return (
+    <Agent className={className} shape="triangle" colour="green" animation={cyclingGlasses} items={items} onEvent={onEvent} start={start} rate={rate} />
+  );
 }

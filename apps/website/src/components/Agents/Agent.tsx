@@ -19,6 +19,10 @@ export interface AgentProps {
   onEvent?: (name: string) => void;
   /** show this moment (ms) still instead of playing, e.g. for a scrubber */
   time?: number;
+  /** where in the loop (ms) it starts playing; changing it restarts the loop there (a jump, e.g. to a tool's turn) */
+  start?: number;
+  /** how fast the loop plays, 1 by default (e.g. 4 to finish a move quickly); changing it does not restart the loop */
+  rate?: number;
   paused?: boolean;
   /**
    * hops (a different random hop each time) when the pointer comes onto it or it is clicked; on by default. Pass
@@ -137,6 +141,8 @@ export default function Agent({
   onEvent,
   time,
   paused = false,
+  start = 0,
+  rate = 1,
   reactive = true,
   followPointer = false,
   label,
@@ -146,6 +152,8 @@ export default function Agent({
   const svgRef = useRef<SVGSVGElement>(null);
   const onEventRef = useRef(onEvent);
   onEventRef.current = onEvent;
+  const rateRef = useRef(rate);
+  rateRef.current = rate;
   const gradient = `agent-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const spec = SHAPES[shape];
   const [light, base] = COLOURS[colour];
@@ -231,8 +239,8 @@ export default function Agent({
         stopGaze();
       };
     }
-    const clock = createClock(animation);
-    show(0);
+    const clock = createClock(animation, start);
+    show(clock.time);
     let stop: (() => void) | undefined;
     const io = new IntersectionObserver((entries) => {
       stop?.();
@@ -240,7 +248,7 @@ export default function Agent({
       // an event's state changes are committed before this frame's pose is drawn, so props that depend on them (which
       // hat is worn...) are already up to date when they appear, rather than one frame late
       if (entries.some((e) => e.isIntersecting))
-        stop = subscribe((dt) => show(clock.advance(dt, (e) => flushSync(() => onEventRef.current?.(e)))));
+        stop = subscribe((dt) => show(clock.advance(dt * rateRef.current, (e) => flushSync(() => onEventRef.current?.(e)))));
     });
     io.observe(svg);
     return () => {
@@ -248,7 +256,7 @@ export default function Agent({
       stop?.();
       unbind();
     };
-  }, [animation, shape, time, paused, hopKey, followPointer, propNames.join()]);
+  }, [animation, shape, time, start, paused, hopKey, followPointer, propNames.join()]);
 
   const hand = (name: HandName, layer: "behind" | "front") => (
     <g key={`${name}-${layer}`} data-hand={name} data-layer={layer} transform={`translate(${spec.hands[name][0]} ${spec.hands[name][1]})`}>

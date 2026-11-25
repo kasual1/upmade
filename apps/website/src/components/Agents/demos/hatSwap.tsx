@@ -8,7 +8,7 @@ export const label = "Hat swap";
 export const order = 100;
 
 /** Keeps track of which hat is worn and which is held, from the animation's `swap` and `putOn` events. */
-export default function HatSwapDemo({ className }: DemoProps) {
+export default function HatSwapDemo({ className, onEvent, start, rate }: DemoProps) {
   const [worn, setWorn] = useState(0);
   const [held, setHeld] = useState(0);
   return (
@@ -21,7 +21,10 @@ export default function HatSwapDemo({ className }: DemoProps) {
       onEvent={(e) => {
         if (e === "swap") setHeld((worn + 1) % HAT_KINDS.length);
         if (e === "putOn") setWorn(held);
+        onEvent?.(e);
       }}
+      start={start}
+      rate={rate}
     />
   );
 }

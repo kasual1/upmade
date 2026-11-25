@@ -36,7 +36,7 @@ const items: Record<string, ReactNode> = {
  * The hero agent of infinite.html. The page syncs its toolbar to the `tool:<name>` events; here the tool in use is
  * kept from them and put on the wrapper as `data-tool` (the loop starts on the cursor, like the page's toolbar).
  */
-export default function ToolCycleDemo({ className }: DemoProps) {
+export default function ToolCycleDemo({ className, onEvent, start, rate }: DemoProps) {
   const [tool, setTool] = useState("cursor");
   return (
     <div className={className} data-tool={tool}>
@@ -47,7 +47,12 @@ export default function ToolCycleDemo({ className }: DemoProps) {
         items={items}
         followPointer
         label={`The pink Upmade agent using the ${tool} tool`}
-        onEvent={(e) => e.startsWith("tool:") && setTool(e.slice(5))}
+        onEvent={(e) => {
+          if (e.startsWith("tool:")) setTool(e.slice(5));
+          onEvent?.(e);
+        }}
+        start={start}
+        rate={rate}
         style={{ width: "100%", height: "100%" }}
       />
     </div>

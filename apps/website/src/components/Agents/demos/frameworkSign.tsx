@@ -12,7 +12,7 @@ export const order = 130;
  * Cycles the sign's logo (React, Vue, Angular) on the animation's `flip` event, as the landing page does in step with
  * its code snippet.
  */
-export default function FrameworkSignDemo({ className }: DemoProps) {
+export default function FrameworkSignDemo({ className, onEvent, start, rate }: DemoProps) {
   const [n, setN] = useState(0);
   const framework = FRAMEWORKS[n];
   const items: Record<string, ReactNode> = { pole: <Pole />, hand: <Hand colour="pink" /> };
@@ -24,7 +24,12 @@ export default function FrameworkSignDemo({ className }: DemoProps) {
         colour="pink"
         animation={frameworkSign}
         items={items}
-        onEvent={(e) => e === "flip" && setN((i) => (i + 1) % FRAMEWORKS.length)}
+        onEvent={(e) => {
+          if (e === "flip") setN((i) => (i + 1) % FRAMEWORKS.length);
+          onEvent?.(e);
+        }}
+        start={start}
+        rate={rate}
         label={`Agent holding up a sign: ${framework}`}
         style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
       />
