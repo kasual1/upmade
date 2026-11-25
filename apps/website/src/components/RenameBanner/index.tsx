@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "@docusaurus/Link";
-import { ArrowIcon } from "@site/src/components/Landing/Icon";
-import { UPMADE_LOGO_PATH, UPMADE_LOGO_STROKE_WIDTH, UPMADE_LOGO_VIEWBOX } from "@site/src/components/Landing/paths";
+import { ArrowIcon } from "@site/src/components/Brand/Icon";
+import { UPMADE_LOGO_PATH, UPMADE_LOGO_STROKE_WIDTH, UPMADE_LOGO_VIEWBOX } from "@site/src/components/Brand/paths";
 import { KRITZEL_LOGO_PATH, KRITZEL_LOGO_VIEWBOX } from "./kritzelLogo";
 import styles from "./styles.module.css";
 

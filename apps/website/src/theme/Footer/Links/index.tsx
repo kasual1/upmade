@@ -3,7 +3,7 @@ import Links from '@theme-original/Footer/Links';
 import type LinksType from '@theme/Footer/Links';
 import type {WrapperProps} from '@docusaurus/types';
 import useBaseUrl from '@docusaurus/useBaseUrl';
-import { UPMADE_LOGO_PATH, UPMADE_LOGO_STROKE_WIDTH, UPMADE_LOGO_VIEWBOX } from '@site/src/components/Landing/paths';
+import { UPMADE_LOGO_PATH, UPMADE_LOGO_STROKE_WIDTH, UPMADE_LOGO_VIEWBOX } from '@site/src/components/Brand/paths';
 import {
   getPreferredFramework,
   subscribeToPreferredFramework,

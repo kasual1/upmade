@@ -8,7 +8,7 @@ let pathname = "/";
 vi.mock("@docusaurus/router", () => ({ useLocation: () => ({ pathname }) }));
 vi.mock("@docusaurus/useBaseUrl", () => ({ default: (p: string) => p }));
 vi.mock("@theme-original/Footer", () => ({ default: () => createElement("footer", { "data-footer": "docusaurus" }) }));
-vi.mock("@site/src/components/Landing/Sections", () => ({ Wordmark: () => createElement("span", { "data-wordmark": "" }) }));
+vi.mock("@site/src/components/Brand/Wordmark", () => ({ default: () => createElement("span", { "data-wordmark": "" }) }));
 vi.mock("@site/src/components/LandingPage/chrome/LandingFooter", () => ({
   default: () => createElement("footer", { "data-footer": "landing" }),
 }));

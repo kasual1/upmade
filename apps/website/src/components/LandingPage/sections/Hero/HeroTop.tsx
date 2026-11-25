@@ -1,7 +1,7 @@
 import { useRef, type ReactNode } from "react";
 import clsx from "clsx";
 import BrandLogo from "../../../Brand/BrandLogo";
-import MenuButton from "../../../Landing/MenuButton";
+import MenuButton from "../../primitives/MenuButton";
 import { useHeroNavObserver } from "../../hooks/useHeroNavObserver";
 import LinkTo from "../../primitives/LinkTo";
 import type { HeroSection } from "../../types";

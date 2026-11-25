@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { TOOLS as LEGACY_TOOLS } from "../../../Landing/tools";
+import { TOOLS as LEGACY_TOOLS } from "./icons";
 
 /** The editor tools the hero toolbar can show, named as the toolCycle agent's `tool:*` events name them. */
 export const TOOL_KEYS = ["cursor", "pen", "eraser", "arrow", "shapeRectangle", "type", "image"] as const;

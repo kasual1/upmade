@@ -1,7 +1,7 @@
 import React from "react";
 import { useLocation } from "@docusaurus/router";
 import useBaseUrl from "@docusaurus/useBaseUrl";
-import { Wordmark } from "@site/src/components/Landing/Sections";
+import Wordmark from "@site/src/components/Brand/Wordmark";
 import { useLandingPage } from "@site/src/components/LandingPage/context";
 import LandingFooter from "@site/src/components/LandingPage/chrome/LandingFooter";
 import Footer from "@theme-original/Footer";

@@ -1,0 +1,21 @@
+/* The menu button of a landing hero's header (moved from Landing/styles.module.css .topNavIcon/.topNavMenu): it opens
+   the navbar's mobile sidebar while the navbar is hidden (css/navbar.css `data-hero-menu`). The hero decides where it
+   shows (sections/Hero `.menu`, 620px and below). */
+.topNavIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+}
+
+.topNavMenu {
+  display: none;
+  color: var(--lp-ink);
+}
+
+@media (max-width: 768px) {
+  .topNavMenu {
+    display: flex;
+  }
+}

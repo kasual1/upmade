@@ -17,7 +17,7 @@
   padding: 0.3rem 1rem;
 }
 
-/* Transitions are enabled by the hero once the page has settled (see Landing/Hero.tsx), so the
+/* Transitions are enabled by the hero once the page has settled (see LandingPage/hooks/useHeroNavObserver.ts), so the
    navbar doesn't visibly slide away when navigating to a landing page. */
 html.landing-page[data-landing-nav-animated] .navbar {
   transition:
@@ -40,7 +40,7 @@ html.landing-page:not(.landing-nav-visible) .navbar {
   pointer-events: none;
 }
 
-/* The hero's menu button (Landing/MenuButton.tsx) opens the mobile sidebar while the navbar is hidden.
+/* The hero's menu button (LandingPage/primitives/MenuButton) opens the mobile sidebar while the navbar is hidden.
    The sidebar lives inside the navbar, so un-hide the navbar in place but keep the bar itself invisible. */
 html.landing-page[data-hero-menu] .navbar {
   opacity: 1 !important;

@@ -16,7 +16,7 @@ vi.mock("../src/components/Brand/Icon", () => ({
   ArrowIcon: () => null,
   GitHubIcon: () => createElement("img", { alt: "" }),
 }));
-vi.mock("../src/components/Landing/MenuButton", () => ({
+vi.mock("../src/components/LandingPage/primitives/MenuButton", () => ({
   default: () => createElement("button", { type: "button", "aria-label": "Toggle navigation bar" }),
 }));
 

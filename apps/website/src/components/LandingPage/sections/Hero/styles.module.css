@@ -51,7 +51,7 @@
   height: 24px;
 }
 
-/* the legacy MenuButton (Landing/MenuButton.tsx, its own styles hide it): shown at 620px and below only. Its 44px
+/* the legacy MenuButton (LandingPage/primitives/MenuButton, its own styles hide it): shown at 620px and below only. Its 44px
    box is pulled out by the space around its 24px icon, so the icon keeps the nav's rhythm and the gutter, and the
    header keeps the logo's 38px height. */
 .menu {

@@ -2,7 +2,9 @@
 
 A landing page is a typed, JSX-free config object (`src/content/landing/*.ts`) rendered by `<LandingPage config={…}/>`.
 The "/" page is `src/content/landing/infinite.ts`, rendered by `src/pages/index.tsx` (until the cutover, M9, it was
-previewed at `/landing-next/`). The plan is `landing-overhaul-plan.md` at the repo root.
+previewed at `/landing-next/`). The "/agentic" page is `src/content/landing/agentic.ts`, rendered by
+`src/pages/agentic.tsx` (an `agentHero` section and the `framesDemo`, `skillTerminal` and `themes` media). The plan is
+`landing-overhaul-plan.md` at the repo root.
 
 ## Layout
 
@@ -86,7 +88,7 @@ is no other way, and say so in the milestone's report.
 | M4 | `sections/FeatureGrid/*` |
 | M5 | `sections/Faq/*` |
 | M6a | `media/StarBoard/*` |
-| M6b | `media/DomCanvas/*` (port `Landing/Calculator.tsx` + `calculator-state.ts` here, with its spec; leave re-export shims in `Landing/`) |
+| M6b | `media/DomCanvas/*` (Calculator + calculator-state with its spec, moved here from the deleted `Landing/`) |
 | M6c | `media/CodeTyper/*` |
 | M6 (shared; M6a/b/c coordinate) | `sections/Showcase/*` |
 | M7 | `sections/Hero/*`, `primitives/Toolbar/*` |
@@ -95,10 +97,22 @@ is no other way, and say so in the milestone's report.
 Primitives other than the Toolbar (`SectionShell`, `SectionIntro`, `Button`, `LinkTo`, `MediaFrame`, `ScaledStage`,
 `CornerAgent`, `SegmentedToggle`, `AgentSlot`) are shared: fix bugs there in place, but keep their props compatible.
 
-## Hook points (plan §0)
+## Agent ↔ media signal (plan §3.5, M11)
 
-The /agent demos do not forward events yet, so nothing is wired between agents and media: each media runs on its own
-clock (the code typer uses the sign's documented 6170/6824/9348 ms turns; the star board drifts at a steady speed; the
-toolbar starts on "cursor" and a click only selects). `useSectionSignal` (Showcase passes `subscribe` to its media),
-`media/manifest.ts` `listens`, `agents.ts` `AGENT_EVENTS` and `AgentSlot`'s `onEvent` stay, so wiring the final agents
-(M11) is an adapter change, not a rewrite.
+A section pairs its agent with what it shows through a section signal (`hooks/useSectionSignal`): a plain
+emit/subscribe channel made once per section, with no React state, because an agent's `onEvent` runs inside its
+animation frame (in `flushSync`, after the demo's own state update).
+
+- **Showcase**: the corner agent's events go to `emit` (`MediaFrame onAgentEvent` → `CornerAgent onEvent` →
+  `AgentSlot onEvent` → the demo); the media gets `subscribe` and reacts imperatively to the names it `listens` to
+  (`media/manifest.ts`). Generic: any corner agent, any media. Today: the sign's `flip` → the code typer (the sign is
+  the clock; the typer counts flips and keeps a fallback clock only until a visit's first flip), the glasses'
+  `glassesOn`/`glassesOff` → the star board's speed, the hat swap's `putOn` → the themes (on `/agentic`).
+- **Hero**: the toolCycle agent's `tool:*` events go to the Toolbar through the hero's own signal (`subscribe` on the
+  Toolbar), and a click jumps the agent via `AgentSlot start` (`toolCycle.ts` `TOOL_START`), finishing an arrow toss
+  at `rate` 4 first.
+- Media must still work with no events at all (no corner agent, reduced motion, the agent off screen): each keeps a
+  steady state or a fallback clock.
+- Adding a pairing: list the agent's events in `agents.ts` `AGENT_EVENTS` (tests check them against the animation),
+  the media's in its manifest `listens`, and subscribe in the media. `validate.ts` fails a showcase whose corner agent
+  emits none of the events its media listens to.
