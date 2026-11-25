@@ -42,7 +42,7 @@ export const agenticPage = {
       },
       chat: {
         label: "Chat with the agent",
-        placeholder: "Message the agent",
+        placeholder: "Tell the agent what to build…",
         agentName: "Agent",
         demo: [
           'Add a path that says "Welcome"',
@@ -63,7 +63,7 @@ export const agenticPage = {
       body: "Give your agent a set of ready-made components to build with. It assembles real, interactive UI right on the canvas, frame by frame, so you can watch it take shape and step in at any point.",
       media: { key: "framesDemo" },
       cta: { label: "Full Demo", link: { kind: "docs", path: "examples/generative-ui" } },
-      cornerAgent: { key: "bouquetReveal", corner: "bl", size: "s" },
+      cornerAgent: { key: "bouquetReveal", corner: "bl", size: "xs" },
     },
     {
       type: "showcase",
@@ -73,7 +73,7 @@ export const agenticPage = {
       body: "Add the Upmade skill to your coding agent, so it knows how to build and extend your canvas right away.",
       media: { key: "skillTerminal", props: { command: SKILL_INSTALL_COMMAND } },
       cta: { label: "Quick Start", link: { kind: "docs" } },
-      cornerAgent: { key: "lovestruck", corner: "br", size: "s" },
+      cornerAgent: { key: "lovestruck", corner: "br", size: "xs" },
     },
     {
       type: "showcase",
@@ -82,7 +82,7 @@ export const agenticPage = {
       body: "Adjust Upmade's components to fit your product, down to their fonts, icons and labels. Start from the built-in light and dark themes or create your own, so the editor looks like part of your app.",
       media: { key: "themes" },
       cta: { label: "Themes", link: { kind: "docs", path: "customization/themes" } },
-      cornerAgent: { key: "hatSwap", corner: "bl", size: "s" },
+      cornerAgent: { key: "hatSwap", corner: "bl", size: "xs" },
     },
     {
       type: "faq",

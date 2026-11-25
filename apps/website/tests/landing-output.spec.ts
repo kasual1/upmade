@@ -105,3 +105,33 @@ describe('the build', () => {
     expect(sitemap).not.toContain('landing-next');
   });
 });
+
+describe('"/agentic/" in the built HTML', () => {
+  const file = path.join(buildRoot, 'agentic', 'index.html');
+  const a = load(fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : '');
+
+  test('is the agentic landing page: one main, one h1, every section, one footer, unique ids', async () => {
+    const { agenticPage, AGENTIC_TITLE } = await import('../src/content/landing/agentic');
+    expect(a('html').attr('class') ?? '').toMatch(/\blanding-page\b/);
+    expect(a('main[data-lp-page]')).toHaveLength(1);
+    expect(a('h1')).toHaveLength(1);
+    for (const section of agenticPage.sections) {
+      expect(a(`section[aria-labelledby="${section.id}-heading"] #${section.id}-heading`), section.id).toHaveLength(1);
+    }
+    expect(a('title').text()).toBe(AGENTIC_TITLE);
+    expect(a('footer')).toHaveLength(1);
+    const ids = a('[id]').map((_, el) => a(el).attr('id')).get();
+    expect(ids.filter((id, i) => ids.indexOf(id) !== i)).toEqual([]);
+  });
+
+  test('every FAQ answer is in the HTML, with FAQPage JSON-LD, and the toggle marks /agentic current', async () => {
+    const { AGENTIC_FAQ_ITEMS } = await import('../src/content/landing/agentic-faq');
+    const text = norm(a('section[aria-labelledby="faq-heading"]').text());
+    for (const item of AGENTIC_FAQ_ITEMS) expect(text).toContain(norm(stripBackticks(item.a)));
+    const ld = a('script[type="application/ld+json"]').map((_, el) => JSON.parse(a(el).text())).get() as Array<Record<string, any>>;
+    expect(ld.find((e) => e['@type'] === 'FAQPage')?.mainEntity).toHaveLength(AGENTIC_FAQ_ITEMS.length);
+    const current = a('section[aria-labelledby="hero-heading"] nav a[aria-current="page"]').map((_, el) => a(el).attr('href')).get();
+    expect(current.length).toBe(1);
+    expect(current[0]).toMatch(/\/agentic\/?$/);
+  });
+});

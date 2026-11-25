@@ -1,4 +1,487 @@
-.stub {
+/* The design's .frames-* and .shop-* rules (its later rules win), in the agent icons' art style. The frame (3px ink
+   outline, 28px corners, panel ground, 16:11) is MediaFrame's "panel". Sizes are virtual px of the 1000 x 687.5
+   stage (frames.ts; the design's 1cqw = 10px); where the design keeps a real width (the frames' outline, the
+   cursor's size) it is divided by the stage's --k. The shop pages are laid out at 800 / 300 px and scaled by
+   --shop-k (set per frame from frames.ts), with the design's --u unit. */
+.root {
   position: absolute;
   inset: 0;
+}
+
+/* the frames' outline: the design's clamp(2px, .45cqw, 3px) in real px */
+.world {
+  --line: clamp(calc(2px / var(--k, 1)), 4.5px, calc(3px / var(--k, 1)));
+  position: absolute;
+  inset: 0;
+  transition: transform 0.9s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* the desktop frame alone, centred */
+.world[data-solo] {
+  transform: translateX(var(--solo-shift));
+}
+
+/* left, top, width and height come from frames.ts */
+.frame {
+  position: absolute;
+}
+
+.frame[data-device="phone"] {
+  transform-origin: 0 50%;
+  transition:
+    opacity 0.5s ease,
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.frame[data-hidden] {
+  opacity: 0;
+  transform: translateX(-40px) scale(0.96);
+}
+
+/* Upmade's object titlebar as an ink-outlined chip, blue while the frame is active. The outline is an inset ring
+   (a border width would be rounded to whole px before the stage's scale); the padding includes it. */
+.titlebar {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + var(--titlebar-gap));
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  box-sizing: border-box;
+  height: var(--titlebar-h);
+  padding: 0 var(--titlebar-pad);
+  overflow: hidden;
+  border-radius: 18px;
+  background: var(--lp-grad-key);
+  box-shadow: inset 0 0 0 var(--line) var(--lp-ink);
+  color: var(--lp-ink);
+  font-family: var(--lp-font-body);
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.frame[data-active] .titlebar {
+  background: var(--lp-grad-blue);
+}
+
+.play,
+.add {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: var(--button);
+  height: var(--button);
+}
+
+.play {
+  border-radius: 10px;
+  background: var(--lp-ink);
+  color: var(--lp-on-ink);
+}
+
+.play svg {
+  width: 17px;
+  height: 17px;
+}
+
+/* the design's rgba(10,10,10,.45) text on the chip */
+.width {
+  font-weight: 600;
+  opacity: 0.45;
+}
+
+.add {
+  margin-left: auto;
+  border-radius: 50%;
+  color: var(--lp-ink);
+  transition:
+    transform 0.25s var(--lp-spring),
+    background-color 0.15s ease;
+}
+
+.add svg {
+  width: 25px;
+  height: 25px;
+}
+
+.add[data-pressed] {
+  background: color-mix(in srgb, var(--lp-ink) 14%, transparent);
+  transform: scale(0.82);
+}
+
+/* the page in the frame */
+.page {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 18px;
+  background: var(--lp-grad-window);
+  box-shadow: 0 0 0 var(--line) var(--lp-ink);
+  color: var(--lp-ink);
+}
+
+/* the shop at its layout size (800 / 300 px wide), scaled to the frame; --o is the shop's outline */
+.shop {
+  --o: 4px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--shop-w);
+  height: var(--shop-h);
+  transform: scale(var(--shop-k));
+  transform-origin: 0 0;
+  font-family: var(--lp-font-body);
+  line-height: normal;
+}
+
+/* the page pops in once the agent has generated it */
+.build {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0 6%;
+  opacity: 0;
+  transform: scale(0.95);
+  transform-origin: 50% 35%;
+  transition:
+    opacity 0.25s ease,
+    transform 0.5s var(--lp-spring);
+}
+
+.frame[data-device="phone"] .build {
+  padding: 0 7%;
+}
+
+.build[data-built] {
+  opacity: 1;
+  transform: none;
+}
+
+.nav {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: calc(var(--u) * 10);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 1.2);
+  font-size: calc(var(--u) * 3.4);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  white-space: nowrap;
+}
+
+.mark {
+  box-sizing: border-box;
+  width: calc(var(--u) * 3.4);
+  height: calc(var(--u) * 3.4);
+  border: var(--o) solid var(--lp-ink);
+  border-radius: calc(var(--u) * 1.1);
+  background: var(--lp-ink);
+}
+
+.links {
+  display: flex;
+  gap: calc(var(--u) * 3.2);
+  margin-right: calc(var(--u) * 3.4);
+  margin-left: auto;
+  color: var(--lp-shop-muted);
+  font-size: calc(var(--u) * 2.2);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.cart {
+  padding: calc(var(--u) * 0.9) calc(var(--u) * 2.4);
+  border: var(--o) solid var(--lp-ink);
+  border-radius: var(--lp-r-pill);
+  background: var(--lp-grad-key);
+  font-size: calc(var(--u) * 2.3);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.menu {
+  box-sizing: border-box;
+  width: calc(var(--u) * 3.6);
+  height: calc(var(--u) * 2.6);
+  border-top: calc(var(--u) * 0.6) solid var(--lp-ink);
+  border-bottom: calc(var(--u) * 0.6) solid var(--lp-ink);
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  align-items: center;
+  gap: calc(var(--u) * 5);
+  margin: auto 0;
+  padding-bottom: calc(var(--u) * 5);
+}
+
+.tag {
+  display: inline-block;
+  align-self: flex-start;
+  padding: calc(var(--u) * 0.5) calc(var(--u) * 1.6);
+  border: var(--o) solid var(--lp-ink);
+  border-radius: var(--lp-r-pill);
+  background: var(--lp-paper);
+  font-size: calc(var(--u) * 1.9);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.title {
+  margin-top: calc(var(--u) * 1.8);
+  font-size: calc(var(--u) * 6.4);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.045em;
+}
+
+.desc {
+  max-width: 30ch;
+  margin: calc(var(--u) * 2) 0 0;
+  color: var(--lp-shop-muted);
+  font-size: calc(var(--u) * 2.2);
+  line-height: 1.4;
+}
+
+.swatches {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 1.4);
+  margin-top: calc(var(--u) * 2.8);
+  padding-left: calc(var(--u) * 0.6);
+}
+
+.swatches i {
+  flex: none;
+  box-sizing: border-box;
+  width: calc(var(--u) * 3);
+  height: calc(var(--u) * 3);
+  border: var(--o) solid var(--lp-ink);
+  border-radius: 50%;
+}
+
+.swatches i:first-child {
+  margin-right: calc(var(--u) * 1.1);
+  box-shadow:
+    0 0 0 calc(var(--u) * 0.5) var(--lp-paper),
+    0 0 0 calc(var(--u) * 0.5 + var(--o)) var(--lp-ink);
+}
+
+.swatchBlue {
+  background: var(--lp-vase-blue);
+}
+
+.swatchSand {
+  background: var(--lp-swatch-sand);
+}
+
+.swatchSlate {
+  background: var(--lp-swatch-slate);
+}
+
+.buy {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 2.2);
+  margin-top: calc(var(--u) * 3.4);
+}
+
+.price {
+  font-size: calc(var(--u) * 4);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.btn {
+  padding: calc(var(--u) * 1.1) calc(var(--u) * 2.6) calc(var(--u) * 1.4);
+  border: var(--o) solid var(--lp-ink);
+  border-radius: var(--lp-r-pill);
+  background: var(--lp-ink);
+  color: var(--lp-on-ink);
+  font-size: calc(var(--u) * 2.4);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.note {
+  margin-top: calc(var(--u) * 2);
+  color: var(--lp-shop-faint);
+  font-size: calc(var(--u) * 1.8);
+  font-weight: 600;
+}
+
+.photo {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1.05;
+}
+
+.vase {
+  width: 62%;
+  height: auto;
+  overflow: visible;
+  color: var(--lp-ink);
+}
+
+.frame[data-device="phone"] .photo {
+  flex: none;
+  aspect-ratio: 1.1;
+}
+
+.frame[data-device="phone"] .tag {
+  margin-top: calc(var(--u) * 1.6);
+}
+
+.frame[data-device="phone"] .title {
+  margin-top: calc(var(--u) * 1.6);
+  font-size: calc(var(--u) * 5.4);
+}
+
+.frame[data-device="phone"] .buy {
+  justify-content: space-between;
+  margin-top: calc(var(--u) * 2.8);
+}
+
+.frame[data-device="phone"] .swatches {
+  margin-top: calc(var(--u) * 2.6);
+}
+
+/* the vase's colours */
+.fGreen {
+  fill: var(--lp-green);
+}
+
+.fPaper {
+  fill: var(--lp-paper);
+}
+
+.fYellow {
+  fill: var(--lp-yellow);
+}
+
+.fPetal {
+  fill: var(--lp-petal);
+}
+
+.fPink {
+  fill: var(--lp-pink-light);
+}
+
+.fVase {
+  fill: var(--lp-vase-blue);
+}
+
+.sGreen {
+  stroke: var(--lp-green);
+}
+
+.sBand {
+  stroke: var(--lp-vase-band);
+}
+
+.sPaper {
+  stroke: var(--lp-paper);
+}
+
+/* while the agent generates a page, the frame is one plain grey panel with a glare sweeping across it */
+.loading {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--lp-loading);
+  transition: opacity 0.3s ease;
+}
+
+.loading::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    color-mix(in srgb, var(--lp-paper) 80%, transparent) 50%,
+    transparent 80%
+  );
+  transform: translateX(-100%);
+  animation: glare 1.4s ease-in-out infinite;
+}
+
+.loading[data-done] {
+  opacity: 0;
+}
+
+.loading[data-done]::after {
+  animation-play-state: paused;
+}
+
+@keyframes glare {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* the agent's cursor: a plain black arrow (16 to 22 real px); its tip is at the translated point */
+.cursor {
+  --arrow: clamp(calc(16px / var(--k, 1)), 38px, calc(22px / var(--k, 1)));
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  transition:
+    opacity 0.25s ease,
+    transform 1.2s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.cursor[data-hidden] {
+  opacity: 0;
+}
+
+.cursor > svg {
+  flex: none;
+  width: var(--arrow);
+  height: var(--arrow);
+  margin: calc(var(--arrow) * -2 / 24) 0 0 calc(var(--arrow) * -3 / 24);
+  overflow: visible;
+  transform-origin: 12.5% 8.3%;
+  transition: transform 0.12s ease;
+}
+
+.cursor > svg path {
+  fill: var(--lp-ink);
+  stroke: var(--lp-paper);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+}
+
+.cursor[data-pressed] > svg {
+  transform: scale(0.82);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .world,
+  .frame,
+  .build,
+  .cursor,
+  .cursor > svg,
+  .add,
+  .loading {
+    transition: none;
+  }
+
+  .loading::after {
+    animation: none;
+  }
 }

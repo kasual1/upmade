@@ -47,6 +47,7 @@ html.landing-page {
   --lp-hover: hsl(0 0% 0% / 4.3%); /* toolbar tool hover */
   --lp-press: hsl(0 0% 0% / 8.6%); /* toolbar tool press */
   --lp-key-shade: rgba(10, 10, 10, 0.08); /* inset bottom shade of art-style keys and buttons */
+  --lp-terminal-muted: #6b6b75; /* the skill terminal's welcome line and answer marker (5.1:1 on the window) */
 
   /* gradients of the agent family's art style */
   --lp-grad-pink: linear-gradient(#ff8bc5, #ff6ab5 65%);
@@ -56,6 +57,8 @@ html.landing-page {
   --lp-grad-card-open: linear-gradient(#fff4fa, #ffeaf4);
   --lp-grad-display: linear-gradient(#e9f5ff, #cdebff);
   --lp-grad-calc: linear-gradient(#ffffff, #f1f1ee);
+  --lp-grad-chip: linear-gradient(#ffffff, #efefeb 65%); /* the skill terminal's path chip and "?" badge */
+  --lp-grad-ok: linear-gradient(#72e59c, #4ade80 65%); /* the skill terminal's green check */
 
   /* code on a dark ground (the DOM source of the DOM canvas demo) */
   --lp-code-dark-bg: #0a0a0a;
@@ -77,6 +80,17 @@ html.landing-page {
   --lp-code-light-tag: #1a6fc0;
   --lp-code-light-decorator: #9a6200;
   --lp-code-light-caret: #ff6ab5;
+
+  /* the generative UI demo (media/FramesDemo): its active titlebar, loading panel and the Bloom shop it generates */
+  --lp-grad-blue: linear-gradient(#8fd0ff, #6fc3ff 65%); /* the active frame's titlebar chip */
+  --lp-loading: #e6e6e0; /* a frame's loading panel */
+  --lp-shop-muted: #6b6b75; /* the shop's links and description */
+  --lp-shop-faint: #8a8a93; /* the shop's shipping note */
+  --lp-vase-blue: #60a5fa; /* the blue vase, and its swatch */
+  --lp-vase-band: #dbeafe; /* the band round the vase */
+  --lp-petal: #ffc4df; /* pale pink petals of the bouquet */
+  --lp-swatch-sand: #e7dfd0;
+  --lp-swatch-slate: #3f3f46;
 
   /* ---- shadows ---- */
   --lp-lift: 0 1px 2px rgba(16, 16, 24, 0.05), 0 6px 16px rgba(16, 16, 24, 0.07);

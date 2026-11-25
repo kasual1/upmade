@@ -1,4 +1,153 @@
-.stub {
+/* The design's .themes-demo / .themes-fit / .themes-* (its later rules win). The frame (3px ink outline, 28px corners,
+   clipping, 16:11) is MediaFrame's "panel". Sizes are in the stage's virtual px (605 x 415.94, the design's
+   .themes-fit, where 1cqw = 6.05px; see themes.ts). Colours come from the theme (var(--theme-*), set by index.tsx
+   from themes.ts); there are none here. */
+
+/* The theme values are registered, so transitioning them on the root morphs everything drawn with them, gradients
+   included (an unregistered custom property, or a gradient, would just switch). The initial values are neutral:
+   the root always sets every one (the first theme on the server). */
+@property --theme-canvas { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --theme-surface-top { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --theme-surface { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --theme-field { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --theme-border { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --theme-border-width { syntax: "<length>"; inherits: true; initial-value: 0px; }
+@property --theme-radius { syntax: "<length>"; inherits: true; initial-value: 0px; }
+@property --theme-send-radius { syntax: "<length-percentage>"; inherits: true; initial-value: 50%; }
+@property --theme-shadow-x { syntax: "<length>"; inherits: true; initial-value: 0px; }
+@property --theme-shadow-y { syntax: "<length>"; inherits: true; initial-value: 0px; }
+@property --theme-shadow-blur { syntax: "<length>"; inherits: true; initial-value: 0px; }
+@property --theme-shadow-color { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --theme-ink { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --theme-muted { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --theme-accent-top { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --theme-accent { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --theme-on-accent { syntax: "<color>"; inherits: true; initial-value: transparent; }
+
+.root {
+  --themes-morph: 0.6s cubic-bezier(0.65, 0, 0.35, 1); /* themes.ts MORPH_MS */
   position: absolute;
   inset: 0;
+  background: var(--theme-canvas);
+  transition: var(--themes-morph);
+  transition-property:
+    --theme-canvas, --theme-surface-top, --theme-surface, --theme-field, --theme-border, --theme-border-width,
+    --theme-radius, --theme-send-radius, --theme-shadow-x, --theme-shadow-y, --theme-shadow-blur,
+    --theme-shadow-color, --theme-ink, --theme-muted, --theme-accent-top, --theme-accent, --theme-on-accent;
+}
+
+/* the design's .themes-fit: laid out at the desktop size, scaled by the stage */
+.stage {
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
+  font-family: var(--lp-font-body);
+}
+
+.control {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 4.84px; /* .8cqw */
+  border-radius: var(--theme-radius);
+  background: linear-gradient(var(--theme-surface-top), var(--theme-surface) 65%);
+  box-shadow:
+    0 0 0 var(--theme-border-width) var(--theme-border),
+    var(--theme-shadow-x) var(--theme-shadow-y) var(--theme-shadow-blur) var(--theme-shadow-color);
+  color: var(--theme-ink);
+  font-weight: 700;
+}
+
+.workspaces {
+  top: 30.25px; /* 5cqw */
+  left: 30.25px;
+}
+
+.more {
+  top: 30.25px;
+  right: 30.25px;
+}
+
+/* centred, and narrow enough to stay clear of the agent in the bottom left corner */
+.chat {
+  right: 127.05px; /* 21cqw */
+  bottom: 36.3px; /* 6cqw */
+  left: 127.05px;
+}
+
+.button {
+  display: grid;
+  place-items: center;
+  width: 38.72px; /* 6.4cqw */
+  height: 38.72px;
+}
+
+.button svg,
+.send svg {
+  display: block;
+  width: 21.78px; /* 3.6cqw */
+  height: 21.78px;
+}
+
+.divider {
+  width: 2.7225px; /* .45cqw */
+  height: 21.78px;
+  border-radius: 6.05px;
+  background-color: var(--theme-border);
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1;
+  min-width: 0;
+  padding: 7.26px 7.26px 7.26px 15.73px; /* 1.2cqw 1.2cqw 1.2cqw 2.6cqw */
+  border-radius: var(--theme-radius);
+  background-color: var(--theme-field);
+}
+
+/* a real 16.94px font (2.8cqw): a minimum font size may enlarge it, but it stays on one line, clipped */
+.prompt {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--theme-muted);
+  font-size: 16.94px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.send {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 41.14px; /* 6.8cqw */
+  height: 41.14px;
+  border-radius: var(--theme-send-radius);
+  background: linear-gradient(var(--theme-accent-top), var(--theme-accent) 65%);
+  box-shadow: 0 0 0 calc(var(--theme-border-width) * 0.8) var(--theme-border);
+  color: var(--theme-on-accent);
+}
+
+/* the corner agent is smaller relative to the frame on narrow screens: the chat box narrows to stay clear of it */
+@media (max-width: 768px) {
+  .chat {
+    right: 157.3px; /* 26cqw */
+    left: 157.3px;
+  }
+}
+
+@media (max-width: 420px) {
+  .chat {
+    right: 169.4px; /* 28cqw */
+    left: 169.4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .root {
+    transition: none;
+  }
 }

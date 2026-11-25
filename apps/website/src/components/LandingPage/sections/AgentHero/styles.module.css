@@ -1,15 +1,897 @@
-/* STUB styles for the agentic hero (replaced by the full port). */
+/* The agentic hero (the "Agentic" design's hero CSS, the last rule per selector winning): the crew, the chat box
+   with its caret and ellipses, the mocked canvas board (the agent's cursor, notes, frames, links, the hand-drawn
+   "Welcome", typed text, the GitHub card, marquee and selection, the morph) and the copy clearing away. The header,
+   h1, subtitle and CTAs take the Hero module's styles. Colours are --lp-* tokens; the board's objects are created
+   by choreography.ts with these class names. */
+
+.hero {
+  isolation: isolate;
+}
+
+/* ---------------------------------------------------------------- the copy clears (fade, lift and blur) */
+.title,
+.sub {
+  transition:
+    transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1),
+    opacity 0.5s ease,
+    filter 0.7s ease;
+}
+
+.sub {
+  transition-delay: 0.07s;
+}
+
+.cleared .title,
+.cleared .sub {
+  transform: translateY(-36px) scale(0.98);
+  opacity: 0;
+  filter: blur(8px);
+  pointer-events: none;
+}
+
+.cleared .sub {
+  transform: translateY(-28px) scale(0.98);
+}
+
+/* ---------------------------------------------------------------- the crew */
 .crew {
+  --W: clamp(150px, 17vw, 220px);
   display: flex;
   align-items: flex-end;
   justify-content: center;
 }
 
-.member {
-  width: 120px;
-  height: 120px;
+.center,
+.friend,
+.back {
+  position: relative;
+  display: block;
+  flex: none;
 }
 
+.center {
+  z-index: 2;
+  width: var(--W);
+  height: var(--W);
+  margin: 6px 0 10px;
+}
+
+.gone {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.friend {
+  z-index: 1;
+  width: calc(var(--W) * 0.74);
+  height: calc(var(--W) * 0.74);
+  margin-bottom: calc(10px + var(--W) * 0.05);
+}
+
+.friend.left {
+  margin-right: calc(var(--W) * -0.42);
+}
+
+.friend.right {
+  margin-left: calc(var(--W) * -0.42);
+}
+
+.back {
+  z-index: 0;
+  width: calc(var(--W) * 0.56);
+  height: calc(var(--W) * 0.56);
+  margin-bottom: calc(10px + var(--W) * 0.09);
+}
+
+.back.left {
+  margin-right: calc(var(--W) * -0.37);
+}
+
+.back.right {
+  margin-left: calc(var(--W) * -0.33);
+}
+
+.fill {
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------------------------------------------------------------- the chat box */
 .chat {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   width: min(420px, 100%);
+  height: 54px;
+  padding: 0 9px 0 20px;
+  background: var(--lp-paper);
+  border: 1px solid var(--lp-line);
+  border-radius: var(--lp-r-m);
+  box-shadow: var(--lp-shadow-toolbar);
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+
+.chat:focus-within {
+  border-color: color-mix(in srgb, var(--lp-ink) 14%, var(--lp-line));
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--lp-hand) 12%, transparent),
+    var(--lp-shadow-toolbar);
+}
+
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* a blinking blue caret at the end of the text, even while the box is not focused */
+.fakeCaret {
+  position: absolute;
+  top: 50%;
+  left: 20px;
+  width: 2px;
+  height: 20px;
+  margin-top: -10px;
+  border-radius: 1px;
+  background: var(--lp-hand);
+  pointer-events: none;
+  animation: chat-caret 1.05s steps(1) infinite;
+}
+
+.solid {
+  animation: none;
+}
+
+/* only when the text field itself has focus (not the send button) */
+.inputFocus .fakeCaret {
+  display: none;
+}
+
+@keyframes chat-caret {
+  50% {
+    opacity: 0;
+  }
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: none;
+  font: 400 16px var(--lp-font-body);
+  color: var(--lp-ink);
+  caret-color: var(--lp-hand);
+}
+
+/* the chat box shows its own focus (the :focus-within ring) */
+.input:focus-visible {
+  outline: 0;
+}
+
+.input::placeholder {
+  color: color-mix(in srgb, var(--lp-soft) 70%, var(--lp-paper));
+}
+
+/* long text: an ellipsis on whichever side the text runs past the box */
+.ell {
+  position: absolute;
+  top: 50%;
+  display: none;
+  width: 28px;
+  height: 28px;
+  align-items: center;
+  font: 400 16px var(--lp-font-body);
+  color: transparent;
+  pointer-events: none;
+}
+
+.ellL {
+  transform: translateY(-50%);
+  background: linear-gradient(90deg, var(--lp-paper) 15%, transparent);
+}
+
+.ellR {
+  justify-content: flex-end;
+  transform: translate(-100%, -50%);
+  background: linear-gradient(270deg, var(--lp-paper) 15%, transparent);
+}
+
+.ellOn {
+  display: flex;
+}
+
+.send {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 11px;
+  background: var(--lp-ink);
+  cursor: pointer;
+  transition:
+    opacity 0.15s,
+    transform 0.15s var(--lp-spring);
+}
+
+.send svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: var(--lp-on-ink);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.send:disabled {
+  opacity: 0.18;
+  cursor: default;
+}
+
+.send:not(:disabled):hover {
+  transform: translateY(-1px);
+}
+
+.send:not(:disabled):active,
+.send.press {
+  transform: scale(0.88);
+}
+
+.restartIcon,
+.send[data-restart] .sendIcon {
+  display: none;
+}
+
+.send[data-restart] .restartIcon {
+  display: block;
+  width: 16px;
+  height: 16px;
+  animation: restart-in 0.35s var(--lp-spring) both;
+}
+
+.send[data-restart]:not(:disabled):hover .restartIcon {
+  transform: rotate(-40deg);
+  transition: transform 0.25s var(--lp-spring);
+}
+
+@keyframes restart-in {
+  from {
+    transform: rotate(90deg) scale(0.6);
+    opacity: 0;
+  }
+}
+
+/* ---------------------------------------------------------------- the board */
+.board {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.layer {
+  position: absolute;
+  inset: 0;
+}
+
+.links {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.links path {
+  fill: none;
+  stroke: var(--lp-ink);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.links path.draw {
+  stroke-dasharray: var(--len);
+  stroke-dashoffset: var(--len);
+  animation: link-draw 0.6s ease-out forwards;
+}
+
+@keyframes link-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* the agent's cursor: the arrow (painted with the agent's own fill) and its name label */
+.cursor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 5;
+  display: flex;
+  align-items: flex-start;
+  gap: 2px;
+  opacity: 0;
+  transform: translate(var(--cx, 0), var(--cy, 0));
+  transition:
+    transform 0.52s cubic-bezier(0.5, 0, 0.15, 1),
+    opacity 0.2s;
+  will-change: transform;
+}
+
+.cursor.on {
+  opacity: 1;
+}
+
+.arrowhead {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: -2px 0 0 -2px;
+  overflow: visible;
+  transition: opacity 0.18s;
+}
+
+.arrowhead path {
+  fill: var(--lp-pink);
+  stroke: var(--lp-ink);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+}
+
+.who {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  padding: 3px 10px 3px 4px;
+  background: var(--lp-paper);
+  border: 1px solid var(--lp-line);
+  border-radius: var(--lp-r-pill);
+  font: 600 12.5px var(--lp-font-body);
+  line-height: 1.4;
+  white-space: nowrap;
+  box-shadow: var(--lp-lift);
+  transform-origin: 0 50%;
+  transition:
+    opacity 0.15s,
+    transform 0.34s var(--lp-spring2);
+}
+
+.whoAgent {
+  flex: none;
+  width: 22px;
+  height: 22px;
+}
+
+/* the label tucks into the arrow while the agent morphs */
+.bare .who {
+  opacity: 0;
+  transform: translate(-10px, -8px) scale(0.3);
+  transition:
+    opacity 0.15s,
+    transform 0.2s;
+}
+
+/* typing: the text's caret stands in for the arrow; the label sits right beside it */
+.typing .arrowhead,
+.docked .arrowhead {
+  opacity: 0;
+}
+
+.typing .who {
+  transform: translate(-12px, -27px);
+}
+
+/* docking glides (no springy overshoot), both ways */
+.dockAnim .who {
+  transition:
+    opacity 0.15s,
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.dockAnim .arrowhead {
+  transition: opacity 0.3s ease;
+}
+
+.docked .who {
+  transform: translate(var(--dock-x, -34px), var(--dock-y, 4px));
+}
+
+/* the agent's outline on its way into the arrow (and back) */
+.morph {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 6;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------------- board objects */
+.bobj {
+  position: absolute;
+  pointer-events: auto;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  animation: bobj-in 0.5s var(--lp-spring) both;
+}
+
+.bobj[data-dragging] {
+  cursor: grabbing;
+}
+
+.bobj:focus-visible {
+  outline: 2.5px solid var(--lp-hand);
+  outline-offset: 4px;
+}
+
+@keyframes bobj-in {
+  from {
+    opacity: 0;
+    transform: scale(0.6) rotate(var(--r, 0deg));
+  }
+}
+
+.note {
+  width: var(--w, 190px);
+  padding: 14px 16px 16px;
+  border-radius: 12px;
+  font: 600 15px/1.3 var(--lp-font-body);
+  color: var(--lp-ink);
+  text-align: left;
+  overflow-wrap: anywhere;
+  transform: rotate(var(--r, 0deg));
+  box-shadow: var(--lp-float);
+}
+
+.note small {
+  display: block;
+  margin-top: 8px;
+  font: 500 11px var(--lp-font-body);
+  opacity: 0.65;
+}
+
+.frame {
+  width: var(--w, 230px);
+  padding: 12px;
+  background: var(--lp-paper);
+  border: 2px solid var(--lp-blue);
+  border-radius: 14px;
+  box-shadow: var(--lp-float);
+}
+
+.frame b {
+  position: absolute;
+  top: -26px;
+  left: -2px;
+  max-width: calc(100% + 4px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 3px 9px;
+  border-radius: 8px 8px 8px 2px;
+  background: var(--lp-blue);
+  color: var(--lp-ink);
+  font: 600 12px var(--lp-font-body);
+}
+
+.frame i {
+  display: block;
+  height: 10px;
+  margin: 6px 0;
+  border-radius: 5px;
+  background: var(--lp-chip);
+}
+
+.frame i:nth-of-type(2) {
+  width: 70%;
+}
+
+.frame i:nth-of-type(3) {
+  width: 45%;
+}
+
+/* the hand-drawn "Welcome" */
+.hi {
+  width: var(--w, 240px);
+}
+
+.hi svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.hi path {
+  fill: none;
+  stroke: var(--lp-hand);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.big {
+  --w: min(440px, 40vw);
+}
+
+/* typed text */
+.btext {
+  max-width: min(600px, calc(100vw - 32px));
+  text-align: center;
+  font: 600 22px/1.35 var(--lp-font-body);
+  letter-spacing: -0.01em;
+  color: var(--lp-ink);
+  text-wrap: balance;
+}
+
+.caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.05em;
+  margin-left: 2px;
+  vertical-align: -0.16em;
+  border-radius: 1px;
+  background: var(--lp-pink);
+  animation: chat-caret 1s steps(1) infinite;
+}
+
+/* laid out (it guides the cursor) but unseen until the agent arrives */
+.btext:not(.active) .caret {
+  visibility: hidden;
+}
+
+.btext.done .caret {
+  display: none;
+}
+
+/* the generated GitHub card: pending (laid out, unseen) -> loading (skeleton + glare) -> revealed */
+.ghcard {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  padding: 10px 10px 10px 14px;
+  background: var(--lp-paper);
+  border: 1px solid var(--lp-line);
+  border-radius: 16px;
+  box-shadow: var(--lp-float);
+  text-align: left;
+  transition:
+    background-color 0.3s,
+    border-color 0.3s,
+    box-shadow 0.3s;
+}
+
+.gen {
+  opacity: 0;
+  transform: translateY(6px) scale(0.94);
+  transition:
+    opacity 0.22s,
+    transform 0.38s var(--lp-spring);
+}
+
+.gen.in {
+  opacity: 1;
+  transform: none;
+}
+
+.ghMark {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  color: var(--lp-ink);
+}
+
+.ghMeta {
+  display: grid;
+  gap: 1px;
+  margin-right: 2px;
+}
+
+.ghMeta b {
+  font: 700 15px/1.25 var(--lp-font-body);
+  color: var(--lp-ink);
+}
+
+.ghMeta small {
+  font: 500 12.5px/1.3 var(--lp-font-body);
+  color: var(--lp-soft);
+}
+
+.ghActions {
+  display: flex;
+  gap: 6px;
+}
+
+.ghBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 11px;
+  border: 0;
+  border-radius: 11px;
+  font: 600 14px var(--lp-font-body);
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.ghBtn svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
+
+.star,
+.star:hover {
+  background: var(--lp-ink);
+  color: var(--lp-on-ink);
+}
+
+.star svg {
+  fill: var(--lp-yellow);
+  stroke: var(--lp-yellow);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+
+.star:hover {
+  filter: brightness(1.08);
+}
+
+.share {
+  background: var(--lp-chip);
+  color: var(--lp-ink);
+}
+
+.share:hover {
+  background: var(--lp-chip-h);
+}
+
+.share svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ghBtn:focus-visible {
+  outline: 2px solid var(--lp-hand);
+  outline-offset: 2px;
+}
+
+.pending {
+  visibility: hidden;
+}
+
+.loading {
+  background-color: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  animation: skel-in 0.3s var(--lp-spring) both;
+}
+
+.ghSkel {
+  position: absolute;
+  inset: -1px;
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--lp-chip-h);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.loading .ghSkel {
+  opacity: 1;
+}
+
+.ghSkel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 25%, color-mix(in srgb, var(--lp-paper) 75%, transparent) 50%, transparent 75%);
+  transform: translateX(-100%);
+}
+
+.loading .ghSkel::after {
+  animation: glare 0.8s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes glare {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes skel-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+/* the marquee and the selection (agent pink) */
+.marquee {
+  position: absolute;
+  z-index: 4;
+  border: 1px solid var(--lp-pink);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--lp-pink) 8%, transparent);
+  pointer-events: none;
+}
+
+.selection {
+  position: absolute;
+  z-index: 4;
+  border: 2.5px solid var(--lp-pink);
+  border-radius: 2px;
+  pointer-events: none;
+  animation: sel-in 0.2s ease-out both;
+}
+
+.selection i {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border: 1.5px solid var(--lp-pink);
+  border-radius: 2px;
+  background: var(--lp-paper);
+  transform: translate(-50%, -50%);
+}
+
+@keyframes sel-in {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+}
+
+/* reset (restart): everything snaps back at once */
+.noAnim,
+.noAnim * {
+  transition: none !important;
+  animation: none !important;
+}
+
+/* ---------------------------------------------------------------- compact (the objects gather around the agent) */
+@media (max-width: 1099px) {
+  .note {
+    --w: 112px;
+    padding: 9px 10px 10px;
+    border-radius: 10px;
+    font-size: 11.5px;
+  }
+
+  .note small {
+    margin-top: 5px;
+    font-size: 9px;
+  }
+
+  .frame {
+    --w: 112px;
+    padding: 8px;
+    border-radius: 11px;
+  }
+
+  .frame b {
+    top: -21px;
+    padding: 2px 7px;
+    font-size: 10px;
+  }
+
+  .frame i {
+    height: 7px;
+    margin: 4px 0;
+  }
+
+  .who {
+    font-size: 11px;
+  }
+
+  .hi {
+    --w: 160px;
+  }
+
+  .hi path {
+    stroke-width: 5;
+  }
+
+  .big {
+    --w: min(320px, 68vw);
+  }
+
+  .big path {
+    stroke-width: 4;
+  }
+}
+
+@media (max-width: 620px) {
+  .crew {
+    --W: 132px;
+  }
+
+  .center {
+    margin: 2px 0 4px;
+  }
+
+  .friend {
+    margin-bottom: calc(4px + var(--W) * 0.05);
+  }
+
+  .back {
+    margin-bottom: calc(4px + var(--W) * 0.09);
+  }
+
+  .btext {
+    font-size: 17px;
+  }
+
+  .ghcard {
+    gap: 10px 12px;
+    padding: 12px;
+  }
+
+  .ghMark {
+    width: 26px;
+    height: 26px;
+  }
+
+  .ghMeta b {
+    font-size: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .title,
+  .sub,
+  .cursor,
+  .who {
+    transition: none;
+  }
+
+  .bobj,
+  .fakeCaret,
+  .caret,
+  .selection,
+  .send[data-restart] .restartIcon {
+    animation: none;
+  }
+
+  .links path.draw {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+
+  .gen,
+  .ghSkel {
+    transition: none;
+  }
+
+  .loading .ghSkel::after {
+    animation: none;
+  }
 }
