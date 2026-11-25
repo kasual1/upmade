@@ -1,0 +1,15 @@
+/* STUB styles for the agentic hero (replaced by the full port). */
+.crew {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.member {
+  width: 120px;
+  height: 120px;
+}
+
+.chat {
+  width: min(420px, 100%);
+}

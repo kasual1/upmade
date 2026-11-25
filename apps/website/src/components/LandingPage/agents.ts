@@ -158,7 +158,8 @@ export const LANDING_AGENTS = {
     body: r(0.26, 0.209, 0.224, 0.204),
   },
 
-  // the other /agent demos, not used by a page yet
+  // the /agentic page's feature agents (cursor, plug, wizard, painter; key and book are above) and corner agents
+  // (lovestruck, hatSwap, bouquetReveal; body insets measured on /agent?only=<key> the same way, 2026-11-25)
   cursor: { Component: CursorDemo, label: "An agent turning into a cursor arrow and clicking", reach: r(0, 0, 0, 0) },
   plug: { Component: PlugDemo, label: "An agent plugging a plug into a socket", reach: r(0, 0.03, 0, 0.03) },
   wizard: {
@@ -176,12 +177,14 @@ export const LANDING_AGENTS = {
     Component: LovestruckDemo,
     label: "A lovestruck agent with hearts bubbling up behind it",
     reach: r(1.7, 0.57, 0.04, 0.57),
+    body: r(0.159, 0.191, 0.222, 0.185),
   },
-  hatSwap: { Component: HatSwapDemo, label: "An agent swapping hats", reach: r(0.51, 0, 0, 0) },
+  hatSwap: { Component: HatSwapDemo, label: "An agent swapping hats", reach: r(0.51, 0, 0, 0), body: r(0.211, 0.178, 0.227, 0.178) },
   bouquetReveal: {
     Component: BouquetDemo,
     label: "An agent pulling a bouquet out from behind its back",
     reach: r(0, 0.2, 0, 0),
+    body: r(0.177, 0.203, 0.225, 0.203),
   },
 } satisfies Record<string, LandingAgentEntry>;
 
@@ -206,6 +209,9 @@ export const AGENT_EVENTS = {
     "tool:type",
     "tool:image",
   ],
+  hatSwap: ["swap", "putOn"],
+  bouquetReveal: ["present"],
+  lovestruck: ["smile"],
 } as const satisfies Partial<Record<AgentKey, readonly string[]>>;
 
 /** The event names an agent is expected to emit (`never` for one without events). */

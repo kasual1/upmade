@@ -47,6 +47,38 @@ export interface HeroSection extends Base<"hero"> {
   ctas: readonly Cta[];
 }
 
+/**
+ * The agentic hero (the "Agentic" design): the same header, toggle, h1, subtitle and CTAs as `hero`, but a crew of
+ * agents and a chat box instead of the toolCycle agent and toolbar. The chat drives a mocked canvas: the `demo`
+ * prompts are typed into the box one after the other and run when sent (the agent's cursor draws, types and
+ * generates objects); visitors can also type their own (the component understands a few commands: notes, frames,
+ * arrows, text, "Welcome", the GitHub card, "clear").
+ */
+export interface AgentHeroSection extends Base<"agentHero"> {
+  nav: HeroSection["nav"];
+  toggle?: HeroSection["toggle"];
+  title: string;
+  subtitle: string;
+  crew: {
+    /** the agent in the middle; it morphs into the chat agent's cursor */
+    center: AgentRef;
+    /** the two friends just behind it, left and right */
+    friends: readonly [AgentRef, AgentRef];
+    /** the two smaller ones a row further back, left and right */
+    back: readonly [AgentRef, AgentRef];
+  };
+  chat: {
+    /** the chat box's accessible label */
+    label: string;
+    placeholder?: string;
+    /** the name on the agent's cursor label */
+    agentName: string;
+    /** the scripted prompts, in order */
+    demo: readonly string[];
+  };
+  ctas: readonly Cta[];
+}
+
 export interface FeatureGridSection extends Base<"featureGrid"> {
   srHeading: string;
   items: readonly { title: string; body: string; agent: AgentRef }[];
@@ -72,7 +104,7 @@ export interface FaqSection extends Base<"faq"> {
   jsonLd?: boolean;
 }
 
-export type SectionConfig = HeroSection | FeatureGridSection | ShowcaseSection | FaqSection;
+export type SectionConfig = HeroSection | AgentHeroSection | FeatureGridSection | ShowcaseSection | FaqSection;
 export type SectionType = SectionConfig["type"];
 
 export interface LandingPageConfig {

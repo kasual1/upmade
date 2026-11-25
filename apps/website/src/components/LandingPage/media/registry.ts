@@ -11,6 +11,9 @@ import { MEDIA_MANIFEST, type MediaKey, type MediaManifestEntry, type MediaProps
 import DomCanvas from "./DomCanvas";
 import CodeTyper from "./CodeTyper";
 import StarBoard from "./StarBoard";
+import FramesDemo from "./FramesDemo";
+import SkillTerminal from "./SkillTerminal";
+import Themes from "./Themes";
 
 export { MEDIA_KEYS, MEDIA_MANIFEST, type CodeFramework, type MediaKey, type MediaPropsMap } from "./manifest";
 
@@ -33,4 +36,7 @@ export const MEDIA = {
   domCanvas: { ...MEDIA_MANIFEST.domCanvas, Component: DomCanvas },
   codeTyper: { ...MEDIA_MANIFEST.codeTyper, Component: CodeTyper },
   starBoard: { ...MEDIA_MANIFEST.starBoard, Component: StarBoard },
+  framesDemo: { ...MEDIA_MANIFEST.framesDemo, Component: FramesDemo },
+  skillTerminal: { ...MEDIA_MANIFEST.skillTerminal, Component: SkillTerminal },
+  themes: { ...MEDIA_MANIFEST.themes, Component: Themes },
 } satisfies { [K in MediaKey]: MediaEntry<K> };

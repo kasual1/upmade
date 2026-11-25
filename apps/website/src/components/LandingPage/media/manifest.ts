@@ -37,6 +37,15 @@ export interface MediaPropsMap {
     /** where the star buttons link to */
     repoUrl: string;
   };
+  /** generative UI: an agent builds a small shop page in a desktop frame, then adds a phone variant */
+  framesDemo: Record<string, never>;
+  /** the terminal replaying the agent skill's install session */
+  skillTerminal: {
+    /** the command typed at the prompt, e.g. `npx skills add kasual1/upmade` */
+    command: string;
+  };
+  /** the editor's controls morphing from one theme into the next */
+  themes: Record<string, never>;
 }
 
 export type MediaKey = keyof MediaPropsMap;
@@ -55,6 +64,12 @@ export const MEDIA_MANIFEST = {
   codeTyper: { listens: ["flip"], frame: { variant: "window" } },
   // the cycling glasses go on and off (animations/cyclingGlasses.ts)
   starBoard: { listens: ["glassesOn", "glassesOff"], frame: { aspectRatio: "16 / 11", variant: "panel" } },
+  // the bouquet agent presents its flowers (animations/bouquetReveal.ts); the frames demo plays on its own clock
+  framesDemo: { listens: [], frame: { aspectRatio: "16 / 11", variant: "panel" } },
+  // the lovestruck agent's hearts are its own (the demo's HeartBubbles); the terminal replays on its own clock
+  skillTerminal: { listens: [], frame: { variant: "window" } },
+  // the hat-swapping agent puts on a new hat: the controls morph into the next theme (animations/hatSwap.ts)
+  themes: { listens: ["putOn"], frame: { aspectRatio: "16 / 11", variant: "panel" } },
 } as const satisfies { [K in MediaKey]: MediaManifestEntry };
 
 export const MEDIA_KEYS = Object.keys(MEDIA_MANIFEST) as MediaKey[];

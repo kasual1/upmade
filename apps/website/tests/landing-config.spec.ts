@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, test } from 'vitest';
 import { infinitePage } from '../src/content/landing/infinite';
+import { agenticPage } from '../src/content/landing/agentic';
 import { LANDING_AGENTS } from '../src/components/LandingPage/agents';
 import { MEDIA_KEYS } from '../src/components/LandingPage/media/manifest';
 import { derivedIds, validateLandingConfig, type ValidateContext } from '../src/components/LandingPage/validate';
@@ -48,6 +49,13 @@ describe('the real page configs', () => {
 
   test('has the design sections in order', () => {
     expect(real.map((s) => s.id)).toEqual(['hero', 'features', 'dom-canvas', 'get-started', 'performance', 'faq']);
+  });
+
+  test('content/landing/agentic.ts is valid, with the Agentic design sections in order', () => {
+    expect(validateLandingConfig(agenticPage, ctx)).toEqual([]);
+    expect(agenticPage.sections.map((s) => `${s.type}:${s.id}`)).toEqual([
+      'agentHero:hero', 'featureGrid:features', 'showcase:genui', 'showcase:skill', 'showcase:customizable', 'faq:faq',
+    ]);
   });
 });
 
@@ -124,7 +132,7 @@ describe('validateLandingConfig rules', () => {
     const bad = { ...showcase, media: { key: 'nope' } } as unknown as SectionConfig;
     const errors = validateLandingConfig(withSections(real.map((s) => (s === showcase ? bad : s))), ctx);
     expect(errors.some((e) => e.includes('media "nope" is not in the media registry'))).toBe(true);
-    expect(MEDIA_KEYS.sort()).toEqual(['codeTyper', 'domCanvas', 'starBoard']);
+    expect(MEDIA_KEYS.sort()).toEqual(['codeTyper', 'domCanvas', 'framesDemo', 'skillTerminal', 'starBoard', 'themes']);
   });
 
   test('a docs page missing for a framework', () => {

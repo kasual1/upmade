@@ -46,6 +46,12 @@ function agentRefs(section: SectionConfig): Array<{ key: string; where: string }
   switch (section.type) {
     case "hero":
       return [{ key: section.agent.key, where: "agent" }];
+    case "agentHero":
+      return [
+        { key: section.crew.center.key, where: "crew.center" },
+        ...section.crew.friends.map((a, i) => ({ key: a.key, where: `crew.friends[${i}]` })),
+        ...section.crew.back.map((a, i) => ({ key: a.key, where: `crew.back[${i}]` })),
+      ];
     case "featureGrid":
       return section.items.map((item, i) => ({ key: item.agent.key, where: `items[${i}].agent` }));
     case "showcase":
@@ -89,7 +95,7 @@ export function validateLandingConfig(config: LandingPageConfig, ctx: ValidateCo
   }
 
   // one hero
-  const heroes = sections.filter((s) => s.type === "hero" && !s.hidden);
+  const heroes = sections.filter((s) => (s.type === "hero" || s.type === "agentHero") && !s.hidden);
   if (heroes.length !== 1) errors.push(`a page needs exactly one visible hero section, found ${heroes.length}`);
 
   for (const section of sections) {

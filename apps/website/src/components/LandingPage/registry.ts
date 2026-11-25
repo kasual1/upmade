@@ -6,6 +6,7 @@
 import type { ComponentType } from "react";
 import type { SectionConfig, SectionType } from "./types";
 import Hero from "./sections/Hero";
+import AgentHero from "./sections/AgentHero";
 import FeatureGrid from "./sections/FeatureGrid";
 import Showcase from "./sections/Showcase";
 import Faq from "./sections/Faq";
@@ -14,6 +15,7 @@ export type SectionComponent<T extends SectionType> = ComponentType<{ config: Ex
 
 export const SECTIONS = {
   hero: Hero,
+  agentHero: AgentHero,
   featureGrid: FeatureGrid,
   showcase: Showcase,
   faq: Faq,
