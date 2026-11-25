@@ -22,6 +22,7 @@ import CyclingGlassesDemo from "../Agents/demos/cyclingGlasses";
 import DevicesDemo from "../Agents/demos/devices";
 import { demos as familyDemos } from "../Agents/demos/family";
 import FrameworkSignDemo from "../Agents/demos/frameworkSign";
+import { FRAMEWORKS as FRAMEWORK_SIGN_ORDER } from "../Agents/props/frameworkSign/Sign";
 import HandoffDemo from "../Agents/demos/handoff";
 import HatSwapDemo from "../Agents/demos/hatSwap";
 import JugglerDemo from "../Agents/demos/juggler";
@@ -45,7 +46,7 @@ export interface AgentReach {
 }
 
 export interface LandingAgentEntry {
-  /** the /agent demo component, used as it is; it only takes `className`, which sets its size */
+  /** the /agent demo component, used as it is: `className` sets its size; some forward `onEvent`, `start`, `rate` */
   Component: ComponentType<DemoProps>;
   /** what the agent shows, for screen readers, when a section gives the agent meaning (most are decorative) */
   label: string;
@@ -67,6 +68,12 @@ export interface LandingAgentEntry {
    * bottom, left insets): needed for a corner agent, which is placed by its body, not its box (see CornerAgent)
    */
   body?: AgentReach;
+  /**
+   * the overflow a media frame keeps room for when this is its corner agent, if less than `reach`: `reach` minus
+   * decoration that may be cut off at the viewport's edge (the lovestruck agent's rising hearts spread far to each
+   * side; reserving room for them would make the frame much narrower on phones)
+   */
+  frameReach?: AgentReach;
 }
 
 /** The entry of family.tsx's `demos` list with this key (the five shapes, idling). */
@@ -177,6 +184,8 @@ export const LANDING_AGENTS = {
     Component: LovestruckDemo,
     label: "A lovestruck agent with hearts bubbling up behind it",
     reach: r(1.7, 0.57, 0.04, 0.57),
+    // the agent itself stays in its box; only the hearts' canvas reaches out
+    frameReach: r(0, 0, 0.04, 0),
     body: r(0.159, 0.191, 0.222, 0.185),
   },
   hatSwap: { Component: HatSwapDemo, label: "An agent swapping hats", reach: r(0.51, 0, 0, 0), body: r(0.211, 0.178, 0.227, 0.178) },
@@ -191,11 +200,12 @@ export const LANDING_AGENTS = {
 export type AgentKey = keyof typeof LANDING_AGENTS;
 
 /**
- * Hook points for later wiring (plan §0/§3.5): the events each agent's animation emits that a section is expected to
- * pair with its media (the sign → the code typer, the glasses → the star board, the tool cycle ↔ the toolbar).
- * The demos do not forward their events yet, so nothing listens today; these names come from the animations'
- * `events` data (animations/frameworkSign.ts, cyclingGlasses.ts, toolCycle.ts) and tests/landing-agents.spec.ts
- * checks they are still there.
+ * The events each pairing agent's demo forwards to `onEvent` (plan §3.5, wired in M11): the sign → the code typer,
+ * the glasses → the star board, the tool cycle ↔ the toolbar, the hat swap → the themes. validate.ts checks each
+ * corner agent emits an event its media `listens` to, and that the hero's tools are toolCycle `tool:*` events. The
+ * names come from the animations' `events` data (animations/frameworkSign.ts, cyclingGlasses.ts, toolCycle.ts,
+ * hatSwap.ts, bouquetReveal.ts, lovestruck.ts); tests/landing-agents.spec.ts and tests/landing-m11.spec.ts check
+ * they are exactly those.
  */
 export const AGENT_EVENTS = {
   frameworkSign: ["flip"],
@@ -235,3 +245,10 @@ export function reachPadding(key: AgentKey, sizePx: number, as: "padding" | "mar
   const { top, right, bottom, left } = reachInsets(key, sizePx);
   return { [as]: `${top}px ${right}px ${bottom}px ${left}px` } as { padding?: string; margin?: string };
 }
+
+/**
+ * The frameworks the framework sign shows, in its order (it starts on the first, React, and moves on at each
+ * `flip`). The code typer's snippets must come in the same order (content/landing/frameworks.ts), so the sign and
+ * the snippet always show the same framework; tests/landing-m11.spec.ts checks it.
+ */
+export const SIGN_FRAMEWORKS: readonly string[] = FRAMEWORK_SIGN_ORDER;

@@ -59,10 +59,16 @@ function CodeLines({ code, typing, className }: { code: string; typing: boolean;
  * (React → Vue → Angular), with the file name in its title bar, line numbers and a pink caret that blinks once a
  * snippet is done. Ported from Landing/Sections.tsx (CodeWindow, highlight) and the design's script.
  *
- * - Clock: the framework sign's documented turns (typing.ts, 6170 / 6824 / 9348 ms) on the typer's own timers, which
- *   run only while the window is on screen. `subscribe` is the hook point for the final sign (plan §0): a `flip`
- *   event hands the clock to the sign (the typer then starts the next framework 500 ms after each flip and keeps no
- *   turn timer of its own). Nothing emits it yet.
+ * - Clock: the framework sign (its corner agent, through `subscribe`, plan §3.5). The sign's `flip` event comes as
+ *   the sign is edge-on, FLIP_LEAD_MS before the next framework's turn; the typer starts that framework's snippet
+ *   then. While the sign drives it the typer has no turn timer of its own, so the two cannot drift. Both play only
+ *   on screen, but not always together (the agent hangs below the window, and the typer counts the bottom 15% of the
+ *   screen as off it), so:
+ *   - the typer counts every flip, on screen or not, and shows the framework the sign shows (the sign starts on the
+ *     first framework, React, and moves on at each flip; the snippets come in the sign's order);
+ *   - each time it comes on screen it restarts that framework and runs a fallback clock of its own (the sign's
+ *     documented turns, typing.ts: 6170 / 6824 / 9348 ms) until the sign's first flip on this visit, which takes
+ *     over; if the fallback got to the sign's framework first, it keeps typing it.
  * - Size: the code is laid out at a real 14px font and scaled by a transform to the design's size for the window's
  *   width (scale.ts), so minimum font size settings cannot push it out of the window (plan §3.7). The body's height
  *   is reserved for the longest snippet, so typing never moves the page.
@@ -76,8 +82,10 @@ export default function CodeTyper({ props, subscribe }: MediaComponentProps<"cod
   const bodyRef = useRef<HTMLDivElement>(null);
   const layerRef = useRef<HTMLDivElement>(null);
   const indexRef = useRef(0);
-  /** once the sign's `flip` arrives, the sign is the clock and the typer keeps no turn timer (survives re-entry) */
-  const drivenRef = useRef(false);
+  /** how many times the sign has flipped (null: not yet), counted for as long as the typer is mounted */
+  const signFlipsRef = useRef<number | null>(null);
+  /** the on-screen clock's handler for a flip (null while off screen or with reduced motion) */
+  const onFlipRef = useRef<((flips: number) => void) | null>(null);
   const reduced = useReducedMotion();
   const inView = useInView(rootRef, { rootMargin: "0px 0px -15% 0px" });
   const [state, setState] = useState<TyperState>(() => ({
@@ -122,11 +130,27 @@ export default function CodeTyper({ props, subscribe }: MediaComponentProps<"cod
     setState({ index: 0, typed: frameworks[0]?.code.length ?? 0, typing: false });
   }, [reduced, frameworks]);
 
+  // the sign's framework, from every flip it makes, in view or not (the sign can keep flipping while the window counts
+  // as off screen, e.g. cut off at the bottom), so the typer can pick it up again whenever it is back. The sign starts
+  // on the first framework and moves on at each flip, as the snippets do (agents.ts SIGN_FRAMEWORKS)
+  useEffect(
+    () =>
+      subscribe((name) => {
+        if (name !== "flip") return;
+        signFlipsRef.current = (signFlipsRef.current ?? 0) + 1;
+        onFlipRef.current?.(signFlipsRef.current);
+      }),
+    [subscribe],
+  );
+
   // the clock: types while on screen; leaving the screen stops it, coming back restarts the current framework
   useEffect(() => {
     if (!inView || reduced || frameworks.length === 0) return;
+    const count = frameworks.length;
     let typingTimer = 0;
     let turnTimer = 0;
+    /** a flip arrived while on screen: the sign is the clock now, and the typer keeps no turn timer of its own */
+    let driven = false;
 
     const run = (index: number) => {
       window.clearTimeout(typingTimer);
@@ -154,24 +178,27 @@ export default function CodeTyper({ props, subscribe }: MediaComponentProps<"cod
         }
       };
       typingTimer = window.setTimeout(step, times.length ? times[0] : 0);
-      if (!drivenRef.current) turnTimer = window.setTimeout(startNext, turnMs(frameworks[index]));
+      // the fallback clock, until the sign's first flip on this visit: the sign's documented turns
+      if (!driven) turnTimer = window.setTimeout(() => run((indexRef.current + 1) % count), turnMs(frameworks[index]));
     };
-    const startNext = () => run((indexRef.current + 1) % frameworks.length);
 
-    const unsubscribe = subscribe((name) => {
-      if (name !== "flip") return;
-      drivenRef.current = true;
+    onFlipRef.current = (flips) => {
+      driven = true;
       window.clearTimeout(turnTimer);
-      turnTimer = window.setTimeout(startNext, FLIP_LEAD_MS);
-    });
-    run(indexRef.current);
+      const next = flips % count;
+      // the fallback clock got there first (the sign started a little later): keep typing it, now in the sign's step
+      if (next === indexRef.current) return;
+      turnTimer = window.setTimeout(() => run(next), FLIP_LEAD_MS);
+    };
+    // back on screen: the framework the sign shows (once it has flipped), else where the fallback clock was
+    run(signFlipsRef.current === null ? indexRef.current : signFlipsRef.current % count);
 
     return () => {
-      unsubscribe();
+      onFlipRef.current = null;
       window.clearTimeout(typingTimer);
       window.clearTimeout(turnTimer);
     };
-  }, [inView, reduced, frameworks, subscribe]);
+  }, [inView, reduced, frameworks]);
 
   const framework = frameworks[state.index] ?? frameworks[0];
   const first = frameworks.find((f) => f.id === "react") ?? frameworks[0];

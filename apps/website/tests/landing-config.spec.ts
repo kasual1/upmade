@@ -155,3 +155,43 @@ describe('validateLandingConfig rules', () => {
     expect(validateLandingConfig(withSections(real.map((s) => (s === showcase ? bad : s))))).toEqual([]);
   });
 });
+
+describe('validateLandingConfig: agent ↔ media pairings (plan §3.5, M11)', () => {
+  const typerShowcase = real.find((s) => s.type === 'showcase' && s.media.key === 'codeTyper')!;
+  const domShowcase = real.find((s) => s.type === 'showcase' && s.media.key === 'domCanvas')!;
+
+  test('a corner agent that emits none of the events its media listens to', () => {
+    // the juggler has no events, the code typer listens to the sign's "flip"
+    const bad = { ...typerShowcase, cornerAgent: { key: 'juggler', corner: 'br' } } as unknown as SectionConfig;
+    const errors = validateLandingConfig(withSections(real.map((s) => (s === typerShowcase ? bad : s))), ctx);
+    expect(errors).toContain(
+      'section "get-started" (showcase): corner agent "juggler" emits none of the events its media "codeTyper" listens to (flip)',
+    );
+  });
+
+  test('a corner agent whose events were renamed (checked against the given events)', () => {
+    const errors = validateLandingConfig(infinitePage, { ...ctx, agentEvents: { frameworkSign: ['flipped'], cyclingGlasses: ['glassesOn'] } });
+    expect(errors.some((e) => e.includes('corner agent "frameworkSign" emits none of the events'))).toBe(true);
+    expect(errors.some((e) => e.includes('cyclingGlasses'))).toBe(false); // one matching event is enough
+  });
+
+  test('a media that listens to nothing takes any corner agent', () => {
+    const quiet = { ...domShowcase, cornerAgent: { key: 'frameworkSign', corner: 'bl' } } as unknown as SectionConfig;
+    expect(validateLandingConfig(withSections(real.map((s) => (s === domShowcase ? quiet : s))), ctx)).toEqual([]);
+  });
+
+  test('a synced hero toolbar with a tool the toolCycle agent never uses', () => {
+    const errors = validateLandingConfig(infinitePage, {
+      ...ctx,
+      agentEvents: { toolCycle: ['tool:cursor', 'tool:pen', 'tool:eraser', 'tool:arrow', 'tool:type', 'tool:image'] },
+    });
+    expect(errors).toContain('section "hero" (hero): toolbar tools "shapeRectangle" are not "tool:*" events of the "toolCycle" agent');
+  });
+
+  test('an unsynced toolbar may show any tool', () => {
+    if (hero.type !== 'hero') throw new Error('no hero');
+    const unsynced = { ...hero, toolbar: { ...hero.toolbar!, syncWithAgent: false } } as SectionConfig;
+    const errors = validateLandingConfig(withSections(real.map((s) => (s === hero ? unsynced : s))), { ...ctx, agentEvents: { toolCycle: [] } });
+    expect(errors.filter((e) => e.includes('toolbar'))).toEqual([]);
+  });
+});

@@ -7,11 +7,16 @@ import { LANDING_AGENTS, type AgentKey, type LandingAgentEntry } from "../../age
 export interface CornerSize {
   px: number;
   phone: { px: number };
+  /** at 420px and below, if smaller again (the "Agentic" design shrinks its corner agents on the smallest phones) */
+  small?: { px: number };
 }
 
-export type CornerSizeKey = "s" | "m" | "l";
+export type CornerSizeKey = "xs" | "s" | "m" | "l";
 
 export const CORNER_SIZES: Record<CornerSizeKey, CornerSize> = {
+  // the /agentic corner agents (the "Agentic" design's .bouquet-agent, .love-agent and .dress-agent): as "s" on wide
+  // screens, smaller on phones, and smaller again at 420px and below
+  xs: { px: 136, phone: { px: 80 }, small: { px: 66 } },
   // the cycling glasses (.perf-agent)
   s: { px: 136, phone: { px: 96 } },
   // the framework sign (.fw-anchor)
@@ -21,6 +26,9 @@ export const CORNER_SIZES: Record<CornerSizeKey, CornerSize> = {
 };
 
 export const DEFAULT_CORNER_SIZE: CornerSizeKey = "m";
+
+/** The box size at 420px and below: `small` if the size has one, else the phone size. */
+export const smallPx = (size: CornerSize): number => size.small?.px ?? size.phone.px;
 
 /**
  * How far a corner agent's BODY hangs past the frame's corner, as a fraction of the body's own width (sideways, past

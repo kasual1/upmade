@@ -121,8 +121,16 @@ describe("MediaFrame corner room", () => {
     expect(cornerGutterBottom(corner)).toEqual({
       bottom: Math.max(0, o.bottom - FREE_BELOW),
       bottomPhone: Math.max(0, o.bottomPhone - FREE_BELOW),
+      bottomSmall: Math.max(0, (o.bottomSmall ?? o.bottomPhone) - FREE_BELOW),
     });
-    expect(cornerGutterBottom(corner, { bottom: 200, bottomPhone: 150 })).toEqual({ bottom: 200, bottomPhone: 150 });
+    expect(cornerGutterBottom(corner, { bottom: 200, bottomPhone: 150 })).toEqual({ bottom: 200, bottomPhone: 150, bottomSmall: 150 });
+  });
+
+  it("shrinks the xs corner agents again at 420px and below, and their room with them", () => {
+    const corner = { key: "hatSwap", corner: "bl", size: "xs" } as const;
+    const o = cornerOverhang(corner);
+    expect(CORNER_SIZES.xs.small!.px).toBeLessThan(CORNER_SIZES.xs.phone.px);
+    expect(o.sideSmall!).toBeLessThan(o.sidePhone);
   });
 });
 

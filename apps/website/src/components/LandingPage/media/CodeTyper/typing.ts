@@ -4,8 +4,9 @@
  * snippet before the next framework's turn. Pure, so the unit tests import it directly.
  *
  * The framework sign (Agents/animations/frameworkSign.ts) documents the same turns as its clock: React 6170 ms,
- * Vue 6824 ms, Angular 9348 ms (a 22342 ms loop), each flip starting 500 ms before the next turn. Until the final
- * agents forward their `flip` event (plan §0), the typer runs on those documented turns on its own clock.
+ * Vue 6824 ms, Angular 9348 ms (a 22342 ms loop), each 500 ms flip ending as the next turn starts. Its `flip` event
+ * comes halfway through the flip, as the sign is edge-on (the logo swaps), so FLIP_LEAD_MS before the next turn.
+ * The typer follows the flips, and runs on the documented turns only until a flip arrives (index.tsx).
  */
 
 /** before the first character of a turn */
@@ -18,8 +19,11 @@ export const LINE_MS = 140;
 export const SETTLE_MS = 75;
 /** after the last character, until the next turn */
 export const HOLD_MS = 2950;
-/** a sign's flip starts this long before the next framework's turn (the hook point: flip → startNext() then) */
-export const FLIP_LEAD_MS = 500;
+/**
+ * from the sign's `flip` event to the next framework's turn: the flip (500 ms) ends as the turn starts, and the event
+ * comes halfway through it (tests/landing-m11.spec.ts checks this against the animation's events)
+ */
+export const FLIP_LEAD_MS = 250;
 
 /** The framework sign's documented turns, by framework id (its loop is their sum). */
 export const SIGN_TURNS_MS: Readonly<Record<string, number>> = { react: 6170, vue: 6824, angular: 9348 };

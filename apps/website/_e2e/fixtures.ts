@@ -90,7 +90,7 @@ export async function prepareForScreenshot(page: Page): Promise<void> {
 /**
  * Waits until the page is scrolled to the top and its scroll-driven UI has caught up, for several frames in
  * a row: window.scrollY is 0, the landing pages' floating navbar is hidden (the hero's IntersectionObserver
- * has removed `landing-nav-visible` from <html>, see Landing/Hero.tsx and Agentic/Hero.tsx) and no finite CSS
+ * has removed `landing-nav-visible` from <html>, see LandingPage/hooks/useHeroNavObserver.ts) and no finite CSS
  * transition or animation is still running (the navbar fades out over 0.2 s; endless animations are
  * ignored, `animations: 'disabled'` freezes them for the shot). Requiring consecutive frames guards
  * against an observer entry queued before the jump to the top arriving one frame late.
@@ -151,4 +151,48 @@ export async function horizontalOverflow(page: Page): Promise<{ scrollWidth: num
     scrollWidth: document.scrollingElement!.scrollWidth,
     innerWidth: window.innerWidth,
   }));
+}
+
+// ---- shared by the landing page specs (landing.e2e.ts, agentic.e2e.ts) ----
+
+/** Errors of third-party analytics, which the offline suite blocks (fixtures.ts stubs every external request). */
+export const THIRD_PARTY_ANALYTICS = /googletagmanager|google-analytics|gtag|plausible|umami|clarity/i;
+
+/** Scrolls through the page in steps, so in-view effects run, and returns to the top. */
+export async function scrollThrough(page: Page): Promise<void> {
+  await page.evaluate(async () => {
+    const step = Math.max(200, Math.floor(window.innerHeight * 0.8));
+    for (let y = 0; y < document.scrollingElement!.scrollHeight; y += step) {
+      window.scrollTo(0, y);
+      await new Promise((resolve) => requestAnimationFrame(() => setTimeout(resolve, 50)));
+    }
+    window.scrollTo(0, 0);
+  });
+}
+
+/**
+ * Each media frame's box, and whether everything laid out in it stays inside it: every element whose nearest
+ * clipping ancestor is the frame itself (content inside a clipping layer, e.g. a ScaledStage, is clipped by it
+ * and so cannot leave the frame), skipping visually hidden (sr-only) text. Off-box elements are listed.
+ */
+export async function mediaFrames(page: Page) {
+  return page.evaluate(() =>
+    Array.from(document.querySelectorAll<HTMLElement>('[data-media-frame]')).map((media) => {
+      const frame = media.firstElementChild!.firstElementChild as HTMLElement; // .media > .anchor > .frame
+      const box = frame.getBoundingClientRect();
+      const clips = (el: Element) => getComputedStyle(el).overflow !== 'visible';
+      const outside: string[] = [];
+      for (const el of Array.from(frame.querySelectorAll('*'))) {
+        let ancestor = el.parentElement;
+        while (ancestor && ancestor !== frame && !clips(ancestor)) ancestor = ancestor.parentElement;
+        if (ancestor !== frame) continue;
+        const r = el.getBoundingClientRect();
+        if (r.width <= 1 || r.height <= 1 || getComputedStyle(el).display === 'none') continue;
+        if (r.left < box.left - 1 || r.right > box.right + 1 || r.top < box.top - 1 || r.bottom > box.bottom + 1) {
+          outside.push(`${el.tagName.toLowerCase()}.${String(el.getAttribute('class'))} ${Math.round(r.left - box.left)},${Math.round(r.top - box.top)} ${Math.round(r.width)}x${Math.round(r.height)}`);
+        }
+      }
+      return { frame: String(frame.getAttribute('class')), width: Math.round(box.width), height: Math.round(box.height), aspect: frame.style.aspectRatio !== '' || frame.querySelector(':scope [data-scaled-stage]') !== null, outside };
+    }),
+  );
 }

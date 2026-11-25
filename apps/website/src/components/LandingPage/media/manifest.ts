@@ -4,8 +4,8 @@
  * Kept free of components and Docusaurus imports so validate.ts and the unit tests can use it; media/registry.ts
  * pairs it with the components.
  *
- * `listens` are hook points (plan §0): the /agent demos do not forward their events yet, so every media runs on its
- * own clock today. The names are the corner agents' animation events (LandingPage/agents.ts AGENT_EVENTS).
+ * `listens` are the corner agent's animation events the media reacts to (LandingPage/agents.ts AGENT_EVENTS); the
+ * showcase forwards them through the section signal (plan M11), and validate.ts checks the corner agent emits one.
  */
 import type { Framework } from "../../../utils/frameworkPreference";
 
@@ -51,7 +51,7 @@ export interface MediaPropsMap {
 export type MediaKey = keyof MediaPropsMap;
 
 export interface MediaManifestEntry {
-  /** the agent events this media reacts to (hook points, nothing emits them yet) */
+  /** the corner agent's events this media reacts to */
   listens: readonly string[];
   /** the MediaFrame the showcase puts the media in: its aspect ratio (none: sized by the media) and look */
   frame: { aspectRatio?: string; variant: "panel" | "window" | "none" };

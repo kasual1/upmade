@@ -52,15 +52,21 @@ export const LABEL_PX = (2.75 * STAGE_W) / 100 / BOARD_SCALE;
 export const DRIFT_MS = 6000;
 
 /**
- * The hook point for the glasses agent (plan §0, not wired yet): while it wears its glasses the board speeds up to
- * FAST times its speed, then coasts back (the design's L1078-1092, driven by events instead of polling the agent's
- * SMIL clock).
+ * The glasses agent's pairing (plan §3.5): while it wears its glasses ("glassesOn" to "glassesOff") the board speeds
+ * up to FAST times its speed, then coasts back (the design's L1077-1088, driven by the agent's events instead of
+ * polling its SMIL clock).
  */
 export const FAST = 30;
 /** seconds to gather speed after "glassesOn" */
 export const RAMP_UP_S = 0.9;
 /** seconds to coast back to the steady speed after "glassesOff" */
 export const COAST_S = 1.75;
+/**
+ * the glasses stay on for 2.3 s (animations/cyclingGlasses.ts: on at 1.3 s, off at 3.6 s); with no "glassesOff" this
+ * long after "glassesOn" (the agent stopped, e.g. scrolled out of view while the board is still on screen), the board
+ * coasts back by itself rather than racing on
+ */
+export const GLASSES_ON_MAX_S = 3;
 
 export type RampKind = "up" | "down";
 

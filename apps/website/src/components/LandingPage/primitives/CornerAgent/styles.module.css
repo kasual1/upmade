@@ -32,3 +32,20 @@
     right: calc(-1 * var(--corner-dx-phone));
   }
 }
+
+/* the smallest phones: sizes with a `small` step shrink again (the others keep their phone size) */
+@media (max-width: 420px) {
+  .corner[data-agent-slot] {
+    bottom: calc(-1 * var(--corner-dy-small));
+    width: var(--corner-px-small);
+    height: var(--corner-px-small);
+  }
+
+  .bl {
+    left: calc(-1 * var(--corner-dx-small));
+  }
+
+  .br {
+    right: calc(-1 * var(--corner-dx-small));
+  }
+}

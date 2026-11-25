@@ -21,10 +21,16 @@ export interface AgentSlotProps<K extends AgentKey = AgentKey> {
    */
   reach?: { size: number; as?: "padding" | "margin" };
   /**
-   * Hook point, not wired yet: the agent's events (agents.ts `AGENT_EVENTS`) will be delivered here once the final
-   * agents forward them (plan §0, M11). Today's /agent demos do not, so this is never called.
+   * the agent's animation events (agents.ts `AGENT_EVENTS`), for a section to pair the agent with its media (plan
+   * §3.5). Only the demos that forward them call it (toolCycle, frameworkSign, cyclingGlasses, hatSwap,
+   * bouquetReveal, lovestruck). It runs inside the agent's frame, in `flushSync` after the demo's own state update:
+   * react imperatively (a section signal), not with React state where it can be avoided
    */
   onEvent?: (name: AgentEventName<K>) => void;
+  /** where the agent's loop starts, in ms; changing it restarts the loop there (e.g. a jump to a tool's turn) */
+  start?: number;
+  /** the agent's playback speed (1 by default); changing it does not restart the loop */
+  rate?: number;
 }
 
 /** Shows the composite agents' layers when scripts are off (they are only positioned for show after mounting). */
@@ -34,8 +40,8 @@ const NOSCRIPT_REVEAL = `.${styles.pending}{visibility:visible!important}`;
  * Renders a landing agent by key: the existing /agent demo, as it is, in a `position: relative` box marked with
  * `data-agent-slot` and `data-agent`.
  *
- * - The demos take only `className`, so the slot gives the demo a class that makes it fill the slot, and the caller
- *   sizes the slot.
+ * - The slot gives the demo a class that makes it fill the slot, and the caller sizes the slot. `onEvent`, `start`
+ *   and `rate` go to the demo as they are (the demos that pair with a section forward them to their <Agent>).
  * - Composite agents (several stacked <Agent>s, and devices) are hidden until mounted, so the server-rendered layers
  *   never flash misaligned; a <noscript> rule shows them when scripts are off.
  * - `clientOnly` agents (agents.ts) render nothing inside the box until mounted, because their server HTML cannot
@@ -44,7 +50,7 @@ const NOSCRIPT_REVEAL = `.${styles.pending}{visibility:visible!important}`;
  *   demo itself hidden from assistive technology (the demos set labels of their own, which would otherwise win or
  *   be read twice; the toolCycle demo's changes with every tool).
  */
-export default function AgentSlot<K extends AgentKey>({ agent, label, className, style, reach }: AgentSlotProps<K>): ReactNode {
+export default function AgentSlot<K extends AgentKey>({ agent, label, className, style, reach, onEvent, start, rate }: AgentSlotProps<K>): ReactNode {
   const entry = LANDING_AGENTS[agent];
   const composite = "composite" in entry && entry.composite === true;
   const [mounted, setMounted] = useState(false);
@@ -67,7 +73,15 @@ export default function AgentSlot<K extends AgentKey>({ agent, label, className,
           would not match it on hydration */}
       {pending && <noscript dangerouslySetInnerHTML={{ __html: `<style>${NOSCRIPT_REVEAL}</style>` }} />}
       <div className={clsx(styles.layer, pending && styles.pending)} aria-hidden={name ? true : undefined}>
-        {showDemo && <Component className={styles.demo} />}
+        {showDemo && (
+          <Component
+            className={styles.demo}
+            // the demos type events as plain strings; the slot narrows them to the agent's known events
+            onEvent={onEvent as ((name: string) => void) | undefined}
+            start={start}
+            rate={rate}
+          />
+        )}
       </div>
     </div>
   );

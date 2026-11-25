@@ -11,14 +11,27 @@
   --gutter-side: max(var(--gutter-min), var(--overhang) - var(--free));
 }
 
+/* Below: side by side (wider than 960px) the agent hangs into the section's padding, as in the design, so only a
+   design minimum is kept (--gutter-bottom-wide); stacked, the copy follows the media closely, so the room the agent
+   hangs past FREE_BELOW is kept too. */
 .gutterLeft {
   --free-gutter: var(--lp-gutter-left);
-  padding: 0 0 var(--gutter-bottom) var(--gutter-side);
+  padding: 0 0 var(--gutter-bottom-wide) var(--gutter-side);
 }
 
 .gutterRight {
   --free-gutter: var(--lp-gutter-right);
-  padding: 0 var(--gutter-side) var(--gutter-bottom) 0;
+  padding: 0 var(--gutter-side) var(--gutter-bottom-wide) 0;
+}
+
+@media (max-width: 960px) {
+  .gutterLeft {
+    padding-bottom: var(--gutter-bottom);
+  }
+
+  .gutterRight {
+    padding-bottom: var(--gutter-bottom);
+  }
 }
 
 /* the corner agent is positioned against the frame, not the gutter */
@@ -59,5 +72,21 @@
 
   .gutterRight {
     padding: 0 var(--gutter-side) var(--gutter-bottom-phone) 0;
+  }
+}
+
+/* the smallest phones: corner sizes with a `small` step (CornerAgent) shrink again, and so does their room */
+@media (max-width: 420px) {
+  .gutterLeft,
+  .gutterRight {
+    --gutter-side: max(var(--gutter-min-phone), var(--overhang-small) - var(--free));
+  }
+
+  .gutterLeft {
+    padding: 0 0 var(--gutter-bottom-small) var(--gutter-side);
+  }
+
+  .gutterRight {
+    padding: 0 var(--gutter-side) var(--gutter-bottom-small) 0;
   }
 }

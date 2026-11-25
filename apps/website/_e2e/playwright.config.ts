@@ -40,7 +40,10 @@ export default defineConfig({
   testMatch: '**/*.e2e.ts',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: 0,
+  // One retry: under CPU load (several workers at once) a screenshot can catch a frame-late observer or a
+  // sub-pixel text shift (seen on the docs, blog and landing shots, never twice in a row). A real visual change
+  // fails both tries, so it is still caught; Playwright reports a pass on retry as "flaky".
+  retries: 1,
   workers: process.env.CI ? 2 : undefined,
   timeout: 60_000,
   outputDir: './test-results',

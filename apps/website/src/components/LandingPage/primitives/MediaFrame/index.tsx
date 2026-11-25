@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import clsx from "clsx";
-import { LANDING_AGENTS, type AgentKey } from "../../agents";
-import CornerAgent, { CORNER_SIZES, DEFAULT_CORNER_SIZE, cornerOffset, type CornerSizeKey } from "../CornerAgent";
+import { LANDING_AGENTS, type AgentKey, type LandingAgentEntry } from "../../agents";
+import CornerAgent, { CORNER_SIZES, DEFAULT_CORNER_SIZE, cornerOffset, smallPx, type CornerSizeKey } from "../CornerAgent";
 import styles from "./styles.module.css";
 
 export interface MediaFrameCorner {
@@ -19,6 +19,8 @@ export interface MediaFrameProps {
   variant?: "panel" | "window" | "none";
   /** an agent on the frame's bottom corner */
   cornerAgent?: MediaFrameCorner;
+  /** the corner agent's events (see AgentSlot `onEvent`): a showcase passes its section signal's `emit` */
+  onAgentEvent?: (name: string) => void;
   /**
    * the least room to keep beside (on the corner agent's side) and below the frame, whatever the agent's reach: a
    * design's fixed padding, e.g. the code window's `0 28px 34px 0` (`0 14px 28px 0` at 620px and below)
@@ -35,6 +37,9 @@ export interface FrameGutter {
   bottom: number;
   sidePhone: number;
   bottomPhone: number;
+  /** at 420px and below, for corner sizes that shrink again there (CornerSize.small); the phone values otherwise */
+  sideSmall?: number;
+  bottomSmall?: number;
 }
 
 /**
@@ -50,14 +55,15 @@ export const FREE_BELOW = 36;
  */
 export function cornerOverhang(corner: MediaFrameCorner): FrameGutter {
   const size = CORNER_SIZES[corner.size ?? DEFAULT_CORNER_SIZE];
-  const reach = LANDING_AGENTS[corner.key].reach;
+  const entry: LandingAgentEntry = LANDING_AGENTS[corner.key];
+  const reach = entry.frameReach ?? entry.reach;
   const sideReach = corner.corner === "bl" ? reach.left : reach.right;
   const at = (px: number) => {
     const { dx, dy } = cornerOffset(corner.key, corner.corner, px);
     return { side: Math.max(0, dx + Math.ceil(sideReach * px)), bottom: Math.max(0, dy + Math.ceil(reach.bottom * px)) };
   };
-  const wide = at(size.px), phone = at(size.phone.px);
-  return { side: wide.side, bottom: wide.bottom, sidePhone: phone.side, bottomPhone: phone.bottom };
+  const wide = at(size.px), phone = at(size.phone.px), small = at(smallPx(size));
+  return { side: wide.side, bottom: wide.bottom, sidePhone: phone.side, bottomPhone: phone.bottom, sideSmall: small.side, bottomSmall: small.bottom };
 }
 
 /**
@@ -65,11 +71,15 @@ export function cornerOverhang(corner: MediaFrameCorner): FrameGutter {
  * `min.bottom`. (Sideways the room depends on the viewport, so the CSS works it out from `cornerOverhang`; see
  * styles.module.css.)
  */
-export function cornerGutterBottom(corner: MediaFrameCorner, min?: Partial<FrameGutter>): { bottom: number; bottomPhone: number } {
+export function cornerGutterBottom(
+  corner: MediaFrameCorner,
+  min?: Partial<FrameGutter>,
+): { bottom: number; bottomPhone: number; bottomSmall: number } {
   const o = cornerOverhang(corner);
   return {
     bottom: Math.max(min?.bottom ?? 0, o.bottom - FREE_BELOW),
     bottomPhone: Math.max(min?.bottomPhone ?? 0, o.bottomPhone - FREE_BELOW),
+    bottomSmall: Math.max(min?.bottomPhone ?? 0, (o.bottomSmall ?? o.bottomPhone) - FREE_BELOW),
   };
 }
 
@@ -83,7 +93,7 @@ export function cornerGutterBottom(corner: MediaFrameCorner, min?: Partial<Frame
  * assumed to sit on the column's edge on its agent's side, as in a showcase), so on wide screens the frame keeps its
  * full design width; below, only what it hangs past FREE_BELOW.
  */
-export default function MediaFrame({ aspectRatio, variant = "panel", cornerAgent, minGutter, className, frameClassName, children }: MediaFrameProps): ReactNode {
+export default function MediaFrame({ aspectRatio, variant = "panel", cornerAgent, onAgentEvent, minGutter, className, frameClassName, children }: MediaFrameProps): ReactNode {
   let style: CSSProperties | undefined;
   if (cornerAgent) {
     const o = cornerOverhang(cornerAgent);
@@ -93,8 +103,12 @@ export default function MediaFrame({ aspectRatio, variant = "panel", cornerAgent
       "--overhang-phone": `${o.sidePhone}px`,
       "--gutter-min": `${minGutter?.side ?? 0}px`,
       "--gutter-min-phone": `${minGutter?.sidePhone ?? 0}px`,
+      "--overhang-small": `${o.sideSmall ?? o.sidePhone}px`,
+      // side by side the agent may hang into the section padding below, as in the design: only a design minimum
+      "--gutter-bottom-wide": `${minGutter?.bottom ?? 0}px`,
       "--gutter-bottom": `${b.bottom}px`,
       "--gutter-bottom-phone": `${b.bottomPhone}px`,
+      "--gutter-bottom-small": `${b.bottomSmall}px`,
     } as CSSProperties;
   }
   return (
@@ -108,7 +122,7 @@ export default function MediaFrame({ aspectRatio, variant = "panel", cornerAgent
           {children}
         </div>
         {cornerAgent && (
-          <CornerAgent agent={cornerAgent.key} corner={cornerAgent.corner} size={cornerAgent.size} label={cornerAgent.label} />
+          <CornerAgent agent={cornerAgent.key} corner={cornerAgent.corner} size={cornerAgent.size} label={cornerAgent.label} onEvent={onAgentEvent} />
         )}
       </div>
     </div>

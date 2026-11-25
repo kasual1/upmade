@@ -91,7 +91,7 @@ export type ShowcaseSection = {
     cta?: Cta;
     reversed?: boolean;
     media: { key: K; props?: MediaPropsMap[K] };
-    cornerAgent?: AgentRef & { corner: "bl" | "br"; size?: "s" | "m" | "l" };
+    cornerAgent?: AgentRef & { corner: "bl" | "br"; size?: "xs" | "s" | "m" | "l" };
   };
 }[MediaKey];
 

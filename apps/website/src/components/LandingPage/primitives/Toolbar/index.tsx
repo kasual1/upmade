@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState, type FocusEvent, type KeyboardEvent, type ReactNode } from "react";
 import clsx from "clsx";
 import Icon from "../../../Brand/Icon";
+import type { Subscribe } from "../../hooks/useSectionSignal";
+import { toolOfEvent } from "../../toolCycle";
 import { TOOLS, type ToolKey } from "./tools";
 import styles from "./styles.module.css";
 
@@ -15,6 +17,11 @@ export interface ToolbarProps {
   defaultValue?: ToolKey;
   /** called when a tool is clicked or activated by keyboard */
   onChange?: (tool: ToolKey) => void;
+  /**
+   * the toolCycle agent's events (a section signal's `subscribe`): each `tool:<name>` of a tool in `tools` selects it
+   * (when uncontrolled), so the pill follows the agent. Not called for clicks: those go to `onChange`
+   */
+  subscribe?: Subscribe;
   /** the toolbar's accessible name */
   label?: string;
   className?: string;
@@ -30,10 +37,11 @@ export interface ToolbarProps {
  *   and `aria-pressed`.
  * - The pill is placed from a ref per button (never by querying class names), again on resize and once the fonts
  *   are ready. Until it is placed (server HTML, before hydration) the selected tool paints its own background.
- * - Per plan §0 the toolbar is not synced to the toolCycle agent yet: it starts on its first tool and a click only
- *   selects.
+ * - With `subscribe` (the hero, `toolbar.syncWithAgent`) the agent's `tool:*` events move the selection, and the pill
+ *   slides with it. While focus is inside the toolbar the tab stop stays where the keyboard user put it (the arrow
+ *   keys move on from the focused tool, not from the agent's); it goes back to the selected tool when focus leaves.
  */
-export default function Toolbar({ tools, value, defaultValue, onChange, label = "Canvas tools", className }: ToolbarProps): ReactNode {
+export default function Toolbar({ tools, value, defaultValue, onChange, subscribe, label = "Canvas tools", className }: ToolbarProps): ReactNode {
   const [own, setOwn] = useState<ToolKey>(defaultValue ?? tools[0]);
   const selected = value ?? own;
   const selectedIndex = Math.max(0, tools.indexOf(selected));
@@ -75,10 +83,20 @@ export default function Toolbar({ tools, value, defaultValue, onChange, label = 
     };
   }, [place]);
 
-  // slide to a new selection; the tab stop follows it (a click, a keyboard selection or a new controlled value)
+  // the agent's tool events select (local state, so only the toolbar renders)
+  useEffect(() => {
+    if (!subscribe) return;
+    return subscribe((name) => {
+      const tool = toolOfEvent(name) as ToolKey | null;
+      if (tool && tools.includes(tool)) setOwn(tool);
+    });
+  }, [subscribe, tools]);
+
+  // slide to a new selection; the tab stop follows it (a click, a keyboard selection, the agent or a new controlled
+  // value), unless focus is in the toolbar: then it stays on the focused tool (see onBlur)
   useEffect(() => {
     place(false);
-    setFocusIndex(selectedIndex);
+    if (!barRef.current?.contains(document.activeElement)) setFocusIndex(selectedIndex);
   }, [selectedIndex, place]);
 
   // focus left the toolbar: Tab brings it back to the selected tool

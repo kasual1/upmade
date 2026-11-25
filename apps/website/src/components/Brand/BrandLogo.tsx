@@ -16,7 +16,9 @@ export interface BrandLogoProps {
 
 /**
  * The "upmade.io" logo of the landing pages: the idle pink squircle agent next to the wordmark text, linking home.
- * The agent plays its default random hop when hovered or clicked (a look-up and wink come later, see the plan).
+ * The agent's eyes follow the pointer (the Agent's `followPointer`, which stays off with reduced motion), and it plays
+ * its default random hop when hovered or clicked. The design's wink on a long hover needs the rig to close one eye
+ * (both eyes are one group today): requested from the agents stream (plan §3.5).
  */
 export default function BrandLogo({ size = 38, textSize, to = "/", className }: BrandLogoProps) {
   const style = {
@@ -25,7 +27,7 @@ export default function BrandLogo({ size = 38, textSize, to = "/", className }: 
   } as CSSProperties;
   return (
     <Link to={to} className={clsx(styles.brand, className)} style={style} aria-label="upmade.io home">
-      <Agent shape="squircle" colour="pink" animation={idle} className={styles.agent} />
+      <Agent shape="squircle" colour="pink" animation={idle} className={styles.agent} followPointer />
       <span className={styles.word}>
         <b>upmade</b>.io
       </span>

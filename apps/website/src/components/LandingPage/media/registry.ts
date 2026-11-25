@@ -23,7 +23,7 @@ export interface MediaComponentProps<K extends MediaKey> {
   props?: MediaPropsMap[K];
   /**
    * the section signal (hooks/useSectionSignal): the corner agent's events, for the media to react to imperatively.
-   * A hook point (plan §0): nothing emits yet, so media must run correctly on their own clocks without it.
+   * Media must also run correctly when nothing arrives (reduced motion, or the agent off screen).
    */
   subscribe: Subscribe;
 }

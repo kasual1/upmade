@@ -5,6 +5,7 @@ import ScaledStage from "../../primitives/ScaledStage";
 import type { MediaComponentProps } from "../registry";
 import {
   DRIFT_MS,
+  GLASSES_ON_MAX_S,
   LABEL_PX,
   PITCH,
   STAGE_H,
@@ -46,8 +47,10 @@ function setRate(animation: Animation, rate: number): void {
  *   (plan §3.7); outlines are divided by the stage's `--k` to keep the design's real widths.
  * - The drift is one Web Animation (one PITCH per DRIFT_MS, looping seamlessly) created in an effect, so the server
  *   HTML is the static board. It plays only while the board is near the viewport, and never with reduced motion.
- * - Hook point (plan §0): `subscribe` delivers the glasses agent's "glassesOn"/"glassesOff"; each starts a ramp of
- *   the animation's playbackRate (board.ts `rampRate`). Nothing emits them yet, so the board drifts steadily.
+ * - The glasses agent's events (`subscribe`, plan §3.5): "glassesOn" ramps the animation's playbackRate up to FAST,
+ *   "glassesOff" coasts it back (board.ts `rampRate`, the design's cubic eases). Without events (no agent, or reduced
+ *   motion, where nothing drifts) the board keeps its steady speed; if "glassesOff" never comes, it coasts back after
+ *   GLASSES_ON_MAX_S.
  */
 export default function StarBoard({ props, subscribe }: MediaComponentProps<"starBoard">): ReactNode {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -81,13 +84,16 @@ export default function StarBoard({ props, subscribe }: MediaComponentProps<"sta
     else animation.pause();
   }, [inView, reducedMotion]);
 
-  // the hook point: speed ramps on the glasses agent's events (runs only if an event arrives)
+  // speed ramps on the glasses agent's events
   useEffect(() => {
     let frame = 0;
+    let safety = 0;
     const ramp = (kind: RampKind) => {
       const animation = animationRef.current;
       if (!animation) return;
       cancelAnimationFrame(frame);
+      window.clearTimeout(safety);
+      if (kind === "up") safety = window.setTimeout(() => ramp("down"), GLASSES_ON_MAX_S * 1000);
       const from = animation.playbackRate;
       const start = performance.now();
       const step = (now: number) => {
@@ -104,6 +110,7 @@ export default function StarBoard({ props, subscribe }: MediaComponentProps<"sta
     return () => {
       unsubscribe();
       cancelAnimationFrame(frame);
+      window.clearTimeout(safety);
     };
   }, [subscribe]);
 

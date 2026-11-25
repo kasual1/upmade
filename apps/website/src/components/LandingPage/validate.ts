@@ -10,11 +10,12 @@
  * - every agent key (hero agent, feature agents, corner agents) is in LandingPage/agents.ts
  * - every media key is in the media registry
  * - every docs link with a path names a page that exists for React, Vue and Angular (with `ctx.docsExists`)
- *
- * Deferred (plan §0, they come back with the final agents): a corner agent emits an event its media listens to,
- * and the hero's tools are the toolCycle's `tool:*` events.
+ * - a showcase's corner agent emits at least one event its media `listens` to (media/manifest.ts), when the media
+ *   listens to any: the pairing would otherwise never fire (agents.ts AGENT_EVENTS)
+ * - a hero toolbar synced with its agent (`toolbar.syncWithAgent`) only has tools the toolCycle agent emits a
+ *   `tool:*` event for: the others could never be selected by the agent, nor jumped to
  */
-import { LANDING_AGENTS } from "./agents";
+import { AGENT_EVENTS, LANDING_AGENTS } from "./agents";
 import { MEDIA_MANIFEST } from "./media/manifest";
 import type { Framework } from "../../utils/frameworkPreference";
 import type { LandingPageConfig, LinkRef, SectionConfig } from "./types";
@@ -28,6 +29,10 @@ export interface ValidateContext {
   agentKeys?: readonly string[];
   /** the registered media keys (default: media/manifest.ts) */
   mediaKeys?: readonly string[];
+  /** the events each agent emits (default: agents.ts AGENT_EVENTS; an agent missing here emits none) */
+  agentEvents?: Readonly<Record<string, readonly string[]>>;
+  /** the events each media listens to (default: media/manifest.ts `listens`) */
+  mediaListens?: Readonly<Record<string, readonly string[]>>;
 }
 
 const SLUG = /^[a-z][a-z0-9-]*$/;
@@ -78,6 +83,9 @@ export function validateLandingConfig(config: LandingPageConfig, ctx: ValidateCo
   const errors: string[] = [];
   const agentKeys = new Set(ctx.agentKeys ?? Object.keys(LANDING_AGENTS));
   const mediaKeys = new Set(ctx.mediaKeys ?? Object.keys(MEDIA_MANIFEST));
+  const agentEvents: Readonly<Record<string, readonly string[]>> = ctx.agentEvents ?? AGENT_EVENTS;
+  const mediaListens: Readonly<Record<string, readonly string[]>> =
+    ctx.mediaListens ?? Object.fromEntries(Object.entries(MEDIA_MANIFEST).map(([key, entry]) => [key, entry.listens]));
   const sections = config.sections;
 
   // ids
@@ -113,6 +121,24 @@ export function validateLandingConfig(config: LandingPageConfig, ctx: ValidateCo
     }
     if (section.type === "showcase" && !mediaKeys.has(section.media.key)) {
       errors.push(`${owner}: media "${section.media.key}" is not in the media registry`);
+    }
+
+    // agent ↔ media pairings (plan §3.5)
+    if (section.type === "showcase" && section.cornerAgent) {
+      const listens = mediaListens[section.media.key] ?? [];
+      const emits = agentEvents[section.cornerAgent.key] ?? [];
+      if (listens.length > 0 && !emits.some((e) => listens.includes(e))) {
+        errors.push(
+          `${owner}: corner agent "${section.cornerAgent.key}" emits none of the events its media "${section.media.key}" listens to (${listens.join(", ")})`,
+        );
+      }
+    }
+    if (section.type === "hero" && section.toolbar?.syncWithAgent) {
+      const emitted = new Set((agentEvents[section.agent.key] ?? []).filter((e) => e.startsWith("tool:")).map((e) => e.slice(5)));
+      const missing = section.toolbar.tools.filter((tool) => !emitted.has(tool));
+      if (missing.length) {
+        errors.push(`${owner}: toolbar tools ${missing.map((t) => `"${t}"`).join(", ")} are not "tool:*" events of the "${section.agent.key}" agent`);
+      }
     }
 
     // docs pages

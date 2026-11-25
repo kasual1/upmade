@@ -32,8 +32,8 @@ export function createSectionSignal(): SectionSignal {
  * the agent and `subscribe` to the media, which react imperatively. The object is created once per component and
  * stays the same across renders.
  *
- * Hook point (plan §0): today's /agent demos do not forward their events, so nothing emits yet and every media runs
- * on its own clock; wiring the final agents only means calling `emit`.
+ * Sections/Showcase passes `emit` as the corner agent's `onEvent` (plan M11). Media must still be correct when nothing
+ * emits (reduced motion, or the agent off screen), so each keeps a fallback of its own.
  */
 export function useSectionSignal(): SectionSignal {
   const ref = useRef<SectionSignal | null>(null);

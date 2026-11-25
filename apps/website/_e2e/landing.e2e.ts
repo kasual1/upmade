@@ -9,53 +9,10 @@
 //   - one h1, one footer (the landing footer), FAQ answers and unique ids in the served HTML, indexable and in the
 //     sitemap, and the old /landing-next/ preview is gone                                                    (M9)
 //   - with the minimum font size (minFont.ts), each media frame keeps its size and its content in its box
-import type { Page } from '@playwright/test';
-import { expect, horizontalOverflow, settle, test } from './fixtures';
+import { THIRD_PARTY_ANALYTICS, expect, horizontalOverflow, mediaFrames, scrollThrough, settle, test } from './fixtures';
 import { expect as minFontExpect, test as minFontTest } from './minFont';
 
 const LANDING = '/';
-
-/** Errors of third-party analytics, which the offline suite blocks (fixtures.ts stubs every external request). */
-const THIRD_PARTY_ANALYTICS = /googletagmanager|google-analytics|gtag|plausible|umami|clarity/i;
-
-/** Scrolls through the page in steps, so in-view effects run, and returns to the top. */
-async function scrollThrough(page: Page): Promise<void> {
-  await page.evaluate(async () => {
-    const step = Math.max(200, Math.floor(window.innerHeight * 0.8));
-    for (let y = 0; y < document.scrollingElement!.scrollHeight; y += step) {
-      window.scrollTo(0, y);
-      await new Promise((resolve) => requestAnimationFrame(() => setTimeout(resolve, 50)));
-    }
-    window.scrollTo(0, 0);
-  });
-}
-
-/**
- * Each media frame's box, and whether everything laid out in it stays inside it: every element whose nearest
- * clipping ancestor is the frame itself (content inside a clipping layer, e.g. a ScaledStage, is clipped by it
- * and so cannot leave the frame), skipping visually hidden (sr-only) text. Off-box elements are listed.
- */
-async function mediaFrames(page: Page) {
-  return page.evaluate(() =>
-    Array.from(document.querySelectorAll<HTMLElement>('[data-media-frame]')).map((media) => {
-      const frame = media.firstElementChild!.firstElementChild as HTMLElement; // .media > .anchor > .frame
-      const box = frame.getBoundingClientRect();
-      const clips = (el: Element) => getComputedStyle(el).overflow !== 'visible';
-      const outside: string[] = [];
-      for (const el of Array.from(frame.querySelectorAll('*'))) {
-        let ancestor = el.parentElement;
-        while (ancestor && ancestor !== frame && !clips(ancestor)) ancestor = ancestor.parentElement;
-        if (ancestor !== frame) continue;
-        const r = el.getBoundingClientRect();
-        if (r.width <= 1 || r.height <= 1 || getComputedStyle(el).display === 'none') continue;
-        if (r.left < box.left - 1 || r.right > box.right + 1 || r.top < box.top - 1 || r.bottom > box.bottom + 1) {
-          outside.push(`${el.tagName.toLowerCase()}.${String(el.getAttribute('class'))} ${Math.round(r.left - box.left)},${Math.round(r.top - box.top)} ${Math.round(r.width)}x${Math.round(r.height)}`);
-        }
-      }
-      return { frame: String(frame.getAttribute('class')), width: Math.round(box.width), height: Math.round(box.height), aspect: frame.style.aspectRatio !== '' || frame.querySelector(':scope [data-scaled-stage]') !== null, outside };
-    }),
-  );
-}
 
 test.describe('"/" (the landing page)', () => {
   test('loads without errors', async ({ page, pageErrors }) => {
@@ -217,7 +174,7 @@ test.describe('"/" (the landing page)', () => {
 
   test('toolbar works by keyboard', async ({ page }) => {
     // M7: one tab stop on the selected tool; arrows/Home/End move focus; Enter/Space select (aria-pressed).
-    // Jumping the agent to the tool's turn waits for the final agents (plan §0, M11).
+    // (reduced motion: the agent is still, so a click only selects; the jump is checked with motion below)
     await page.goto(LANDING);
     await settle(page);
     const toolbar = page.getByRole('toolbar', { name: 'Canvas tools' });
@@ -268,6 +225,25 @@ test.describe('"/" (the landing page)', () => {
     await page.evaluate(() => window.scrollTo(0, 0));
     await expect(html).not.toHaveClass(/landing-nav-visible/);
     await expect(navbar).toBeHidden();
+  });
+});
+
+test.describe('"/" with motion', () => {
+  test.use({ reducedMotion: 'no-preference' });
+
+  test('the toolbar follows the toolCycle agent, and a click jumps the agent to that tool', async ({ page }) => {
+    // M11: the agent's tool:* events select the tool; a click restarts the agent at the clicked tool's turn, after
+    // which its next turn (the following tool) comes about one turn later
+    test.setTimeout(60_000);
+    await page.goto(LANDING);
+    await settle(page);
+    const toolbar = page.getByRole('toolbar', { name: 'Canvas tools' });
+    const pressed = toolbar.locator('button[aria-pressed="true"]');
+    await expect(pressed).toHaveAccessibleName('Select');
+    await expect(pressed).toHaveAccessibleName('Pen', { timeout: 8_000 }); // the agent's first turn is the pen
+    await toolbar.getByRole('button', { name: 'Text', exact: true }).click();
+    await expect(pressed).toHaveAccessibleName('Text');
+    await expect(pressed).toHaveAccessibleName('Image', { timeout: 10_000 }); // the agent carried on from the text turn
   });
 });
 

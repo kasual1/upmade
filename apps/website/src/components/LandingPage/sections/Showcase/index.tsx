@@ -10,8 +10,9 @@ import type { ShowcaseSection } from "../../types";
 import styles from "./styles.module.css";
 
 /**
- * The design's fixed padding around the code window (`.code-media`: `0 28px 34px 0`, `0 14px 28px 0` at 620px and
- * below), kept on its corner agent's side whatever the agent's reach. Panels have none: their agents just hang off.
+ * The Infinite design's fixed padding around its code window (`.code-media`: `0 28px 34px 0`, `0 14px 28px 0` at 620px
+ * and below), kept on its corner agent's side whatever the agent's reach. Only the code typer has it: panels and the
+ * Agentic design's terminal have none, their agents just hang off.
  */
 const WINDOW_GUTTER: FrameGutter = { side: 28, bottom: 34, sidePhone: 14, bottomPhone: 28 };
 
@@ -19,9 +20,11 @@ const WINDOW_GUTTER: FrameGutter = { side: 28, bottom: 34, sidePhone: 14, bottom
  * A showcase: copy (h2, body, CTA) beside a media in a MediaFrame with an optional corner agent; `reversed` puts the
  * media on the right. Stacks at 960px (media first).
  *
- * The section owns the signal between its agent and its media (useSectionSignal): `subscribe` goes to the media;
- * `emit` will go to the corner agent once the final agents forward their events (plan §0), so today media run on
- * their own clocks.
+ * The section owns the signal between its agent and its media (useSectionSignal, plan §3.5): the corner agent's
+ * events go to `emit`, and the media gets `subscribe` (the sign's "flip" drives the code typer, the glasses'
+ * "glassesOn"/"glassesOff" the star board, the hat swap's "putOn" the themes). It is generic: every corner agent's
+ * events reach every media, which picks the names it `listens` to. `emit` is called inside the agent's frame
+ * (`flushSync`), so it stays imperative: no React state in between.
  */
 export default function Showcase({ config }: { config: ShowcaseSection }): ReactNode {
   const { id, heading, body, cta, reversed, media, cornerAgent } = config;
@@ -36,7 +39,8 @@ export default function Showcase({ config }: { config: ShowcaseSection }): React
         aspectRatio={entry.frame.aspectRatio}
         variant={entry.frame.variant}
         cornerAgent={cornerAgent}
-        minGutter={entry.frame.variant === "window" ? WINDOW_GUTTER : undefined}
+        onAgentEvent={cornerAgent ? signal.emit : undefined}
+        minGutter={media.key === "codeTyper" ? WINDOW_GUTTER : undefined}
       >
         <Media props={media.props} subscribe={signal.subscribe} />
       </MediaFrame>
