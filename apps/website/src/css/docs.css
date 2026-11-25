@@ -144,23 +144,11 @@ html.plugin-docs .theme-doc-sidebar-menu .menu__link:not(.menu__link--sublist):h
   color: var(--lp-ink);
 }
 
-/* the current page: the framework's wash, its text colour and a marker in its agent colour */
+/* the current page: the framework's wash and its text colour */
 html.plugin-docs .theme-doc-sidebar-menu .menu__link--active:not(.menu__link--sublist) {
-  position: relative;
   background: var(--fw-tint-2);
   color: var(--fw-text);
   font-weight: 650;
-}
-
-html.plugin-docs .theme-doc-sidebar-menu .menu__link--active:not(.menu__link--sublist)::before {
-  content: "";
-  position: absolute;
-  top: 8px;
-  bottom: 8px;
-  left: 0;
-  width: 3px;
-  border-radius: 2px;
-  background: var(--fw-text);
 }
 
 /* ---- the content ---- */
