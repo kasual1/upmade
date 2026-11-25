@@ -80,6 +80,8 @@ const config: Config = {
         blog: {
           showReadingTime: true,
           blogSidebarTitle: 'All posts',
+          blogTitle: 'Blog',
+          blogDescription: 'Updates, guides and deep dives on building infinite and agentic canvases with Upmade.',
           routeBasePath: 'blog',
         },
         sitemap: {
@@ -99,6 +101,8 @@ const config: Config = {
             // the --lp-* tokens of the config-driven landing pages (scoped to html.landing-page)
             require.resolve("./src/components/LandingPage/tokens.css"),
             require.resolve("./src/css/footer.css"),
+            // the blog in the landing pages' art style (scoped to html.plugin-blog; reads the --lp-* tokens)
+            require.resolve("./src/css/blog.css"),
           ],
         },
       } satisfies Preset.Options,

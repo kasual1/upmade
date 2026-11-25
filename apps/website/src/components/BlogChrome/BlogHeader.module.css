@@ -1,0 +1,100 @@
+/* The blog's header, as the landing pages' (sections/Hero/styles.module.css .top/.nav): the same width, gutters, logo
+   and nav type. Links keep the ink colour (Infima would paint them in the link colour). */
+.top {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  max-width: var(--lp-w-wide);
+  margin: 0 auto;
+  padding: 22px var(--lp-gutter-right) 0 var(--lp-gutter-left);
+  color: var(--lp-ink);
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  font-size: var(--lp-fs-nav);
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.link,
+.link:hover,
+.icon,
+.icon:hover {
+  color: var(--lp-ink);
+  text-decoration: none;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  background-image: linear-gradient(var(--lp-pink), var(--lp-pink));
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  background-size: 0 2.5px;
+  transition: background-size 0.25s;
+}
+
+.link:hover {
+  background-size: 100% 2.5px;
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon svg {
+  display: block;
+  width: 24px;
+  height: 24px;
+}
+
+.link:focus-visible,
+.icon:focus-visible {
+  outline: 2.5px solid var(--lp-hand);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* phones: no menu on the blog, so the links stay, a little smaller and closer */
+@media (max-width: 620px) {
+  .nav {
+    gap: 16px;
+    font-size: 14.5px;
+  }
+}
+
+.short {
+  display: none;
+}
+
+@media (max-width: 420px) {
+  .long {
+    display: none;
+  }
+
+  .short {
+    display: inline;
+  }
+}
+
+@media (max-width: 360px) {
+  .nav {
+    gap: 12px;
+    font-size: 13.5px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link {
+    transition: none;
+  }
+}

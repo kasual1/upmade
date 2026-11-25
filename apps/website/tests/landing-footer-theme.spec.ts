@@ -43,12 +43,13 @@ describe("theme/Footer: exactly one footer per page type", () => {
     expect(footers(render("/", "docusaurus"))).toEqual(["docusaurus"]);
   });
 
-  it("other pages keep the Docusaurus footer, the blog with the wordmark, and docs none", () => {
-    expect(footers(render("/agentic/"))).toEqual(["docusaurus"]);
-    expect(render("/agentic/")).not.toContain("data-wordmark");
-    const blog = render("/blog/");
-    expect(footers(blog)).toEqual(["docusaurus"]);
-    expect(blog).toContain("data-wordmark");
+  it("the blog gets the landing footer (no wordmark), other pages the Docusaurus footer, and docs none", () => {
+    for (const path of ["/blog/", "/blog/2026/11/01/agentic-canvas/", "/blog/archive/"]) {
+      expect(footers(render(path)), path).toEqual(["landing"]);
+      expect(render(path)).not.toContain("data-wordmark");
+    }
+    // a page outside the landing kit and the blog (no landing config): the Docusaurus footer
+    expect(footers(render("/license/"))).toEqual(["docusaurus"]);
     expect(render("/docs/react/getting-started/quick-start")).toBe("");
   });
 });

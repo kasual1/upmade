@@ -1,0 +1,117 @@
+/* The blog archive in the landing pages' style (the --lp-* tokens are defined for html.plugin-blog). */
+.page {
+  width: 100%;
+  max-width: var(--lp-w-content);
+  margin: 0 auto;
+  padding: 0 var(--lp-gutter-right) var(--lp-space-l) var(--lp-gutter-left);
+}
+
+.intro {
+  display: grid;
+  gap: 14px;
+  padding: 72px 0 48px;
+}
+
+.intro h1 {
+  margin: 0;
+  font-size: var(--lp-fs-h2);
+  font-weight: 650;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+}
+
+.intro p {
+  margin: 0;
+  color: var(--lp-soft);
+  font-size: var(--lp-fs-body-l);
+  line-height: 1.6;
+}
+
+.year {
+  max-width: var(--lp-w-narrow);
+}
+
+.year + .year {
+  margin-top: 48px;
+}
+
+.year h2 {
+  margin: 0 0 8px;
+  font-size: var(--lp-fs-h3);
+  font-weight: 650;
+  letter-spacing: -0.03em;
+}
+
+.year ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--lp-divider);
+}
+
+.year li {
+  border-bottom: 1px solid var(--lp-divider);
+}
+
+/* a post: its date in a fixed column, its title beside; the title takes the pink underline on hover */
+.row,
+.row:hover {
+  color: var(--lp-ink);
+  text-decoration: none;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 24px;
+  align-items: baseline;
+  padding: 18px 0;
+}
+
+.row time {
+  color: var(--lp-meta);
+  font-size: 14.5px;
+}
+
+.title {
+  font-size: var(--lp-fs-body-l);
+  font-weight: 600;
+  line-height: 1.4;
+  background-image: linear-gradient(var(--lp-pink), var(--lp-pink));
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  background-size: 0 2.5px;
+  transition: background-size 0.25s;
+  justify-self: start;
+}
+
+.row:hover .title {
+  background-size: 100% 2.5px;
+}
+
+.row:focus-visible {
+  outline: 2.5px solid var(--lp-hand);
+  outline-offset: 3px;
+}
+
+@media (max-width: 620px) {
+  .intro {
+    padding: 48px 0 36px;
+  }
+
+  .page {
+    padding-bottom: var(--lp-space-phone);
+  }
+
+  .row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+    padding: 14px 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .title {
+    transition: none;
+  }
+}

@@ -10,6 +10,8 @@ export const PAGES = {
   home: '/',
   agentic: '/agentic/',
   blog: '/blog/',
+  blogPost: '/blog/2026/11/01/agentic-canvas/',
+  blogArchive: '/blog/archive/',
   docs: '/docs/react/getting-started/quick-start/',
 } as const;
 

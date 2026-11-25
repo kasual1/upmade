@@ -1,7 +1,6 @@
 import React from "react";
 import { useLocation } from "@docusaurus/router";
 import useBaseUrl from "@docusaurus/useBaseUrl";
-import Wordmark from "@site/src/components/Brand/Wordmark";
 import { useLandingPage } from "@site/src/components/LandingPage/context";
 import LandingFooter from "@site/src/components/LandingPage/chrome/LandingFooter";
 import Footer from "@theme-original/Footer";
@@ -14,8 +13,9 @@ export default function FooterWrapper(props: React.ComponentProps<typeof Footer>
   const isBlogPage = pathname === blogPath || pathname.startsWith(`${blogPath}/`);
   const isDocsPage = pathname === docsPath || pathname.startsWith(`${docsPath}/`);
 
-  // Config-driven landing pages (LandingPage) that ask for the design's footer get it instead of Docusaurus'.
-  if (landingPage?.config.footer === "landing") {
+  // Config-driven landing pages (LandingPage) that ask for the design's footer get it instead of Docusaurus', and so
+  // does the blog, which is styled like the landing pages (src/css/blog.css).
+  if (landingPage?.config.footer === "landing" || isBlogPage) {
     return <LandingFooter />;
   }
 
@@ -24,14 +24,5 @@ export default function FooterWrapper(props: React.ComponentProps<typeof Footer>
     return null;
   }
 
-  return (
-    <>
-      {isBlogPage && (
-        <div className="blog-footer-wordmark">
-          <Wordmark />
-        </div>
-      )}
-      <Footer {...props} />
-    </>
-  );
+  return <Footer {...props} />;
 }

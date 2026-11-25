@@ -1,19 +1,67 @@
+/* The post's media above its title, in the landing pages' art style: an ink-outlined frame with the media's corners
+   clipped (instead of a soft shadow), on the blog list linked to the post. Recordings are 16:9, generated thumbnails
+   1200×630: the frame takes the media's own aspect ratio. */
 .link {
   display: block;
-  max-width: 640px;
+  border-radius: var(--lp-r-frame);
 }
 
-/* Thumbnail above the title, same on the blog list and the post page: up to 640px wide, natural
-   aspect ratio (recordings are 16:9, generated thumbnails 1200×630). */
+.frame {
+  display: block;
+  overflow: hidden;
+  border: var(--lp-stroke) solid var(--lp-ink);
+  border-radius: var(--lp-r-frame);
+  background: var(--lp-panel);
+  margin-bottom: 28px;
+  transition: transform 0.25s var(--lp-spring);
+}
+
+.link:hover .frame {
+  transform: translateY(-3px);
+}
+
 .image {
   display: block;
   width: 100%;
-  max-width: 640px;
   height: auto;
   /* see BlogVideo/styles.module.css: keeps a black 1px strip from showing at the edge while scrolling */
   object-fit: cover;
   background-color: transparent;
-  border-radius: 12px;
-  box-shadow: 0 10px 28px rgba(32, 33, 36, 0.14);
-  margin-bottom: 1.75rem;
+}
+
+/* "← All posts" on a post page: a light chip like the landing pages' secondary buttons */
+.back,
+.back:hover {
+  color: var(--lp-ink);
+  text-decoration: none;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 28px;
+  padding: 8px 14px;
+  border-radius: var(--lp-r-s);
+  background: var(--lp-chip);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.2;
+  transition: background-color 0.15s;
+}
+
+.back:hover {
+  background: var(--lp-chip-h);
+}
+
+.back:focus-visible {
+  outline: 2.5px solid var(--lp-hand);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .frame,
+  .back {
+    transition: none;
+  }
 }

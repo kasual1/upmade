@@ -1,0 +1,573 @@
+/*
+ * The blog in the landing pages' art style (src/components/LandingPage, tokens.css): Inter, ink text and outlines,
+ * soft grey copy, pink accents, ink-outlined media frames and cards, the landing header (BlogHeader) and the landing
+ * footer (theme/Footer). Everything is scoped to html.plugin-blog (Docusaurus marks every blog page's <html> with it),
+ * so docs and the landing pages are unaffected. The --lp-* tokens are defined for html.plugin-blog in tokens.css.
+ *
+ * Page shapes (Docusaurus' BlogLayout: .container > .row > main, plus the table of contents column on posts):
+ *   html.blog-list-page     the intro (theme/BlogListPage) and the posts as a grid, the newest one featured
+ *   html.blog-post-page     one post: back link, framed media, title, meta, the text and the table of contents
+ *   the archive             its own component and styles (theme/BlogArchivePage)
+ * Breakpoints as on the landing pages: 960px (one column of posts, no table of contents column), 620px (phones).
+ */
+
+/* ---- the page ---- */
+html.plugin-blog {
+  --ifm-font-color-base: var(--lp-ink);
+  --ifm-heading-color: var(--lp-ink);
+  --ifm-link-color: var(--lp-ink);
+  --ifm-link-hover-color: var(--lp-ink);
+  --ifm-color-content-secondary: var(--lp-soft);
+  --ifm-code-font-size: 0.88em;
+  --ifm-pre-line-height: 1.65;
+  --ifm-pre-padding: 20px 22px;
+  --ifm-container-width: var(--lp-w-content);
+  --ifm-container-width-xl: var(--lp-w-content);
+  color-scheme: light;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+html.plugin-blog body {
+  background: var(--lp-paper);
+  color: var(--lp-ink);
+}
+
+html.plugin-blog .main-wrapper > .container {
+  width: 100%;
+  max-width: var(--lp-w-content);
+  margin: 0 auto !important;
+  padding: 0 var(--lp-gutter-right) 0 var(--lp-gutter-left);
+}
+
+html.plugin-blog .main-wrapper > .container > .row {
+  margin: 0;
+}
+
+/* the list's and the posts' <main> (BlogLayout's column); the archive has its own (theme/BlogArchivePage). The
+   container part is in :where(), so this stays as weak as the per-page rules below, which come later and win. */
+html.plugin-blog :where(.main-wrapper > .container) main {
+  flex: 1 1 auto;
+  max-width: 100%;
+  margin-left: 0;
+  padding: 0;
+}
+
+html.plugin-blog :focus-visible {
+  outline: 2.5px solid var(--lp-hand);
+  outline-offset: 3px;
+}
+
+/* ---- the list: intro ---- */
+html.plugin-blog .blog-intro {
+  display: grid;
+  gap: 14px;
+  padding: 72px 0 56px;
+}
+
+html.plugin-blog .blog-intro h1 {
+  margin: 0;
+  font-size: var(--lp-fs-h2);
+  font-weight: 650;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+}
+
+html.plugin-blog .blog-intro p {
+  margin: 0;
+  max-width: 44ch;
+  color: var(--lp-soft);
+  font-size: var(--lp-fs-body-l);
+  line-height: 1.6;
+}
+
+/* ---- the list: posts ---- */
+html.blog-list-page main {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 72px 56px;
+  align-items: start;
+  padding-bottom: 112px;
+}
+
+html.blog-list-page main > .blog-intro,
+html.blog-list-page main > nav {
+  grid-column: 1 / -1;
+}
+
+html.blog-list-page main > article {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  min-width: 0;
+  margin: 0 !important;
+}
+
+html.blog-list-page main > article > header {
+  display: grid;
+  gap: 10px;
+}
+
+html.blog-list-page main > article > header > a:first-child {
+  margin-bottom: 6px;
+}
+
+html.blog-list-page main > article > header > a:first-child > span {
+  margin-bottom: 0;
+}
+
+/* the newest post: media and text side by side across the whole width */
+html.blog-list-page main > article:first-of-type {
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  column-gap: 56px;
+  align-items: center;
+}
+
+html.blog-list-page main > article:first-of-type > header {
+  display: contents;
+}
+
+html.blog-list-page main > article:first-of-type > header > a:first-child {
+  grid-column: 1;
+  grid-row: 1 / span 6;
+  margin: 0;
+}
+
+html.blog-list-page main > article:first-of-type > header > :not(a:first-child),
+html.blog-list-page main > article:first-of-type > .markdown,
+html.blog-list-page main > article:first-of-type > footer {
+  grid-column: 2;
+}
+
+html.blog-list-page main > article:first-of-type > header > h2 {
+  align-self: end;
+  font-size: clamp(28px, 3vw, 38px);
+  letter-spacing: -0.035em;
+}
+
+/* title, meta, excerpt, read more */
+html.plugin-blog article header h2 {
+  margin: 0;
+  font-size: var(--lp-fs-h3);
+  font-weight: 650;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+html.plugin-blog article header h2 a,
+html.plugin-blog article header h2 a:hover {
+  color: var(--lp-ink);
+  text-decoration: none;
+}
+
+html.plugin-blog article header h2 a {
+  background-image: linear-gradient(var(--lp-pink), var(--lp-pink));
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  background-size: 0 2.5px;
+  transition: background-size 0.25s;
+}
+
+html.plugin-blog article header h2 a:hover {
+  background-size: 100% 2.5px;
+}
+
+html.plugin-blog article header time,
+html.plugin-blog article header time + span,
+html.plugin-blog article header [class*="container_"] {
+  color: var(--lp-meta);
+  font-size: 14.5px;
+}
+
+html.plugin-blog article header [class*="container_"] {
+  margin: 0 !important;
+}
+
+html.blog-list-page article > .markdown {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  /* the grid sizes its rows from the unclamped text otherwise (line-clamp doesn't limit the intrinsic height) */
+  max-height: calc(3 * 1.65em);
+  margin: 0;
+  color: var(--lp-soft);
+  font-size: var(--lp-fs-body);
+  line-height: 1.65;
+}
+
+html.blog-list-page article > .markdown > p {
+  margin-bottom: 0;
+}
+
+html.blog-list-page article > footer {
+  margin: 8px 0 0 !important;
+}
+
+html.blog-list-page article > footer > .col {
+  flex: none;
+  max-width: none;
+  padding: 0;
+  text-align: left !important;
+}
+
+/* "Read more": the landing pages' light button, with an arrow */
+html.plugin-blog article a[aria-label^="Read more about "] {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: var(--lp-r-s);
+  background: var(--lp-chip);
+  color: var(--lp-ink);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  transition: background-color 0.15s, transform 0.2s var(--lp-spring);
+}
+
+html.plugin-blog article a[aria-label^="Read more about "]::after {
+  content: "→";
+}
+
+html.plugin-blog article a[aria-label^="Read more about "] b {
+  font-weight: inherit;
+}
+
+html.plugin-blog article a[aria-label^="Read more about "]:hover {
+  background: var(--lp-chip-h);
+  transform: translateY(-2px);
+}
+
+/* ---- a post ---- */
+html.blog-post-page main {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 56px 0 112px;
+}
+
+html.blog-post-page main > article {
+  max-width: 760px;
+}
+
+html.blog-post-page article header h1 {
+  margin: 0 0 14px;
+  font-size: clamp(34px, 4.2vw, 52px);
+  font-weight: 700;
+  line-height: 1.06;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
+}
+
+html.blog-post-page article header {
+  margin-bottom: 40px;
+}
+
+/* the text */
+html.blog-post-page article .markdown {
+  color: var(--lp-text-strong);
+  font-size: 17.5px;
+  line-height: 1.72;
+}
+
+html.blog-post-page article .markdown > p,
+html.blog-post-page article .markdown li {
+  font-size: inherit;
+}
+
+html.blog-post-page article .markdown h2 {
+  margin: 56px 0 16px;
+  color: var(--lp-ink);
+  font-size: 30px;
+  font-weight: 650;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+}
+
+html.blog-post-page article .markdown h3 {
+  margin: 36px 0 12px;
+  color: var(--lp-ink);
+  font-size: 22px;
+  font-weight: 650;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+html.blog-post-page article .markdown strong {
+  color: var(--lp-ink);
+}
+
+/* links in the text: ink, with a pink underline that thickens on hover */
+html.blog-post-page article .markdown a {
+  color: var(--lp-ink);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: var(--lp-pink);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+  transition: text-decoration-thickness 0.15s;
+}
+
+html.blog-post-page article .markdown a:hover {
+  text-decoration-thickness: 3.5px;
+}
+
+/* inline code: a small chip */
+html.plugin-blog .markdown :not(pre) > code {
+  padding: 0.12em 0.4em;
+  border: 0;
+  border-radius: 6px;
+  background: var(--lp-chip);
+  color: var(--lp-ink);
+  font-family: var(--lp-font-mono) !important;
+  vertical-align: 0.04em;
+}
+
+/* code blocks: the landing pages' code window (ink outline, round corners, the window gradient) */
+html.plugin-blog .markdown div[class*="codeBlockContainer"] {
+  overflow: hidden;
+  margin: 28px 0;
+  border: var(--lp-stroke-s) solid var(--lp-ink);
+  border-radius: 18px;
+  background: var(--lp-grad-window);
+  box-shadow: none;
+}
+
+html.plugin-blog .markdown div[class*="codeBlockContainer"] pre {
+  margin: 0;
+  border-radius: 0;
+  background: transparent !important;
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+html.plugin-blog .markdown div[class*="codeBlockContainer"] pre,
+html.plugin-blog .markdown div[class*="codeBlockContainer"] pre * {
+  font-family: var(--lp-font-mono) !important;
+}
+
+/* the code element and its lines get a 1.1 line height sitewide (typography.css `code, .token-line *`, !important,
+   which the docs rely on): blog posts are read at length, so their code blocks get the window's 1.65 */
+html.plugin-blog .markdown div[class*="codeBlockContainer"] pre code,
+html.plugin-blog .markdown div[class*="codeBlockContainer"] .token-line,
+html.plugin-blog .markdown div[class*="codeBlockContainer"] .token-line * {
+  font-size: 15px;
+  line-height: 1.65 !important;
+}
+
+html.plugin-blog .markdown div[class*="codeBlockTitle"] {
+  border-bottom: var(--lp-stroke-s) solid var(--lp-ink);
+  background: transparent;
+  font-family: var(--lp-font-mono) !important;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* quotes and admonitions */
+html.plugin-blog .markdown blockquote {
+  margin: 28px 0;
+  padding: 14px 20px;
+  border-left: 4px solid var(--lp-pink);
+  border-radius: 0 14px 14px 0;
+  background: var(--lp-grad-card-open);
+  color: var(--lp-text-strong);
+}
+
+html.plugin-blog .markdown .theme-admonition {
+  border: var(--lp-stroke-s) solid var(--lp-ink);
+  border-radius: var(--lp-r-card);
+  background: var(--lp-grad-card);
+  box-shadow: none;
+  color: var(--lp-text-strong);
+}
+
+html.plugin-blog .markdown img,
+html.plugin-blog .markdown video {
+  border-radius: 18px;
+}
+
+html.plugin-blog .markdown hr {
+  border-color: var(--lp-divider);
+}
+
+html.plugin-blog .markdown table {
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  border: var(--lp-stroke-s) solid var(--lp-ink);
+  border-radius: 14px;
+}
+
+html.plugin-blog .markdown table tr {
+  border: 0;
+}
+
+html.plugin-blog .markdown table th,
+html.plugin-blog .markdown table td {
+  border: 0;
+  border-bottom: 1px solid var(--lp-divider);
+}
+
+/* the post's own footer (edit link, last update) */
+html.blog-post-page article > footer {
+  color: var(--lp-meta);
+  font-size: 14.5px;
+}
+
+/* previous / next post: ink-outlined cards, as wide as the article */
+html.plugin-blog .pagination-nav {
+  max-width: 760px;
+  margin-top: 64px;
+  gap: 16px;
+}
+
+html.plugin-blog .pagination-nav__link {
+  border: var(--lp-stroke-s) solid var(--lp-ink);
+  border-radius: var(--lp-r-card);
+  background: var(--lp-grad-card);
+  transition: transform 0.2s var(--lp-spring), background-color 0.2s;
+}
+
+html.plugin-blog .pagination-nav__link:hover {
+  border-color: var(--lp-ink);
+  background: var(--lp-grad-card-open);
+  transform: translateY(-2px);
+}
+
+html.plugin-blog .pagination-nav__sublabel {
+  color: var(--lp-meta);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+html.plugin-blog .pagination-nav__label {
+  color: var(--lp-ink);
+  font-size: 17px;
+  font-weight: 650;
+  line-height: 1.3;
+}
+
+/* the table of contents: a quiet column with a pink marker on the current heading */
+html.blog-post-page main + .col--2 {
+  flex: 0 0 300px;
+  max-width: 300px;
+  margin-left: auto;
+  padding: 56px 0 0 40px;
+}
+
+html.blog-post-page .table-of-contents {
+  border-left: 1px solid var(--lp-divider);
+  font-size: 14.5px;
+}
+
+html.blog-post-page .table-of-contents__link {
+  color: var(--lp-soft);
+  line-height: 1.4;
+}
+
+html.blog-post-page .table-of-contents__link:hover {
+  color: var(--lp-ink);
+}
+
+html.blog-post-page .table-of-contents__link--active {
+  position: relative;
+  color: var(--lp-ink);
+  font-weight: 600;
+}
+
+html.blog-post-page .table-of-contents > li > .table-of-contents__link--active::before,
+html.blog-post-page .table-of-contents ul .table-of-contents__link--active::before {
+  content: "";
+  position: absolute;
+  top: 0.1em;
+  bottom: 0.1em;
+  left: calc(-1 * var(--ifm-toc-padding-horizontal) - 1.5px);
+  width: 3px;
+  border-radius: 2px;
+  background: var(--lp-pink);
+}
+
+/* ---- narrower screens ---- */
+@media (max-width: 996px) {
+  html.blog-post-page main + .col--2 {
+    display: none;
+  }
+
+  html.blog-post-page main > article {
+    max-width: none;
+  }
+}
+
+@media (max-width: 960px) {
+  html.blog-list-page main {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 64px;
+  }
+
+  html.blog-list-page main > article:first-of-type {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  html.blog-list-page main > article:first-of-type > header {
+    display: grid;
+  }
+
+  html.blog-list-page main > article:first-of-type > header > a:first-child {
+    grid-row: auto;
+    margin-bottom: 6px;
+  }
+
+  html.blog-list-page main > article:first-of-type > header > :not(a:first-child),
+  html.blog-list-page main > article:first-of-type > .markdown,
+  html.blog-list-page main > article:first-of-type > footer {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 620px) {
+  html.plugin-blog .blog-intro {
+    padding: 48px 0 40px;
+  }
+
+  html.blog-list-page main {
+    padding-bottom: 72px;
+  }
+
+  html.plugin-blog article header h2 {
+    font-size: var(--lp-fs-h3-phone);
+  }
+
+  html.blog-post-page main {
+    padding: 36px 0 72px;
+  }
+
+  html.blog-post-page article .markdown {
+    font-size: 16.5px;
+  }
+
+  html.blog-post-page article .markdown h2 {
+    margin-top: 44px;
+    font-size: 25px;
+  }
+
+  html.plugin-blog .markdown div[class*="codeBlockContainer"] pre,
+  html.plugin-blog .markdown div[class*="codeBlockContainer"] pre code,
+  html.plugin-blog .markdown div[class*="codeBlockContainer"] .token-line,
+  html.plugin-blog .markdown div[class*="codeBlockContainer"] .token-line * {
+    font-size: 13.5px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.plugin-blog article header h2 a,
+  html.plugin-blog article a[aria-label^="Read more about "],
+  html.plugin-blog .pagination-nav__link,
+  html.blog-post-page article .markdown a {
+    transition: none;
+  }
+}

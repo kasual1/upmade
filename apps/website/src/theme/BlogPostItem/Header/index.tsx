@@ -135,14 +135,31 @@ function BlogPostItemHeaderImage(): ReactNode {
       decoding="async"
     />
   );
+  // the frame: an ink outline in the landing pages' art style, clipping the media's corners
+  const framed = <span className={styles.frame}>{img}</span>;
   return isBlogPostPage ? (
     <>
       {thumbnail && video && <BlogPostVideoHead video={video} src={thumbnail} />}
-      {img}
+      {framed}
     </>
   ) : (
     <Link to={metadata.permalink} tabIndex={-1} aria-hidden="true" className={styles.link}>
-      {img}
+      {framed}
+    </Link>
+  );
+}
+
+/** On a post page: back to the list, above the media. */
+function BlogPostBackLink(): ReactNode {
+  const { isBlogPostPage } = useBlogPost();
+  const blogPath = useBaseUrl('/blog');
+  if (!isBlogPostPage) return null;
+  return (
+    <Link to={blogPath} className={styles.back}>
+      <svg viewBox="0 0 24 24" width={16} height={16} aria-hidden="true" focusable="false">
+        <path d="M19 12H5M11 6l-6 6 6 6" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+      All posts
     </Link>
   );
 }
@@ -150,6 +167,7 @@ function BlogPostItemHeaderImage(): ReactNode {
 export default function BlogPostItemHeader(): ReactNode {
   return (
     <header>
+      <BlogPostBackLink />
       <BlogPostItemHeaderImage />
       <BlogPostItemHeaderTitle />
       <BlogPostItemHeaderInfo />

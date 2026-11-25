@@ -20,7 +20,9 @@
  * can be added later by redefining these under a dark selector.
  */
 
-html.landing-page {
+/* The blog (html.plugin-blog, src/css/blog.css) uses the same tokens, so it matches the landing pages. */
+html.landing-page,
+html.plugin-blog {
   /* ---- colours (the design's :root) ---- */
   --lp-ink: #0a0a0a;
   --lp-soft: #5c5c5c;

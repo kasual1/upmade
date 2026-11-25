@@ -1,13 +1,12 @@
-// Regression guard: screenshots of the pages the landing overhaul must not change visually (the blog index
-// and one docs page): full page at 1440 and 390, viewport only at 960 and 320 (fullPageFor).
+// Regression guard: screenshots of the pages the landing overhaul must not change visually (one docs page):
+// full page at 1440 and 390, viewport only at 960 and 320 (fullPageFor).
 // The baselines were taken in M0 against the site before the overhaul. A diff here means a change leaked
 // out of the landing pages; fix the leak, don't update. (/agentic/ was guarded too until it was rebuilt on the
-// landing kit; it now has its own baseline in home-baseline.e2e.ts, like "/".)
+// landing kit, and the blog until it was restyled to match; both now have their own baselines in
+// home-baseline.e2e.ts, like "/".)
 //
-// What each page covers: /blog/ renders the sitewide footer (.footer, .footer__link-item, ...).
 // Docs pages render no site footer (src/theme/Footer returns null under /docs); the docs shot instead
 // covers the navbar, the docs sidebar, the content column and its DocsFootnote (src/theme/DocItem/Paginator).
-// So a leak into the sitewide footer is caught by the blog shots, not the docs ones.
 //
 // Stabilised with reducedMotion: 'reduce' (config), CSS animations disabled, media playback disabled
 // (gotoForScreenshot), a scroll pass that loads lazy content and a wait for the scroll-driven UI to return
@@ -20,7 +19,6 @@ import { PAGES, expect, fullPageFor, gotoForScreenshot, test } from './fixtures'
 test.describe.configure({ retries: 0 });
 
 const GUARDED = {
-  blog: PAGES.blog,
   docs: PAGES.docs,
 } as const;
 
@@ -29,7 +27,6 @@ const GUARDED = {
  * today; it is the place to add a mask if a later change makes a guarded page nondeterministic.
  */
 const MASKS: Record<keyof typeof GUARDED, string[]> = {
-  blog: [],
   docs: [],
 };
 
