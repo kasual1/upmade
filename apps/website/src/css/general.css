@@ -50,7 +50,8 @@ nav[aria-label="Breadcrumbs"] {
 
 html:not(.plugin-docs)::selection,
 html:not(.plugin-docs) ::selection {
-  background-color: #4a7dff;
+  /* Pink everywhere but the docs, whose selection follows the chosen framework's colour (below). */
+  background-color: #ec4899;
   color: #ffffff;
 }
 
