@@ -42,15 +42,15 @@ import {
       }
 
       app-toolbar > button:hover:not(:disabled) {
-        background: #dd0031;
-        color: #fff;
-        border-color: #dd0031;
+        background: #ffe1f0;
+        color: #333;
+        border-color: #ff6ab5;
       }
 
       app-toolbar > button.active {
-        background: #dd0031;
+        background: #ff6ab5;
         color: #fff;
-        border-color: #dd0031;
+        border-color: #ff6ab5;
       }
 
       app-toolbar > button:disabled {

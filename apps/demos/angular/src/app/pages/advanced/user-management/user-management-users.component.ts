@@ -9,7 +9,7 @@ const currentUser: IUpmadeUser = {
   displayName: 'Ada Lovelace',
   email: 'ada@example.com',
   oauthProvider: 'demo',
-  color: '#dd0031',
+  color: '#ff6ab5',
   isGuest: false,
 };
 
@@ -75,17 +75,17 @@ const collaborators: IUpmadeUser[] = [
         font: 13px Roboto, sans-serif;
       }
       .toolbar-note strong {
-        color: #dd0031;
+        color: #ff6ab5;
       }
       .toolbar-note span {
         color: #555;
       }
       .toolbar-note button {
         padding: 4px 10px;
-        border: 1px solid #dd0031;
+        border: 1px solid #ff6ab5;
         border-radius: 4px;
         background: #ffffff;
-        color: #dd0031;
+        color: #ff6ab5;
         cursor: pointer;
         font: 12px Roboto, sans-serif;
       }

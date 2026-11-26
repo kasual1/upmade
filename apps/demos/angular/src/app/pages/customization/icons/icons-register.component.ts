@@ -39,7 +39,7 @@ import { UpmadeSvgIconMap } from '@upmade/editor';
           sans-serif;
       }
       .toolbar-note strong {
-        color: #dd0031;
+        color: #ff6ab5;
       }
       .toolbar-note span {
         color: #555;

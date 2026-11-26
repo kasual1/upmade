@@ -236,7 +236,7 @@ type ColorTool = {
     }
 
     .action-btn.primary {
-      background: rgba(221, 0, 49, 0.92);
+      background: rgba(255, 106, 181, 0.92);
       border-color: rgba(255, 255, 255, 0.35);
       color: #ffffff;
     }

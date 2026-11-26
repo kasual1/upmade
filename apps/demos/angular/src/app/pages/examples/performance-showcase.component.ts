@@ -63,7 +63,7 @@ interface GithubStarRendererContext {
     upmade-editor { display: block; width: 100%; height: 100%; }
     .count-switcher { position: absolute; top: 12px; right: 12px; z-index: 10; display: flex; align-items: center; gap: 6px; padding: 6px 8px; border: 1px solid #ebebeb; border-radius: 8px; background: #ffffff; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); color: #333333; font-size: 13px; }
     .count-switcher button { padding: 4px 10px; border: 1px solid #d9d9d9; border-radius: 6px; background: #ffffff; color: #333333; font-size: 13px; font-family: inherit; cursor: pointer; }
-    .count-switcher button.active { border-color: #dd0031; background: #dd0031; color: #ffffff; }
+    .count-switcher button.active { border-color: #ff6ab5; background: #ff6ab5; color: #ffffff; }
   `],
 })
 export class PerformanceShowcaseComponent implements OnDestroy {

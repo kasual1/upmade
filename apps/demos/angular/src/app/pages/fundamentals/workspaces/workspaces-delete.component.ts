@@ -81,10 +81,10 @@ import { createSeedObjects } from '../../../const/seed-objects';
       }
       .workspace-tab:hover,
       .workspace-tab.active {
-        border-color: #dd0031;
+        border-color: #ff6ab5;
       }
       .workspace-tab.active {
-        background: #dd0031;
+        background: #ff6ab5;
         color: #fff;
       }
       .delete-workspace {

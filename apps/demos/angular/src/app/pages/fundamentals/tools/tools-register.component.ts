@@ -74,7 +74,7 @@ export class ToolsRegisterComponent {
         size: 6,
         palette: [
           { light: '#1f2937', dark: '#f3f4f6', label: 'Ink' },
-          { light: '#dd0031', dark: '#ff5b79', label: 'Accent' },
+          { light: '#ff6ab5', dark: '#ff88c4', label: 'Accent' },
         ],
       },
     },
@@ -104,7 +104,7 @@ export class ToolsRegisterComponent {
         fontFamily: 'Arial',
         palette: [
           { light: '#1f2937', dark: '#f3f4f6' },
-          { light: '#dd0031', dark: '#ff5b79' },
+          { light: '#ff6ab5', dark: '#ff88c4' },
         ],
       },
     },

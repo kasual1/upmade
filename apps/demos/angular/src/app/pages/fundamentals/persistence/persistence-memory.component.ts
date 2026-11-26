@@ -46,8 +46,8 @@ import { ToolbarComponent } from '../../../components/toolbar.component';
   styles: [
     `
       :host {
-        --angular-primary: #dd0031;
-        --angular-primary-hover: #b30027;
+        --angular-primary: #ff6ab5;
+        --angular-primary-hover: #e65fa3;
         --angular-text: #333333;
         --angular-border: #ebebeb;
         display: flex;

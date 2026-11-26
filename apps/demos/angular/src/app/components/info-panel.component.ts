@@ -164,8 +164,8 @@ let nextInfoPanelId = 0;
 
         .info-panel-close:hover,
         .info-panel-close:focus-visible {
-          border-color: #dd0031;
-          background: #dd0031;
+          border-color: #ff6ab5;
+          background: #ff6ab5;
           color: #fff;
           outline: 0;
         }
@@ -247,8 +247,8 @@ export class InfoPanelComponent {
 
       .info-panel-toolbar-toggle:hover,
       .info-panel-toolbar-toggle:focus-visible {
-        border-color: #dd0031;
-        background: #dd0031;
+        border-color: #ff6ab5;
+        background: #ff6ab5;
         color: #fff;
         outline: 0;
       }

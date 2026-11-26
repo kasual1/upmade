@@ -92,15 +92,15 @@ import { createSeedObjects } from '../../const/seed-objects';
       }
 
       button:hover {
-        background: #dd0031;
-        color: #ffffff;
-        border-color: #dd0031;
+        background: #ffe1f0;
+        color: #333333;
+        border-color: #ff6ab5;
       }
 
       button.active {
-        background: #dd0031;
+        background: #ff6ab5;
         color: #ffffff;
-        border-color: #dd0031;
+        border-color: #ff6ab5;
       }
 
       .status {

@@ -94,8 +94,8 @@ interface Slide {
       font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
-      background-color: rgba(221, 0, 48, 0.1);
-      color: #dd0031;
+      background-color: rgba(255, 106, 181, 0.1);
+      color: #ff6ab5;
       padding: 2px 8px;
       border-radius: 99px;
       letter-spacing: 0.5px;
@@ -140,7 +140,7 @@ interface Slide {
     }
 
     .nav-btn:hover:not(:disabled) {
-      background: #dd0031;
+      background: #ff6ab5;
       color: #ffffff;
     }
 
@@ -198,7 +198,7 @@ export class SlideshowPresentationComponent {
         height: 450,
         shapeType: ShapeType.Rectangle,
         fillColor: { light: '#ffffff', dark: '#1b1b1e' },
-        strokeColor: { light: '#dd0031', dark: '#b30027' },
+        strokeColor: { light: '#ff6ab5', dark: '#e65fa3' },
         strokeWidth: 4,
       }),
       new UpmadeText({
@@ -206,7 +206,7 @@ export class SlideshowPresentationComponent {
         translateX: -350,
         translateY: -150,
         fontSize: 36,
-        fontColor: { light: '#dd0031', dark: '#ff4d6d' },
+        fontColor: { light: '#ff6ab5', dark: '#ff88c4' },
       }),
       new UpmadeText({
         text: 'A modern vector drawing component for web builders. This workspace demonstrates Slideshow Mode, spacing slide sheets on a virtual horizontal track.\n\nUse the presentation controls above to glide smoothly between slides!',
@@ -232,7 +232,7 @@ export class SlideshowPresentationComponent {
         height: 450,
         shapeType: ShapeType.Rectangle,
         fillColor: { light: '#ffffff', dark: '#1b1b1e' },
-        strokeColor: { light: '#dd0031', dark: '#b30027' },
+        strokeColor: { light: '#ff6ab5', dark: '#e65fa3' },
         strokeWidth: 4,
       }),
       new UpmadeText({
@@ -240,7 +240,7 @@ export class SlideshowPresentationComponent {
         translateX: 850,
         translateY: -150,
         fontSize: 36,
-        fontColor: { light: '#dd0031', dark: '#ff4d6d' },
+        fontColor: { light: '#ff6ab5', dark: '#ff88c4' },
       }),
       new UpmadeText({
         text: 'â€¢ Offline-First Canvas Persistence\nâ€¢ Dynamic Viewport & Navigation Helpers\nâ€¢ Tailored Custom Color Tool Palettes\nâ€¢ Entirely Interactive Drawing Tools',
@@ -266,7 +266,7 @@ export class SlideshowPresentationComponent {
         height: 450,
         shapeType: ShapeType.Rectangle,
         fillColor: { light: '#ffffff', dark: '#1b1b1e' },
-        strokeColor: { light: '#dd0031', dark: '#b30027' },
+        strokeColor: { light: '#ff6ab5', dark: '#e65fa3' },
         strokeWidth: 4,
       }),
       new UpmadeText({
@@ -274,7 +274,7 @@ export class SlideshowPresentationComponent {
         translateX: 2050,
         translateY: -150,
         fontSize: 36,
-        fontColor: { light: '#dd0031', dark: '#ff4d6d' },
+        fontColor: { light: '#ff6ab5', dark: '#ff88c4' },
       }),
       new UpmadeText({
         text: 'By setting finite limits on the viewport bounds, the user can draw and interact inside the slide card, but cannot pan away to empty space.\n\nCombined with pan animation flows, this makes a wonderful presentation experience.',

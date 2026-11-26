@@ -184,7 +184,7 @@ interface Defect {
       top: 16px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(221, 0, 49, 0.95);
+      background: rgba(255, 106, 181, 0.95);
       color: white;
       padding: 8px 20px;
       border-radius: 99px;
@@ -233,8 +233,8 @@ interface Defect {
       font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
-      background-color: rgba(221, 0, 48, 0.1);
-      color: #dd0031;
+      background-color: rgba(255, 106, 181, 0.1);
+      color: #ff6ab5;
       padding: 2px 8px;
       border-radius: 99px;
       letter-spacing: 0.5px;
@@ -266,10 +266,10 @@ interface Defect {
     .action-btn {
       flex: 1;
       padding: 8px 12px;
-      border: 1px solid #dd0031;
+      border: 1px solid #ff6ab5;
       border-radius: 6px;
       background: #ffffff;
-      color: #dd0031;
+      color: #ff6ab5;
       font-size: 13px;
       font-weight: 600;
       cursor: pointer;
@@ -280,12 +280,12 @@ interface Defect {
     }
 
     .action-btn:hover {
-      background: #dd0031;
+      background: #ff6ab5;
       color: #ffffff;
     }
 
     .action-btn.active {
-      background: #dd0031;
+      background: #ff6ab5;
       color: #ffffff;
     }
 
@@ -351,7 +351,7 @@ interface Defect {
     }
 
     .defect-card:hover {
-      border-color: #dd0031;
+      border-color: #ff6ab5;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
     }
 
@@ -370,7 +370,7 @@ interface Defect {
     }
 
     .status-indicator.outstanding {
-      background-color: #dd0031;
+      background-color: #ff6ab5;
     }
 
     .status-indicator.in-progress {
@@ -435,7 +435,7 @@ interface Defect {
     }
 
     .delete-btn:hover {
-      color: #dd0031;
+      color: #ff6ab5;
     }
   `,
 })
@@ -624,7 +624,7 @@ export class BlueprintDefectMapperComponent {
   }
 
   getPinColor(status: 'Outstanding' | 'In Progress' | 'Resolved') {
-    if (status === 'Outstanding') return { light: '#dd0031', dark: '#ef4444' };
+    if (status === 'Outstanding') return { light: '#ff6ab5', dark: '#ff88c4' };
     if (status === 'In Progress') return { light: '#f59e0b', dark: '#f59e0b' };
     return { light: '#10b981', dark: '#10b981' };
   }

@@ -30,7 +30,7 @@ import { createSeedObjects } from '../../../const/seed-objects';
   styles: `
     :host { display: flex; flex-direction: column; height: 100%; font-family: Roboto, sans-serif; }
     button { padding: 6px 12px; border: 1px solid #ccc; border-radius: 4px; background: #fff; cursor: pointer; font-size: 13px; }
-    button:hover { background: #dd0031; border-color: #dd0031; color: #fff; }
+    button:hover { background: #ff6ab5; border-color: #ff6ab5; color: #fff; }
     upmade-editor { flex: 1; }
   `,
 })

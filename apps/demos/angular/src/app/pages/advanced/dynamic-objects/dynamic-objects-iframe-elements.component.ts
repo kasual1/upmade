@@ -96,8 +96,8 @@ function describe(element: UpmadeObjectElementInfo): string {
     .actions > .toggle { flex-basis: 100%; }
     button { height: 28px; padding: 0 10px; border: 1px solid #dadce0; border-radius: 8px; background: #ffffff; color: #202124; cursor: pointer; font: inherit; font-weight: 600; }
     button:hover { background: #f3f4f6; }
-    button.active { border-color: #dd0031; background: #dd0031; color: #ffffff; }
-    button.active:hover { background: #b70028; }
+    button.active { border-color: #ff6ab5; background: #ff6ab5; color: #ffffff; }
+    button.active:hover { background: #e65fa3; }
   `],
 })
 export class DynamicObjectsIframeElementsComponent {
