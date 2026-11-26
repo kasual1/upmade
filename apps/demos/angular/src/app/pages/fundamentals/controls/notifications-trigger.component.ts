@@ -29,10 +29,8 @@ import { createSeedObjects } from '../../../const/seed-objects';
   `,
   styles: `
     :host { display: flex; flex-direction: column; height: 100%; font-family: Roboto, sans-serif; }
-    button { padding: 6px 12px; border: 2px solid #0a0a0a; border-radius: 999px; background: #fff; cursor: pointer; font-size: 13px;
-  font-weight: 600;
-}
-    button:hover { background: #ffe7f3; border-color: #0a0a0a; color: #0a0a0a; }
+    button { padding: 6px 12px; border: 1px solid #ccc; border-radius: 4px; background: #fff; cursor: pointer; font-size: 13px; }
+    button:hover { background: #ff6ab5; border-color: #ff6ab5; color: #fff; }
     upmade-editor { flex: 1; }
   `,
 })

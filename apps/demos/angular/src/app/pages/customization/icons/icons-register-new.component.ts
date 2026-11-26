@@ -74,11 +74,11 @@ export class IconsRegisterNewComponent {
       tool: UpmadeBrushTool,
       icon: 'pen',
       config: {
-        color: { light: '#c10564', dark: '#ff5b79', label: 'Angular Red' },
+        color: { light: '#ff6ab5', dark: '#ff88c4', label: 'Pink' },
         size: 8,
         opacity: 1,
         palette: [
-          { light: '#c10564', dark: '#ff5b79', label: 'Angular Red' },
+          { light: '#ff6ab5', dark: '#ff88c4', label: 'Pink' },
           { light: '#1f2937', dark: '#f3f4f6', label: 'Ink' },
           { light: '#0284c7', dark: '#38bdf8', label: 'Sky' },
         ],

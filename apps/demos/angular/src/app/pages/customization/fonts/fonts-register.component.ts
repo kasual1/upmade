@@ -63,7 +63,7 @@ export class FontsRegisterComponent {
           translateY: -50,
           fontSize: 24,
           fontFamily: 'Pacifico',
-          fontColor: { light: '#c10564', dark: '#ef4444' },
+          fontColor: { light: '#ff6ab5', dark: '#ff88c4' },
         } as any),
       ],
     }),
@@ -77,7 +77,7 @@ export class FontsRegisterComponent {
       translateY: position.y,
       fontSize: 24,
       fontFamily: 'Pacifico',
-      fontColor: { light: '#c10564', dark: '#ef4444' },
+      fontColor: { light: '#ff6ab5', dark: '#ff88c4' },
     } as any);
     await this.editor.addObject(textObj as any);
   }

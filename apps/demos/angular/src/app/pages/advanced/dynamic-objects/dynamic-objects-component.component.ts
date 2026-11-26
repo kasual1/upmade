@@ -46,8 +46,8 @@ type CalculatorRendererContext = {
   `,
   styles: [`
     :host { display: flex; flex-direction: column; height: 100%; }
-    .toolbar-note { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #fafaf8; border-bottom: 2px solid #0a0a0a; font: 13px Roboto, sans-serif; }
-    .toolbar-note strong { color: #c10564; }
+    .toolbar-note { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #f5f5f5; border-bottom: 1px solid #ebebeb; font: 13px Roboto, sans-serif; }
+    .toolbar-note strong { color: #ff6ab5; }
     .toolbar-note span { color: #555; }
     upmade-editor { flex: 1; min-height: 0; }
   `],

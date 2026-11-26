@@ -287,8 +287,8 @@ import { InfoPanelComponent } from '../../components/info-panel.component';
       font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
-      background-color: rgba(193, 5, 100, 0.1);
-      color: #c10564;
+      background-color: rgba(255, 106, 181, 0.1);
+      color: #ff6ab5;
       padding: 2px 8px;
       border-radius: 99px;
       letter-spacing: 0.5px;
@@ -297,7 +297,7 @@ import { InfoPanelComponent } from '../../components/info-panel.component';
 
     .panel-title {
       margin: 0;
-      color: #c10564;
+      color: #ff6ab5;
       font-size: 18px;
       line-height: 1.2;
     }
@@ -334,12 +334,12 @@ import { InfoPanelComponent } from '../../components/info-panel.component';
     }
 
     button:hover {
-      background: #ffe7f3;
-      color: #0a0a0a;
+      background: #ff6ab5;
+      color: #ffffff;
     }
 
     button.active {
-      background: #c10564;
+      background: #ff6ab5;
       color: #ffffff;
     }
 
@@ -355,7 +355,7 @@ import { InfoPanelComponent } from '../../components/info-panel.component';
 
     .search-input:focus {
       outline: none;
-      border-color: #c10564;
+      border-color: #ff6ab5;
     }
 
     .filter-header {
@@ -412,7 +412,7 @@ import { InfoPanelComponent } from '../../components/info-panel.component';
 
     .tree-node.selected {
       background: #ffebee;
-      border-left: 3px solid #c10564;
+      border-left: 3px solid #ff6ab5;
     }
 
     .tree-node.hidden-obj {
@@ -475,13 +475,13 @@ import { InfoPanelComponent } from '../../components/info-panel.component';
     }
 
     .node-action:hover {
-      background: #c10564;
+      background: #ff6ab5;
       color: #ffffff;
     }
 
     .node-action.delete:hover {
       background: #ffebee;
-      color: #c10564;
+      color: #ff6ab5;
     }
 
     .inspector {
@@ -520,7 +520,7 @@ import { InfoPanelComponent } from '../../components/info-panel.component';
 
     .inspector-field input:focus {
       outline: none;
-      border-color: #c10564;
+      border-color: #ff6ab5;
     }
 
     .inspector-field input[type='range'] {
@@ -530,8 +530,8 @@ import { InfoPanelComponent } from '../../components/info-panel.component';
       height: 6px;
       border-radius: 999px;
       border: none;
-      background: linear-gradient(90deg, #c10564, #b30027);
-      accent-color: #c10564;
+      background: linear-gradient(90deg, #ff6ab5, #e65fa3);
+      accent-color: #ff6ab5;
       cursor: pointer;
     }
 
@@ -542,7 +542,7 @@ import { InfoPanelComponent } from '../../components/info-panel.component';
       height: 14px;
       border-radius: 50%;
       border: 2px solid #ffffff;
-      background: #c10564;
+      background: #ff6ab5;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
       transition: transform 0.15s ease;
     }
@@ -555,7 +555,7 @@ import { InfoPanelComponent } from '../../components/info-panel.component';
       height: 6px;
       border: none;
       border-radius: 999px;
-      background: linear-gradient(90deg, #c10564, #b30027);
+      background: linear-gradient(90deg, #ff6ab5, #e65fa3);
     }
 
     .inspector-field input[type='range']::-moz-range-thumb {
@@ -563,7 +563,7 @@ import { InfoPanelComponent } from '../../components/info-panel.component';
       height: 14px;
       border-radius: 50%;
       border: 2px solid #ffffff;
-      background: #c10564;
+      background: #ff6ab5;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
       cursor: pointer;
     }

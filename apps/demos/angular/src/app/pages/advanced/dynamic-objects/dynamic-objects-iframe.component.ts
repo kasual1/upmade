@@ -49,21 +49,21 @@ const CALCULATOR_BASE_CSS = `
   .calculator-card.has-toggle { grid-template-rows: auto auto 46px minmax(0, 1fr); }
   .header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
   h2 { margin: 0; font-size: 17px; line-height: 1.2; }
-  .mode-label { color: #c10564; font-size: 12px; font-weight: 800; text-transform: uppercase; }
+  .mode-label { color: #ff6ab5; font-size: 12px; font-weight: 800; text-transform: uppercase; }
   .display { display: flex; align-items: center; justify-content: flex-end; min-width: 0; padding: 0 12px; border: 1px solid #e0e0e0; border-radius: 7px; background: #f8fafc; font-size: 24px; font-weight: 800; line-height: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .keypad { display: grid; gap: 6px; min-height: 0; }
   .simple-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(5, minmax(0, 1fr)); }
   .scientific-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); grid-template-rows: repeat(5, minmax(0, 1fr)); }
   button { min-width: 0; min-height: 0; border: 1px solid #dadce0; border-radius: 7px; background: #ffffff; color: #202124; cursor: var(--upmade-iframe-pointer-cursor, pointer); font: inherit; font-size: 14px; font-weight: 700; line-height: 1; }
   button:hover { background: #f3f4f6; }
-  .operator { border-color: #c10564; color: #c10564; }
+  .operator { border-color: #ff6ab5; color: #ff6ab5; }
   .muted { color: #5f6368; }
-  .equals { grid-row: span 2; background: #c10564; border-color: #c10564; color: #ffffff; }
-  .equals:hover { background: #c3002f; }
+  .equals { grid-row: span 2; background: #ff6ab5; border-color: #ff6ab5; color: #ffffff; }
+  .equals:hover { background: #e65fa3; }
   .zero { grid-column: span 2; }
   .toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 3px; border-radius: 9px; background: #f3f4f6; }
   .toggle button { height: 28px; border: 0; border-radius: 7px; background: transparent; color: #5f6368; font-size: 12px; }
-  .toggle button.active { background: #ffffff; color: #c10564; box-shadow: 0 1px 4px rgba(32, 33, 36, 0.12); }
+  .toggle button.active { background: #ffffff; color: #ff6ab5; box-shadow: 0 1px 4px rgba(32, 33, 36, 0.12); }
   .is-simple .scientific-only { display: none; }
   .is-simple .scientific-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .has-toggle.is-simple .equals { grid-column: 4; grid-row: 3 / span 2; }

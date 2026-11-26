@@ -79,7 +79,7 @@ export class UserManagementLoginComponent {
     const account = {
       id: `user-${provider}-1`,
       displayName: 'Ada Lovelace',
-      color: '#c10564',
+      color: '#ff6ab5',
       isGuest: false,
     };
 

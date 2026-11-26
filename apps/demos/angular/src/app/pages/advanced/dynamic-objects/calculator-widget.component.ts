@@ -72,15 +72,15 @@ export function createCalculatorWidgetInitialState(): CalculatorWidgetState {
     .calculator-card { display: grid; grid-template-rows: auto minmax(0, 42px) minmax(0, 1fr); gap: clamp(4px, 2cqh, 10px); height: 100%; min-height: 0; padding: clamp(8px, 4cqh, 16px) clamp(6px, 3cqw, 12px); border: 1px solid #e5e7eb; border-radius: 12px; box-sizing: border-box; overflow: hidden; font-family: Roboto, sans-serif; background: #ffffff; }
     .header { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 0; }
     h3 { margin: 0; font-size: clamp(12px, 5cqh, 16px); line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .header span { color: #c10564; font-size: 13px; font-weight: 700; }
+    .header span { color: #ff6ab5; font-size: 13px; font-weight: 700; }
     .display { display: flex; align-items: center; justify-content: flex-end; min-height: 0; padding: 0 12px; border: 1px solid #e0e0e0; border-radius: 6px; background: #fafafa; color: #202124; font-size: clamp(16px, 8cqh, 24px); font-weight: 700; line-height: 1; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .keypad { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(5, minmax(0, 1fr)); gap: clamp(4px, 1.5cqh, 6px); min-height: 0; overflow: hidden; }
     button { min-width: 0; min-height: 0; height: auto; border: 1px solid #dadce0; border-radius: 6px; background: #ffffff; color: #202124; cursor: var(--upmade-global-pointer-cursor, pointer); font-size: clamp(11px, 5cqh, 15px); font-weight: 600; line-height: 1; }
     button:hover { background: #f8f9fa; }
-    .operator { border-color: #c10564; color: #c10564; }
+    .operator { border-color: #ff6ab5; color: #ff6ab5; }
     .muted { color: #5f6368; }
-    .equals { grid-row: span 2; height: auto; background: #c10564; border-color: #c10564; color: #ffffff; }
-    .equals:hover { background: #c3002f; }
+    .equals { grid-row: span 2; height: auto; background: #ff6ab5; border-color: #ff6ab5; color: #ffffff; }
+    .equals:hover { background: #e65fa3; }
     .zero { grid-column: span 2; }
   `],
 })

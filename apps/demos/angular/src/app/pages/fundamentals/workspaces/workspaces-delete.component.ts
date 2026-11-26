@@ -81,11 +81,12 @@ import { createSeedObjects } from '../../../const/seed-objects';
         font-size: 13px;
         font-weight: 600;
       }
-      .workspace-tab:hover {
-        background: #ffe7f3;
+      .workspace-tab:hover,
+      .workspace-tab.active {
+        border-color: #ff6ab5;
       }
       .workspace-tab.active {
-        background: #c10564;
+        background: #ff6ab5;
         color: #fff;
       }
       .delete-workspace {

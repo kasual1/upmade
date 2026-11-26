@@ -60,7 +60,7 @@ export class UserManagementLogoutComponent {
   user = signal<IUpmadeUser | undefined>({
     id: `user-google-1`,
     displayName: 'Ada Lovelace',
-    color: '#c10564',
+    color: '#ff6ab5',
     isGuest: false,
   });
 
@@ -84,7 +84,7 @@ export class UserManagementLogoutComponent {
     const account = {
       id: `user-${provider}-1`,
       displayName: 'Ada Lovelace',
-      color: '#c10564',
+      color: '#ff6ab5',
       isGuest: false,
     };
 
