@@ -17,6 +17,10 @@ export const angularThemeDark: UpmadeTheme = withDemoStyle({
     primaryHoverBackgroundColor: '#e65fa3',
     primaryActiveBackgroundColor: '#cc5591',
     primaryColor: '#ffffff',
+    secondaryHoverBackgroundColor: 'rgba(255, 106, 181, 0.2)',
+    textHoverBackgroundColor: 'rgba(255, 106, 181, 0.2)',
+    secondaryActiveBackgroundColor: 'rgba(255, 106, 181, 0.28)',
+    textActiveBackgroundColor: 'rgba(255, 106, 181, 0.28)',
   },
   currentUserDialog: {
     ...darkTheme.currentUserDialog,
@@ -40,12 +44,12 @@ export const angularThemeDark: UpmadeTheme = withDemoStyle({
   },
   contextMenu: {
     ...darkTheme.contextMenu,
-    itemHoverBackgroundColor: 'rgba(255, 106, 181, 0.12)',
-    itemActiveBackgroundColor: 'rgba(255, 106, 181, 0.18)',
+    itemHoverBackgroundColor: 'rgba(255, 106, 181, 0.2)',
+    itemActiveBackgroundColor: 'rgba(255, 106, 181, 0.28)',
   },
   menu: {
     ...darkTheme.menu,
-    itemButtonHoverBackgroundColor: 'rgba(255, 106, 181, 0.12)',
+    itemButtonHoverBackgroundColor: 'rgba(255, 106, 181, 0.2)',
     itemOverlayBackgroundColor: 'rgba(255, 106, 181, 0.12)',
     itemSelectedBackgroundColor: '#ff6ab5',
     itemInputSelectionColor: '#ff6ab5',
@@ -60,12 +64,13 @@ export const angularThemeDark: UpmadeTheme = withDemoStyle({
   },
   splitButton: {
     ...darkTheme.splitButton,
-    hoverBackgroundColor: 'rgba(255, 106, 181, 0.12)',
+    hoverBackgroundColor: 'rgba(255, 106, 181, 0.2)',
   },
   dropdown: {
     ...darkTheme.dropdown,
     accentColor: '#ff6ab5',
     selectedBackgroundColor: 'rgba(255, 106, 181, 0.15)',
+    hoverBackgroundColor: 'rgba(255, 106, 181, 0.2)',
   },
   slideToggle: {
     ...darkTheme.slideToggle,
@@ -73,7 +78,8 @@ export const angularThemeDark: UpmadeTheme = withDemoStyle({
   },
   loginDialog: {
     ...darkTheme.loginDialog,
-    buttonHoverBackground: 'rgba(255, 106, 181, 0.12)',
+    buttonHoverBackground: 'rgba(255, 106, 181, 0.2)',
+    buttonActiveBackground: 'rgba(255, 106, 181, 0.28)',
   },
   opacitySlider: {
     ...darkTheme.opacitySlider,
@@ -82,13 +88,13 @@ export const angularThemeDark: UpmadeTheme = withDemoStyle({
   },
   moreMenu: {
     ...darkTheme.moreMenu,
-    buttonHoverBackgroundColor: 'rgba(255, 106, 181, 0.12)',
-    buttonActiveBackgroundColor: 'rgba(255, 106, 181, 0.18)',
+    buttonHoverBackgroundColor: 'rgba(255, 106, 181, 0.2)',
+    buttonActiveBackgroundColor: 'rgba(255, 106, 181, 0.28)',
   },
   masterDetail: {
     ...darkTheme.masterDetail,
-    menuItemHoverBackgroundColor: 'rgba(255, 106, 181, 0.12)',
-    menuItemActiveBackgroundColor: 'rgba(255, 106, 181, 0.18)',
+    menuItemHoverBackgroundColor: 'rgba(255, 106, 181, 0.2)',
+    menuItemActiveBackgroundColor: 'rgba(255, 106, 181, 0.28)',
     menuItemSelectedBackgroundColor: '#ff6ab5',
     menuItemSelectedHoverBackgroundColor: '#ff6ab5',
     menuItemSelectedColor: '#ffffff',
@@ -105,6 +111,8 @@ export const angularThemeDark: UpmadeTheme = withDemoStyle({
   numericInput: {
     ...darkTheme.numericInput,
     focusBorderColor: '#ff6ab5',
+    spinnerHoverBackground: 'rgba(255, 106, 181, 0.2)',
+    spinnerActiveBackground: 'rgba(255, 106, 181, 0.28)',
   },
   titlebar: {
     ...darkTheme.titlebar,
@@ -113,14 +121,15 @@ export const angularThemeDark: UpmadeTheme = withDemoStyle({
     activeIconColor: '#ff6ab5',
     activeMutedTextColor: 'rgba(255, 106, 181, 0.6)',
     activeTextColor: '#ff6ab5',
-    buttonHoverBackgroundColor: 'rgba(255, 106, 181, 0.12)',
-    buttonPressedBackgroundColor: 'rgba(255, 106, 181, 0.18)',
+    buttonHoverBackgroundColor: 'rgba(255, 106, 181, 0.2)',
+    buttonPressedBackgroundColor: 'rgba(255, 106, 181, 0.28)',
     focusRing: '2px solid #ff6ab5',
     selectionBackgroundColor: '#ff6ab5',
+    hoverBackgroundColor: 'rgba(255, 106, 181, 0.2)',
   },
   titlebarMenu: {
     ...darkTheme.titlebarMenu,
-    itemHoverBackgroundColor: 'rgba(255, 106, 181, 0.12)',
+    itemHoverBackgroundColor: 'rgba(255, 106, 181, 0.2)',
   },
   chatBox: {
     ...darkTheme.chatBox,
@@ -131,4 +140,55 @@ export const angularThemeDark: UpmadeTheme = withDemoStyle({
     selectionBackgroundColor: '#ff6ab5',
     selectionColor: '#ffffff',
   },
-}, darkStyle);
+  backToContent: {
+    ...darkTheme.backToContent,
+    hoverBackgroundColor: 'rgba(255, 106, 181, 0.2)',
+  },
+  colorPalette: {
+    ...darkTheme.colorPalette,
+    hoverBackgroundColor: 'rgba(255, 106, 181, 0.2)',
+  },
+  dialog: {
+    ...darkTheme.dialog,
+    closeButtonHoverBackground: 'rgba(255, 106, 181, 0.2)',
+    closeButtonActiveBackground: 'rgba(255, 106, 181, 0.28)',
+  },
+  fontSize: {
+    ...darkTheme.fontSize,
+    hoverBackgroundColor: 'rgba(255, 106, 181, 0.2)',
+  },
+  lineEndings: {
+    ...darkTheme.lineEndings,
+    hoverBackgroundColor: 'rgba(255, 106, 181, 0.2)',
+  },
+  notificationCard: {
+    ...darkTheme.notificationCard,
+    dismissButtonHoverBackgroundColor: 'rgba(255, 106, 181, 0.2)',
+    dismissButtonActiveBackgroundColor: 'rgba(255, 106, 181, 0.28)',
+  },
+  shapeFill: {
+    ...darkTheme.shapeFill,
+    hoverBackgroundColor: 'rgba(255, 106, 181, 0.2)',
+  },
+  shareDialog: {
+    ...darkTheme.shareDialog,
+    copyButtonHoverBackground: 'rgba(255, 106, 181, 0.2)',
+  },
+  strokeSize: {
+    ...darkTheme.strokeSize,
+    hoverBackgroundColor: 'rgba(255, 106, 181, 0.2)',
+  },
+  utilityPanel: {
+    ...darkTheme.utilityPanel,
+    buttonHoverBackgroundColor: 'rgba(255, 106, 181, 0.2)',
+  },
+  zoomPanel: {
+    ...darkTheme.zoomPanel,
+    buttonHoverBackgroundColor: 'rgba(255, 106, 181, 0.2)',
+    buttonActiveBackgroundColor: 'rgba(255, 106, 181, 0.28)',
+  },
+  pillTabs: {
+    ...darkTheme.pillTabs,
+    tabBackgroundHover: 'rgba(255, 106, 181, 0.2)',
+  },
+};

@@ -17,6 +17,10 @@ export const angularThemeLight: UpmadeTheme = withDemoStyle({
     primaryHoverBackgroundColor: '#e65fa3',
     primaryActiveBackgroundColor: '#cc5591',
     primaryColor: '#ffffff',
+    secondaryHoverBackgroundColor: '#ffe1f0',
+    textHoverBackgroundColor: '#ffe1f0',
+    secondaryActiveBackgroundColor: '#ffd2e9',
+    textActiveBackgroundColor: '#ffd2e9',
   },
   currentUserDialog: {
     ...lightTheme.currentUserDialog,
@@ -34,8 +38,8 @@ export const angularThemeLight: UpmadeTheme = withDemoStyle({
   },
   contextMenu: {
     ...lightTheme.contextMenu,
-    itemHoverBackgroundColor: 'rgba(255, 106, 181, 0.08)',
-    itemActiveBackgroundColor: 'rgba(255, 106, 181, 0.12)',
+    itemHoverBackgroundColor: '#ffe1f0',
+    itemActiveBackgroundColor: '#ffd2e9',
   },
   toolbar: {
     ...lightTheme.toolbar,
@@ -45,7 +49,7 @@ export const angularThemeLight: UpmadeTheme = withDemoStyle({
   },
   menu: {
     ...lightTheme.menu,
-    itemButtonHoverBackgroundColor: 'rgba(255, 106, 181, 0.08)',
+    itemButtonHoverBackgroundColor: '#ffe1f0',
     itemOverlayBackgroundColor: 'rgba(255, 106, 181, 0.08)',
     itemSelectedBackgroundColor: '#ff6ab5',
     itemInputSelectionColor: '#ff6ab5',
@@ -60,12 +64,13 @@ export const angularThemeLight: UpmadeTheme = withDemoStyle({
   },
   splitButton: {
     ...lightTheme.splitButton,
-    hoverBackgroundColor: 'rgba(255, 106, 181, 0.08)',
+    hoverBackgroundColor: '#ffe1f0',
   },
   dropdown: {
     ...lightTheme.dropdown,
     accentColor: '#ff6ab5',
     selectedBackgroundColor: 'rgba(255, 106, 181, 0.1)',
+    hoverBackgroundColor: '#ffe1f0',
   },
   slideToggle: {
     ...lightTheme.slideToggle,
@@ -73,7 +78,8 @@ export const angularThemeLight: UpmadeTheme = withDemoStyle({
   },
   loginDialog: {
     ...lightTheme.loginDialog,
-    buttonHoverBackground: 'rgba(255, 106, 181, 0.08)',
+    buttonHoverBackground: '#ffe1f0',
+    buttonActiveBackground: '#ffd2e9',
   },
   opacitySlider: {
     ...lightTheme.opacitySlider,
@@ -82,13 +88,13 @@ export const angularThemeLight: UpmadeTheme = withDemoStyle({
   },
   moreMenu: {
     ...lightTheme.moreMenu,
-    buttonHoverBackgroundColor: 'rgba(255, 106, 181, 0.08)',
-    buttonActiveBackgroundColor: 'rgba(255, 106, 181, 0.12)',
+    buttonHoverBackgroundColor: '#ffe1f0',
+    buttonActiveBackgroundColor: '#ffd2e9',
   },
   masterDetail: {
     ...lightTheme.masterDetail,
-    menuItemHoverBackgroundColor: 'rgba(255, 106, 181, 0.08)',
-    menuItemActiveBackgroundColor: 'rgba(255, 106, 181, 0.12)',
+    menuItemHoverBackgroundColor: '#ffe1f0',
+    menuItemActiveBackgroundColor: '#ffd2e9',
     menuItemSelectedBackgroundColor: 'rgba(255, 106, 181, 0.1)',
     menuItemSelectedHoverBackgroundColor: 'rgba(255, 106, 181, 0.15)',
     menuItemSelectedColor: '#ff6ab5',
@@ -105,6 +111,8 @@ export const angularThemeLight: UpmadeTheme = withDemoStyle({
   numericInput: {
     ...lightTheme.numericInput,
     focusBorderColor: '#ff6ab5',
+    spinnerHoverBackground: '#ffe1f0',
+    spinnerActiveBackground: '#ffd2e9',
   },
   titlebar: {
     ...lightTheme.titlebar,
@@ -113,14 +121,15 @@ export const angularThemeLight: UpmadeTheme = withDemoStyle({
     activeIconColor: '#ff6ab5',
     activeMutedTextColor: 'rgba(255, 106, 181, 0.6)',
     activeTextColor: '#ff6ab5',
-    buttonHoverBackgroundColor: 'rgba(255, 106, 181, 0.08)',
-    buttonPressedBackgroundColor: 'rgba(255, 106, 181, 0.12)',
+    buttonHoverBackgroundColor: '#ffe1f0',
+    buttonPressedBackgroundColor: '#ffd2e9',
     focusRing: '2px solid #ff6ab5',
     selectionBackgroundColor: '#ff6ab5',
+    hoverBackgroundColor: '#ffe1f0',
   },
   titlebarMenu: {
     ...lightTheme.titlebarMenu,
-    itemHoverBackgroundColor: 'rgba(255, 106, 181, 0.08)',
+    itemHoverBackgroundColor: '#ffe1f0',
   },
   chatBox: {
     ...lightTheme.chatBox,
@@ -131,4 +140,55 @@ export const angularThemeLight: UpmadeTheme = withDemoStyle({
     selectionBackgroundColor: '#ff6ab5',
     selectionColor: '#ffffff',
   },
-}, lightStyle);
+  backToContent: {
+    ...lightTheme.backToContent,
+    hoverBackgroundColor: '#ffe1f0',
+  },
+  colorPalette: {
+    ...lightTheme.colorPalette,
+    hoverBackgroundColor: '#ffe1f0',
+  },
+  dialog: {
+    ...lightTheme.dialog,
+    closeButtonHoverBackground: '#ffe1f0',
+    closeButtonActiveBackground: '#ffd2e9',
+  },
+  fontSize: {
+    ...lightTheme.fontSize,
+    hoverBackgroundColor: '#ffe1f0',
+  },
+  lineEndings: {
+    ...lightTheme.lineEndings,
+    hoverBackgroundColor: '#ffe1f0',
+  },
+  notificationCard: {
+    ...lightTheme.notificationCard,
+    dismissButtonHoverBackgroundColor: '#ffe1f0',
+    dismissButtonActiveBackgroundColor: '#ffd2e9',
+  },
+  shapeFill: {
+    ...lightTheme.shapeFill,
+    hoverBackgroundColor: '#ffe1f0',
+  },
+  shareDialog: {
+    ...lightTheme.shareDialog,
+    copyButtonHoverBackground: '#ffe1f0',
+  },
+  strokeSize: {
+    ...lightTheme.strokeSize,
+    hoverBackgroundColor: '#ffe1f0',
+  },
+  utilityPanel: {
+    ...lightTheme.utilityPanel,
+    buttonHoverBackgroundColor: '#ffe1f0',
+  },
+  zoomPanel: {
+    ...lightTheme.zoomPanel,
+    buttonHoverBackgroundColor: '#ffe1f0',
+    buttonActiveBackgroundColor: '#ffd2e9',
+  },
+  pillTabs: {
+    ...lightTheme.pillTabs,
+    tabBackgroundHover: '#ffe1f0',
+  },
+};
