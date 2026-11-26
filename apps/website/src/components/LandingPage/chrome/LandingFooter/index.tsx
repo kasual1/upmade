@@ -15,7 +15,6 @@ export interface LandingFooterProps {
 }
 
 const DEFAULT_TAGLINE = "Build infinite canvas experiences in minutes.";
-const DEFAULT_LICENSE = "Open source under the MIT License";
 
 function FooterLink({ link }: { link: LandingFooterLink }): ReactNode {
   if (link.kind === "internal") {
@@ -37,7 +36,7 @@ function FooterLink({ link }: { link: LandingFooterLink }): ReactNode {
  * columns of themeConfig.footer.links (the one source, shared with the Docusaurus footer) and the meta line. Rendered
  * by the swizzled theme/Footer, instead of the Docusaurus footer, on pages whose config says `footer: "landing"`.
  */
-export default function LandingFooter({ tagline = DEFAULT_TAGLINE, license = DEFAULT_LICENSE }: LandingFooterProps): ReactNode {
+export default function LandingFooter({ tagline = DEFAULT_TAGLINE }: LandingFooterProps): ReactNode {
   const { footer } = useThemeConfig();
   const { siteConfig } = useDocusaurusContext();
   // The Documentation links follow the visitor's framework after mount (React on the server and at hydration).
@@ -72,7 +71,6 @@ export default function LandingFooter({ tagline = DEFAULT_TAGLINE, license = DEF
       </div>
       <div className={styles.meta}>
         <span>{typeof year === "number" || typeof year === "string" ? `Copyright © ${year} Upmade` : "Copyright © Upmade"}</span>
-        <span>{license}</span>
       </div>
     </footer>
   );
