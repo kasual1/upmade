@@ -1,4 +1,4 @@
-// Injected into every page of the recording context. Draws a small badge with the dark Upmade mark and
+// Injected into every page of the recording context. Draws a small badge with the Upmade logo (the pink agent) and
 // "upmade.io" in the bottom right corner of the page, above everything else, so it ends up in the video.
 function installRecorderWatermark({ text, logo }) {
 	// Only the top page gets the badge, not every iframe inside it.
@@ -23,16 +23,18 @@ function installRecorderWatermark({ text, logo }) {
 	`;
 
 	// Built from elements rather than an SVG string, so pages with Trusted Types still show it.
+	function build({ tag, attrs, children }) {
+		const el = document.createElementNS(SVG_NS, tag);
+		for (const [name, value] of Object.entries(attrs)) el.setAttribute(name, value);
+		for (const child of children) el.appendChild(build(child));
+		return el;
+	}
+
 	function createLogo() {
 		const svg = document.createElementNS(SVG_NS, 'svg');
 		svg.setAttribute('viewBox', logo.viewBox);
 		svg.setAttribute('aria-hidden', 'true');
-		for (const d of logo.paths) {
-			const path = document.createElementNS(SVG_NS, 'path');
-			path.setAttribute('fill', logo.color);
-			path.setAttribute('d', d);
-			svg.appendChild(path);
-		}
+		for (const node of logo.nodes) svg.appendChild(build(node));
 		return svg;
 	}
 

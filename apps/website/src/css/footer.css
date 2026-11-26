@@ -77,10 +77,10 @@
 
 /* The mark is taller than wide, so it fits the square box by its height (the SVG keeps its aspect ratio). */
 .upmade-footer-brand__logo {
-  width: 28px;
-  height: 28px;
+  /* the pink agent (Brand/logoAgent.ts), wider than tall: sized by its width */
+  width: 34px;
+  height: auto;
   display: block;
-  color: #0a0a0a;
 }
 
 .upmade-footer-brand__description {

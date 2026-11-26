@@ -32,6 +32,11 @@ export interface AgentProps {
   reactive?: boolean | HopStyle;
   /** its eyes follow the pointer while it moves nearby, on top of the animation's own glances */
   followPointer?: boolean;
+  /**
+   * how its eyes follow the pointer (with `followPointer`): its own speed, range, patience and distractions, so a
+   * group of agents doesn't track the cursor in lockstep. Left out, every agent follows the same way.
+   */
+  gaze?: GazeStyle;
   /** describes the agent to screen readers; without it the agent is decorative */
   label?: string;
   className?: string;
@@ -122,10 +127,24 @@ function applyPose(parts: Parts, pose: Pose, shape: ShapeName) {
 
 const IDLE: AgentAnimation = { duration: 1000 };
 
-/**
- * An agent from the Upmade family: one of the body shapes in one of the colours, with eyes and two hands, playing
- * a declarative animation. Plays only while on screen; shows `animation.rest` still with reduced motion.
- */
+/** A pointer-following personality (see AgentProps `gaze`). Every field is optional; left out, the default applies. */
+export interface GazeStyle {
+  /** how much of the way to the pointer the eyes catch up each frame (0 to 1): .08 is lazy, .3 darting; default .18 */
+  ease?: number;
+  /** how far the eyes turn towards the pointer, as a factor of the default (1) */
+  range?: number;
+  /** how long (ms) the eyes keep looking after the pointer stops, before drifting back to the animation's gaze;
+   *  default 2500 */
+  linger?: number;
+  /** while following, glances somewhere else for a moment about this often (ms, each wait randomised); 0 never */
+  wander?: number;
+  /** blinks as it notices the pointer moving again after a rest */
+  notice?: boolean;
+}
+
+/** a quick blink's openness `ms` after it starts: shut at 70 ms, open again by 200 */
+const noticeBlink = (ms: number) => (ms < 70 ? 1 - (ms / 70) * 0.9 : ms < 200 ? 0.1 + ((ms - 70) / 130) * 0.9 : 1);
+
 /** How strongly a hop moves the agent: factors for its height, tilt and squash (1 = as rolled). */
 export interface HopStyle {
   lift?: number;
@@ -133,6 +152,10 @@ export interface HopStyle {
   squash?: number;
 }
 
+/**
+ * An agent from the Upmade family: one of the body shapes in one of the colours, with eyes and two hands, playing
+ * a declarative animation. Plays only while on screen; shows `animation.rest` still with reduced motion.
+ */
 export default function Agent({
   shape = "squircle",
   colour = "pink",
@@ -145,6 +168,7 @@ export default function Agent({
   rate = 1,
   reactive = true,
   followPointer = false,
+  gaze: gazeStyle,
   label,
   className,
   style,
@@ -162,6 +186,8 @@ export default function Agent({
   const inScene = (n: string) => animation.props?.[n]?.attach === "scene";
   // compared by value, so an inline `reactive={{ lean: 0 }}` doesn't restart the animation on every render
   const hopKey = typeof reactive === "object" ? JSON.stringify(reactive) : String(reactive);
+  // the same for the gaze personality
+  const gazeKey = JSON.stringify(gazeStyle ?? {});
 
   useEffect(() => {
     const hopStyle: HopStyle = typeof reactive === "object" ? reactive : {};
@@ -171,14 +197,22 @@ export default function Agent({
     const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     const still = time !== undefined || paused || reduce;
 
-    // the eyes ease towards the pointer while it moves nearby, and back to the animation's own gaze when it rests
-    const gaze = { x: 0, y: 0, tx: 0, ty: 0, last: -1e9 };
+    // the eyes ease towards the pointer while it moves nearby, and back to the animation's own gaze when it rests;
+    // `gaze` (GazeStyle) sets how quickly, how far and how patiently, and adds glances away and a noticing blink
+    const style = JSON.parse(gazeKey) as GazeStyle;
+    const ease = style.ease ?? 0.18, range = style.range ?? 1, linger = style.linger ?? 2500, wander = style.wander ?? 0;
+    const gaze = { x: 0, y: 0, tx: 0, ty: 0, last: -1e9, noticed: -1e9 };
+    // a glance away: where to, and until when; the next one is due at `next` (randomised so agents don't sync up)
+    const nextWander = (now: number) => now + wander * (0.5 + Math.random());
+    const glance = { x: 0, y: 0, until: 0, next: wander ? nextWander(performance.now()) : Infinity };
     const onPointer = (e: PointerEvent) => {
       const r = svg.getBoundingClientRect();
       const dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2), reach = 240;
-      gaze.tx = Math.max(-1, Math.min(1, dx / reach)) * 2.2;
-      gaze.ty = Math.max(-1, Math.min(1, dy / reach)) * 1.6;
-      gaze.last = performance.now();
+      gaze.tx = Math.max(-1, Math.min(1, dx / reach)) * 2.2 * range;
+      gaze.ty = Math.max(-1, Math.min(1, dy / reach)) * 1.6 * range;
+      const now = performance.now();
+      if (style.notice && now - gaze.last > linger) gaze.noticed = now;
+      gaze.last = now;
     };
     const follow = followPointer && !reduce;
     if (follow) window.addEventListener("pointermove", onPointer, { passive: true });
@@ -188,10 +222,22 @@ export default function Agent({
     const show = (t: number) => {
       const pose = poseAt(animation, t, shape);
       if (follow) {
-        const resting = performance.now() - gaze.last > 2500;
-        gaze.x += ((resting ? 0 : gaze.tx) - gaze.x) * 0.18;
-        gaze.y += ((resting ? 0 : gaze.ty) - gaze.y) * 0.18;
+        const now = performance.now();
+        const resting = now - gaze.last > linger;
+        if (!resting && now >= glance.next) {
+          // look somewhere else for a moment: off to the side away from the pointer, a little up or down
+          const side = gaze.tx > 0.3 ? -1 : gaze.tx < -0.3 ? 1 : Math.random() < 0.5 ? -1 : 1;
+          glance.x = side * (1.2 + Math.random() * 1.2);
+          glance.y = -0.9 + Math.random() * 1.4;
+          glance.until = now + 450 + Math.random() * 650;
+          glance.next = nextWander(glance.until);
+        }
+        const away = !resting && now < glance.until;
+        const [tx, ty] = resting ? [0, 0] : away ? [glance.x, glance.y] : [gaze.tx, gaze.ty];
+        gaze.x += (tx - gaze.x) * ease;
+        gaze.y += (ty - gaze.y) * ease;
         pose.eyes.look = [pose.eyes.look[0] + gaze.x, pose.eyes.look[1] + gaze.y];
+        if (now - gaze.noticed < 200) pose.eyes.open = Math.min(pose.eyes.open, noticeBlink(now - gaze.noticed));
       }
       const h = hop && hopAt(hop.hop, performance.now() - hop.start);
       if (h) {
@@ -256,7 +302,7 @@ export default function Agent({
       stop?.();
       unbind();
     };
-  }, [animation, shape, time, start, paused, hopKey, followPointer, propNames.join()]);
+  }, [animation, shape, time, start, paused, hopKey, followPointer, gazeKey, propNames.join()]);
 
   const hand = (name: HandName, layer: "behind" | "front") => (
     <g key={`${name}-${layer}`} data-hand={name} data-layer={layer} transform={`translate(${spec.hands[name][0]} ${spec.hands[name][1]})`}>

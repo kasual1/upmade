@@ -3,7 +3,7 @@ import Links from '@theme-original/Footer/Links';
 import type LinksType from '@theme/Footer/Links';
 import type {WrapperProps} from '@docusaurus/types';
 import useBaseUrl from '@docusaurus/useBaseUrl';
-import { UPMADE_LOGO_PATH, UPMADE_LOGO_STROKE_WIDTH, UPMADE_LOGO_VIEWBOX } from '@site/src/components/Brand/paths';
+import { UPMADE_LOGO_MARKUP, UPMADE_LOGO_VIEWBOX } from '@site/src/components/Brand/logoAgent';
 import {
   getPreferredFramework,
   subscribeToPreferredFramework,
@@ -20,11 +20,11 @@ function replaceFrameworkInPath(path: string, framework: Framework): string {
 export default function LinksWrapper(props: Props): ReactNode {
   const [framework, setFramework] = useState<Framework>(getPreferredFramework);
   const homeUrl = useBaseUrl('/');
-  // The mark is drawn inline from the same path data as the header logo (written by `npm run logo:generate`), so
-  // the footer can't show an older mark than the header: a separate /img/logo.svg request could be served stale.
+  // The logo (the pink agent) is drawn inline from generated markup (Brand/logoAgent.ts, `npm run icons:generate`),
+  // so the footer can't show an older logo than the rest of the site: a separate /img/logo.svg request could be
+  // served stale.
   const logoSvg =
-    `<svg class="upmade-footer-brand__logo" viewBox="${UPMADE_LOGO_VIEWBOX}" aria-hidden="true">` +
-    `<path fill="currentColor" stroke="currentColor" stroke-width="${UPMADE_LOGO_STROKE_WIDTH}" stroke-linejoin="round" d="${UPMADE_LOGO_PATH}"/></svg>`;
+    `<svg class="upmade-footer-brand__logo" viewBox="${UPMADE_LOGO_VIEWBOX}" aria-hidden="true">${UPMADE_LOGO_MARKUP}</svg>`;
 
   useEffect(() => {
     return subscribeToPreferredFramework(setFramework);

@@ -9,19 +9,23 @@ import zlib from 'node:zlib';
 import { W, H } from './lib.mjs';
 import { renderArtwork, thumbnailSvg } from './painting.mjs';
 
-// The navbar logo (static/img/logo.svg: one path of filled subpaths, plus an outline of its stroke-width when it has
-// one), read at runtime so thumbnails follow logo changes.
+// The logo: the pink agent (static/img/logo.svg, written by scripts/generate-icons.mjs), next to the white
+// "upmade / blog" label. Read at runtime so thumbnails follow logo changes:
+// `markup` is its drawing (drawn whole, in colour), `viewBox` its frame, and `d` its body outline (its first path),
+// which the logo-mask experiment cuts the artwork with.
 const LOGO_SVG = fs.readFileSync(fileURLToPath(new URL('../../static/img/logo.svg', import.meta.url)), 'utf8');
 const LOGO_VIEWBOX = LOGO_SVG.match(/viewBox="([^"]+)"/)[1].trim().split(/\s+/).map(Number);
-const LOGO_PATH = LOGO_SVG.match(/<path\b[^>]*>/)[0];
 const LOGO = {
-  d: LOGO_PATH.match(/\sd="([^"]+)"/)[1],
+  markup: LOGO_SVG.replace(/^[\s\S]*?<svg\b[^>]*>/, '').replace(/<\/svg>\s*$/, ''),
+  viewBox: LOGO_VIEWBOX,
+  x: LOGO_VIEWBOX[0],
+  y: LOGO_VIEWBOX[1],
   w: LOGO_VIEWBOX[2],
   h: LOGO_VIEWBOX[3],
-  stroke: Number(LOGO_PATH.match(/\sstroke-width="([\d.]+)"/)?.[1] ?? 0),
+  d: LOGO_SVG.match(/<path\b[^>]*\sd="([^"]+)"/)[1],
 };
-// Changes whenever the logo's shape does, so thumbnails drawn with an older logo count as stale.
-export const LOGO_HASH = createHash('sha1').update(`${LOGO.w} ${LOGO.h} ${LOGO.stroke} ${LOGO.d}`).digest('hex').slice(0, 8);
+// Changes whenever the logo does, so thumbnails drawn with an older logo count as stale.
+export const LOGO_HASH = createHash('sha1').update(LOGO_SVG).digest('hex').slice(0, 8);
 
 // ---------- PNG ----------
 
@@ -125,12 +129,12 @@ export function renderLogoMask(seed, outFile, { scale = 1, background = 'white',
   const art = renderArtwork(seed, { scale });
   const imageHref = `data:image/png;base64,${encodePng(art.width, art.height, art.rgba).toString('base64')}`;
   const bg = LOGO_MASK_BACKGROUNDS[background] ?? background;
-  // logo centered, `logoHeight` of the canvas height
+  // the agent centered, `logoHeight` of the canvas height (its viewBox does not start at 0 0)
   const k = (H * logoHeight) / LOGO.h;
-  const x = (W - LOGO.w * k) / 2, y = (H - LOGO.h * k) / 2;
+  const x = (W - LOGO.w * k) / 2 - LOGO.x * k, y = (H - LOGO.h * k) / 2 - LOGO.y * k;
   const image = `<image width="${W}" height="${H}" href="${imageHref}"/>`;
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W * scale}" height="${H * scale}" viewBox="0 0 ${W} ${H}">
-  <defs><mask id="logo"><path fill="#fff" stroke="#fff" stroke-width="${LOGO.stroke}" stroke-linejoin="round" transform="translate(${x} ${y}) scale(${k})" d="${LOGO.d}"/></mask></defs>
+  <defs><mask id="logo"><path fill="#fff" transform="translate(${x} ${y}) scale(${k})" d="${LOGO.d}"/></mask></defs>
   ${bg === 'dim' ? `${image}<rect width="${W}" height="${H}" fill="#000" fill-opacity="0.72"/>` : bg === 'transparent' ? '' : `<rect width="${W}" height="${H}" fill="${bg}"/>`}
   <g mask="url(#logo)">${image}</g>
 </svg>`;

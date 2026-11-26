@@ -6,6 +6,7 @@ import FeatureGrid from "../src/components/LandingPage/sections/FeatureGrid";
 import { LANDING_AGENTS } from "../src/components/LandingPage/agents";
 import type { FeatureGridSection } from "../src/components/LandingPage/types";
 import { FEATURES } from "../src/content/landing/features";
+import { AGENTIC_FEATURES } from "../src/content/landing/agentic-features";
 
 // SectionIntro pulls in Button → LinkTo → @docusaurus/* (not resolvable under vitest); the grid only uses its
 // visually hidden h2, so stand in for it with that
@@ -61,10 +62,17 @@ describe("FeatureGrid (server output)", () => {
     expect(slot.getAttribute("aria-label")).toBe("A golden key");
   });
 
-  it("passes each agent's left reach to the stylesheet", () => {
+  it("passes where each agent's drawing starts to the stylesheet, so it lines up with the title", () => {
     for (const slot of render().querySelectorAll<HTMLElement>("[data-agent-slot]")) {
       const key = slot.getAttribute("data-agent") as keyof typeof LANDING_AGENTS;
-      expect(slot.style.getPropertyValue("--reach-l")).toBe(String(LANDING_AGENTS[key].reach.left));
+      expect(LANDING_AGENTS[key].bodyLeft).toBeTypeOf("number");
+      expect(slot.style.getPropertyValue("--body-l")).toBe(String(LANDING_AGENTS[key].bodyLeft));
+    }
+  });
+
+  it("knows where the drawing starts for every feature agent on both landing pages", () => {
+    for (const { agent } of [...FEATURES, ...AGENTIC_FEATURES]) {
+      expect(LANDING_AGENTS[agent.key].bodyLeft, agent.key).toBeTypeOf("number");
     }
   });
 

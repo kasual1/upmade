@@ -5,7 +5,7 @@ jest.mock('@stencil/core', () => ({
 }));
 
 import { UpmadeWatermark } from './upmade-watermark';
-import { UPMADE_LOGO_PATH, UPMADE_LOGO_VIEWBOX } from './upmade-logo';
+import { UPMADE_LOGO_HEIGHT, UPMADE_LOGO_MARKUP, UPMADE_LOGO_VIEWBOX, UPMADE_LOGO_WIDTH } from './upmade-logo';
 import { UpmadeCore, UPMADE_WEBSITE_URL } from '@upmade/core';
 
 const anchorOf = (vnode: any) => vnode.$children$[0];
@@ -74,23 +74,31 @@ describe('UpmadeWatermark', () => {
     expect(textOf(anchorOf(component.render()))).toBe('upmade.io');
   });
 
-  it('should show the Upmade mark before the text, hidden from assistive technology', () => {
+  it('should show the Upmade logo (the pink agent) before the text, hidden from assistive technology', () => {
     const anchor = anchorOf(component.render());
     const logo = logoOf(anchor);
 
     expect(anchor.$children$.indexOf(logo)).toBe(0);
     expect(logo.$attrs$.viewBox).toBe(UPMADE_LOGO_VIEWBOX);
     expect(logo.$attrs$['aria-hidden']).toBe('true');
-    expect(logo.$children$[0].$tag$).toBe('path');
-    expect(logo.$children$[0].$attrs$.d).toBe(UPMADE_LOGO_PATH);
+
+    // the drawing is filled in once the <svg> exists (an innerHTML prop would end up as an attribute in SVG)
+    const svg = { innerHTML: '' } as unknown as SVGSVGElement;
+    logo.$attrs$.ref(svg);
+    expect(svg.innerHTML).toBe(UPMADE_LOGO_MARKUP);
   });
 
-  it('should give the mark its intrinsic size so its width follows the height set in CSS', () => {
-    const logo = logoOf(anchorOf(component.render()));
-    const [, , width, height] = UPMADE_LOGO_VIEWBOX.split(' ');
+  it("should mark the agent's outlines so the theme's logo colour can recolour them", () => {
+    expect(UPMADE_LOGO_MARKUP).toContain('class="rim"');
+  });
 
-    expect(logo.$attrs$.width).toBe(width);
-    expect(logo.$attrs$.height).toBe(height);
+  it('should give the logo its intrinsic size so its width follows the height set in CSS', () => {
+    const logo = logoOf(anchorOf(component.render()));
+    const [, , width, height] = UPMADE_LOGO_VIEWBOX.split(' ').map(Number);
+
+    expect(logo.$attrs$.width).toBe(UPMADE_LOGO_WIDTH);
+    expect(logo.$attrs$.height).toBe(UPMADE_LOGO_HEIGHT);
+    expect([UPMADE_LOGO_WIDTH, UPMADE_LOGO_HEIGHT]).toEqual([width, height]);
   });
 
   it('should stop pointer events from reaching the engine so the link click is not suppressed', () => {

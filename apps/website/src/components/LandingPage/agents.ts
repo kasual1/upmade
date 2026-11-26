@@ -69,6 +69,12 @@ export interface LandingAgentEntry {
    */
   body?: AgentReach;
   /**
+   * where the drawing's left edge is at rest (outline strokes and hands included), as a fraction of the box from its
+   * left side (negative: past it): the feature grid lines this edge up with the feature's title. For agents that
+   * change shape, the edge of the widest shape, so none pokes past the title
+   */
+  bodyLeft?: number;
+  /**
    * the overflow a media frame keeps room for when this is its corner agent, if less than `reach`: `reach` minus
    * decoration that may be cut off at the viewport's edge (the lovestruck agent's rising hearts spread far to each
    * side; reserving room for them would make the frame much narrower on phones)
@@ -117,11 +123,18 @@ export const LANDING_AGENTS = {
   },
 
   // feature grid
-  key: { Component: KeyDemo, label: "An agent revealing a golden key from behind its back", reach: r(0, 0, 0, 0.08) },
+  key: {
+    Component: KeyDemo,
+    label: "An agent revealing a golden key from behind its back",
+    reach: r(0, 0, 0, 0.08),
+    bodyLeft: -0.038,
+  },
   handoff: {
     Component: HandoffDemo,
     label: "Two agents passing a document to each other",
     reach: r(0, 0.18, 0, 0.21),
+    // the triangle's outline
+    bodyLeft: -0.205,
     composite: true,
     clientOnly: true,
   },
@@ -129,6 +142,8 @@ export const LANDING_AGENTS = {
     Component: ShapeShiftDemo,
     label: "An agent changing shape from a circle to a triangle to a square",
     reach: r(0, 0, 0, 0),
+    // the square's and the triangle's edge (the circle is a little narrower)
+    bodyLeft: 0.15,
     composite: true,
     clientOnly: true,
   },
@@ -136,14 +151,17 @@ export const LANDING_AGENTS = {
     Component: ControlPanelDemo,
     label: "An agent at a control panel, pressing a button that reshapes and repaints it",
     reach: r(0.04, 0.5, 0, 0.65),
+    bodyLeft: 0.143,
   },
   devices: {
     Component: DevicesDemo,
     label: "An agent holding up a phone, then a tablet, then a laptop",
     reach: r(0, 0, 0, 0),
+    bodyLeft: 0.013,
     composite: true,
   },
-  book: { Component: BookDemo, label: "An agent speed-reading a book", reach: r(0, 0, 0, 0) },
+  // its left hand
+  book: { Component: BookDemo, label: "An agent speed-reading a book", reach: r(0, 0, 0, 0), bodyLeft: 0.085 },
 
   // showcase corners
   juggler: {
@@ -167,17 +185,32 @@ export const LANDING_AGENTS = {
 
   // the /agentic page's feature agents (cursor, plug, wizard, painter; key and book are above) and corner agents
   // (lovestruck, hatSwap, bouquetReveal; body insets measured on /agent?only=<key> the same way, 2026-11-25)
-  cursor: { Component: CursorDemo, label: "An agent turning into a cursor arrow and clicking", reach: r(0, 0, 0, 0) },
-  plug: { Component: PlugDemo, label: "An agent plugging a plug into a socket", reach: r(0, 0.03, 0, 0.03) },
+  cursor: {
+    Component: CursorDemo,
+    label: "An agent turning into a cursor arrow and clicking",
+    reach: r(0, 0, 0, 0),
+    bodyLeft: 0.175,
+  },
+  plug: {
+    Component: PlugDemo,
+    label: "An agent plugging a plug into a socket",
+    reach: r(0, 0.03, 0, 0.03),
+    // its body: the left hand swings out to about 0 and back while it handles the plug, so its rest spot would leave
+    // the body standing well inside the title's edge most of the time
+    bodyLeft: 0.148,
+  },
   wizard: {
     Component: WizardDemo,
     label: "An agent conjuring a vase, an apple and a rabbit from a hat",
     reach: r(0.28, 0.13, 0, 0.23),
+    bodyLeft: -0.215,
   },
   painter: {
     Component: PainterDemo,
     label: "An agent in a beret painting at an easel",
     reach: r(0.23, 0.01, 0, 0.31),
+    // its hand
+    bodyLeft: -0.217,
     composite: true,
   },
   lovestruck: {

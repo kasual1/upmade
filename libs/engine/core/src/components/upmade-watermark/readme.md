@@ -7,7 +7,7 @@
 
 ## Overview
 
-Watermark shown in the bottom-right corner of the engine: the Upmade mark and "upmade.io".
+Watermark shown in the bottom-right corner of the engine: the Upmade logo (the pink agent) and "upmade.io".
 
 Rendered inside the engine's Shadow DOM unless the engine's
 `isWatermarkVisible` prop is set to false. The badge links to the Upmade
@@ -23,10 +23,10 @@ website, and its tooltip reads "Powered by Upmade" in the active locale.
 
 ## Shadow Parts
 
-| Part               | Description                              |
-| ------------------ | ---------------------------------------- |
-| `"watermark"`      | The badge (a link to the Upmade website) |
-| `"watermark-logo"` | The Upmade mark inside the badge         |
+| Part               | Description                                       |
+| ------------------ | ------------------------------------------------- |
+| `"watermark"`      | The badge (a link to the Upmade website)          |
+| `"watermark-logo"` | The Upmade logo (the pink agent) inside the badge |
 
 
 ## Dependencies

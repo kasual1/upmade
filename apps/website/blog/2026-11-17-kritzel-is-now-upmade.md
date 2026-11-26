@@ -3,6 +3,8 @@ title: "Kritzel is now Upmade"
 description: "Kritzel is rebranding to Upmade as the project shifts towards becoming an open source development kit for building AI canvases."
 date: 2026-11-17
 thumbnail: /videos/2026_11_17_Rebrand.mp4
+thumbnailSeed: "316d3d49"
+image: /img/blog/kritzel-is-now-upmade.png
 ---
 
 This blog post is mainly targeting the very early adopters of the Kritzel library. Feel free to skip reading, if you do not exactly recall what Kritzel actually is.

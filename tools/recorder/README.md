@@ -31,7 +31,7 @@ A Chromium window opens at the given size. Interact with the page, then close th
 - Screen recordings don't capture the OS cursor, so the tool draws the Upmade engine's default cursor
   (the `mousePointer` icon, read from `libs/core/src/classes/registries/icon-registry.class.ts`)
   and a click ripple into the page. The real cursor is hidden inside the page so you see exactly what gets recorded.
-- By default the tool draws a small badge with the dark Upmade mark (`apps/website/static/img/logo.svg`) and
+- By default the tool draws a small badge with the Upmade logo, the pink agent (`apps/website/static/img/logo.svg`), and
   "upmade.io" in the bottom right corner of the page.
   An Upmade editor shows its own badge there too, unless its `isWatermarkVisible` property is `false`, so
   hide one of the two when recording the editor.

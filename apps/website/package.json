@@ -22,7 +22,8 @@
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids",
     "typecheck": "tsc",
-    "thumbnails": "node scripts/thumbnails/generate.mjs"
+    "thumbnails": "node scripts/thumbnails/generate.mjs",
+    "icons:generate": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --import ./scripts/ts-resolve.mjs scripts/generate-icons.mjs"
   },
   "dependencies": {
     "@docusaurus/core": "^3.10.0",

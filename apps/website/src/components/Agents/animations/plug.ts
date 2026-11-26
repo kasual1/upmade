@@ -219,10 +219,15 @@ const handTrack = (side: Side): PropTrack => ({
   scale: [[0, 1]],
   behind: BEHIND,
 });
-/** A connector or its prongs/holes: on the hand, turned with the connector's angle. */
+/**
+ * A connector or its prongs/holes: on the hand, turned with the connector's angle. Drawn 1/0.8 bigger, like the cords,
+ * so the squash leaves it at the original's size: the hands are placed for full-size connectors (plugged together
+ * they're 18 apart, the plug's 8.5 plus the socket's 9.5), and at the hands' size the two stopped 3.6 short.
+ */
 const gearTrack = (side: Side, visible: readonly Span[]): PropTrack => ({
   ...handTrack(side),
   rotate: frames.map((t) => [t, pose(side, t / D).angle, "linear"] as const),
+  scale: UNSHRINK,
   visible,
 });
 

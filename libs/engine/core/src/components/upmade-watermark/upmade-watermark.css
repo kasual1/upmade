@@ -38,15 +38,18 @@
   flex: none;
   height: var(--upmade-watermark-logo-size, 12px);
   width: auto;
-  /* Themes without a logoColor get a mark in the badge's text colour, so it stays visible on any background */
-  fill: var(--upmade-watermark-logo-color, currentColor);
+  overflow: visible;
+}
+
+/* The agent's outlines (upmade-logo.ts marks them class="rim") take the theme's logoColor: ink on light badges, white on
+   dark ones. Themes without a logoColor get the badge's text colour, so the agent stays outlined on any background. */
+.watermark-logo .rim {
   stroke: var(--upmade-watermark-logo-color, currentColor);
 }
 
-/* High contrast modes recolour the text and background but not SVG fills: let the mark follow the text */
+/* High contrast modes recolour the text and background but not SVG colours: let the outlines follow the text */
 @media (forced-colors: active) {
-  .watermark-logo {
-    fill: currentColor;
+  .watermark-logo .rim {
     stroke: currentColor;
   }
 }

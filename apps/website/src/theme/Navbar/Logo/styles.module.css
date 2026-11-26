@@ -1,6 +1,5 @@
 /* The landing pages' logo (BrandLogo) in the navbar. `a.` outranks Infima's `.navbar__brand` / `.navbar__brand:hover`
-   colours and its fixed height, like UpmadeBrand's own rule; the sizes follow UpmadeBrand's (26px text, 22px at 768px
-   and below). BrandLogo sets its size variables inline, so the phone size is set on the text and agent directly. */
+   colours and its fixed height; 26px text, 22px at 768px and below. BrandLogo sets its size variables inline, so the phone size is set on the text and agent directly. */
 a.landingBrand,
 a.landingBrand:hover {
   height: auto;

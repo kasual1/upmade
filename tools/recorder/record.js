@@ -14,7 +14,7 @@ const ICON_REGISTRY = path.join(__dirname, '../../libs/core/src/classes/registri
 // Same hotspot UpmadeCursorHelper.getCursor() uses for the default cursor.
 const CURSOR_HOTSPOT = { x: 4, y: 4 };
 const WATERMARK_TEXT = 'upmade.io';
-// The dark (black) Upmade mark; logo_dark.svg next to it is the white one for dark backgrounds.
+// The Upmade logo: the pink agent (written by apps/website/scripts/generate-icons.mjs).
 const WATERMARK_LOGO = path.join(__dirname, '../../apps/website/static/img/logo.svg');
 
 function getArgValue(name) {
@@ -64,17 +64,35 @@ function loadEngineCursorSvg() {
 	return match[1].replace(/currentColor/g, 'black');
 }
 
-/** Reads the viewBox, fill colour and path data of the Upmade mark for the watermark. */
+/**
+ * Reads the Upmade logo for the watermark: its viewBox and its drawing as a tree of { tag, attrs, children } (the
+ * page builds elements from it rather than parsing an SVG string, so pages with Trusted Types still show it). The
+ * file is our own generated SVG: elements and attributes only, no text or comments.
+ */
 function loadWatermarkLogo() {
 	const source = fs.readFileSync(WATERMARK_LOGO, 'utf8');
-	const viewBox = source.match(/viewBox="([^"]+)"/)?.[1];
-	const paths = [...source.matchAll(/<path\b[^>]*\bd="([^"]+)"/g)].map((match) => match[1]);
-	const color = source.match(/<path\b[^>]*\bfill="([^"]+)"/)?.[1] ?? '#000000';
-	if (!viewBox || !paths.length) {
-		throw new Error(`Could not read the Upmade mark from ${WATERMARK_LOGO}.`);
+	const viewBox = source.match(/<svg\b[^>]*\bviewBox="([^"]+)"/)?.[1];
+	const root = { tag: 'svg', attrs: {}, children: [] };
+	const stack = [];
+	for (const [, closing, tag, attrText, selfClosing] of source.matchAll(/<(\/?)([a-zA-Z]+)([^>]*?)(\/?)>/g)) {
+		if (closing) {
+			stack.pop();
+			continue;
+		}
+		if (tag === 'svg') {
+			stack.push(root);
+			continue;
+		}
+		const attrs = Object.fromEntries([...attrText.matchAll(/([\w:-]+)="([^"]*)"/g)].map((m) => [m[1], m[2]]));
+		const node = { tag, attrs, children: [] };
+		stack[stack.length - 1].children.push(node);
+		if (!selfClosing) stack.push(node);
+	}
+	if (!viewBox || !root.children.length) {
+		throw new Error(`Could not read the Upmade logo from ${WATERMARK_LOGO}.`);
 	}
 
-	return { viewBox, paths, color };
+	return { viewBox, nodes: root.children };
 }
 
 function defaultName() {
