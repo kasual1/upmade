@@ -736,9 +736,9 @@ export interface UpmadeTheme {
     fontFamily?: string;
     fontSize?: string;
     fontWeight?: string;
-    /** Colour of the Upmade mark in the badge */
+    /** Colour of the outlines of the Upmade logo (the pink agent) in the badge; the badge's text colour if unset */
     logoColor?: string;
-    /** Height of the Upmade mark in the badge */
+    /** Height of the Upmade logo (the pink agent) in the badge; 16px if unset */
     logoSize?: string;
     offsetBottom?: string;
     offsetRight?: string;

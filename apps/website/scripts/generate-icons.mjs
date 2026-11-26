@@ -109,6 +109,34 @@ function tile({ background, rim = INK, rounded, width, border, inner = agent(rim
   );
 }
 
+// ---- the editor's watermark: the agent still, with groups its component animates now and then ----
+
+/**
+ * The agent for the watermark: still (eyes ahead), its outlines marked class="rim" (the watermark recolours them with
+ * the theme's logoColor), and its eyes in <g class="gaze"><g class="lids">: the watermark turns `gaze` to look around
+ * and squashes `lids` to blink, now and then at random, with CSS transitions (nothing runs in between). For its hover
+ * greeting it swaps the eyes for the smiling `happy` arcs and waves the left hand (<g class="hand-l">).
+ */
+function watermarkAgent() {
+  const hand = ([x, y]) =>
+    `<circle class="rim" cx="${x}" cy="${y}" r="${HAND_R}" fill="url(#${GRADIENT})" stroke="${INK}" stroke-width="${STROKE.hand}"/>`;
+  return [
+    `<path class="rim" d="${OUTLINE}" fill="url(#${GRADIENT})" stroke="${INK}" stroke-width="${STROKE.body}" stroke-linejoin="round"/>`,
+    `<g class="gaze"><g class="lids">`,
+    `<rect x="24.55" y="${EYES_Y}" width="4.3" height="6.2" rx="2.15" fill="${INK}"/>`,
+    `<rect x="35.15" y="${EYES_Y}" width="4.3" height="6.2" rx="2.15" fill="${INK}"/>`,
+    `<circle cx="27.2" cy="${EYES_Y + 1.7}" r="1" fill="#FFFFFF"/>`,
+    `<circle cx="37.8" cy="${EYES_Y + 1.7}" r="1" fill="#FFFFFF"/>`,
+    `</g>`,
+    // the happy eyes (closed, smiling arcs, as the rig's `happy` eyes), hidden until the watermark smiles
+    `<path class="happy" d="M23.7 ${EYES_Y + 4.3}q3 -4.5 6 0M34.3 ${EYES_Y + 4.3}q3 -4.5 6 0" fill="none" stroke="${INK}" stroke-width="2.4" stroke-linecap="round"/>`,
+    `</g>`,
+    // the left hand on its own, so the watermark can wave it
+    `<g class="hand-l">${hand(HANDS.L)}</g>`,
+    hand(HANDS.R),
+  ].join("");
+}
+
 // ---- the README badge: the agent idling (Agents/animations/idle.ts), baked into CSS keyframes ----
 
 /**
@@ -274,10 +302,9 @@ for (const [name, size] of [
 
 // The agent as markup for code that draws it inline: the editor's watermark (libs/engine) and the website footer.
 // Its outlines carry class="rim" and are ink by default; the watermark recolours them with the theme's logoColor.
-function logoModule(header) {
+function logoModule(header, markup = DEFS + agent(INK, { rimClass: true })) {
   const pad = 0.6;
   const vb = [X0 - pad, Y0 - pad, W + 2 * pad, H + 2 * pad].map(n);
-  const markup = DEFS + agent(INK, { rimClass: true });
   return [
     ...header.map((line) => `// ${line}`),
     `export const UPMADE_LOGO_VIEWBOX = '${vb.join(" ")}';`,
@@ -295,11 +322,15 @@ const MODULE_NOTE =
   "Written by `npm run icons:generate` (apps/website/scripts/generate-icons.mjs) from the agents' tokens: don't edit it by hand.";
 writeFileSync(
   join(REPO, "libs/engine/core/src/components/upmade-watermark/upmade-logo.ts"),
-  logoModule([
-    "The Upmade logo drawn by the watermark: the pink agent (the website's logo), as SVG markup in UPMADE_LOGO_VIEWBOX.",
-    MODULE_NOTE,
-    "Its outlines carry class=\"rim\": the watermark's stylesheet colours them with the theme's logoColor.",
-  ]),
+  logoModule(
+    [
+      "The Upmade logo drawn by the watermark: the pink agent (the website's logo), as SVG markup in UPMADE_LOGO_VIEWBOX.",
+      MODULE_NOTE,
+      "Its outlines carry class=\"rim\": the watermark's stylesheet colours them with the theme's logoColor. Its eyes sit in",
+      "<g class=\"gaze\"><g class=\"lids\">, which the watermark moves now and then to look around and blink.",
+    ],
+    DEFS + watermarkAgent(),
+  ),
 );
 writeFileSync(
   join(STATIC, "..", "src/components/Brand/logoAgent.ts"),

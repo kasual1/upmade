@@ -16,8 +16,10 @@
   border-radius: var(--upmade-watermark-border-radius, 6px);
   /* The system UI font, like the badge in Upmade's videos, rather than the app's font: the badge is Upmade's brand. */
   font-family: var(--upmade-watermark-font-family, system-ui, -apple-system, 'Segoe UI', sans-serif);
-  font-size: var(--upmade-watermark-font-size, 11px);
+  font-size: var(--upmade-watermark-font-size, 13px);
+  /* ".io" and anything else outside the name; the name is bolder (.watermark-name), as in the website's logo */
   font-weight: var(--upmade-watermark-font-weight, 500);
+  letter-spacing: -0.02em;
   line-height: 1.2;
   text-decoration: none;
   white-space: nowrap;
@@ -33,10 +35,16 @@
   opacity: 1;
 }
 
+/* "upmade" in "upmade.io": bolder than ".io", as in the website's logo (650 against 500) */
+.watermark-name {
+  font-weight: 650;
+}
+
 .watermark-logo {
   display: block;
   flex: none;
-  height: var(--upmade-watermark-logo-size, 12px);
+  /* big enough for the agent's eyes to show when it looks around (each is about a ninth of its height) */
+  height: var(--upmade-watermark-logo-size, 16px);
   width: auto;
   overflow: visible;
 }
@@ -45,6 +53,80 @@
    dark ones. Themes without a logoColor get the badge's text colour, so the agent stays outlined on any background. */
 .watermark-logo .rim {
   stroke: var(--upmade-watermark-logo-color, currentColor);
+}
+
+/* The agent's idle moments (upmade-watermark.tsx sets them off now and then): its eyes glide to look around, and
+   squash about their middle to blink. Only these short transitions run, and only when a moment starts. */
+/* the eyes dart like real glances: fast, with a touch of overshoot, then settle (DART in upmade-watermark.tsx) */
+.watermark-logo .gaze {
+  transition: transform 150ms cubic-bezier(0.25, 1.2, 0.4, 1);
+}
+
+.watermark-logo .lids {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 60ms ease-in;
+}
+
+.watermark-logo .lids.shut {
+  transform: scaleY(0.1);
+}
+
+/* a little hop: springs up stretched, lands squashed, settles (HOP in upmade-watermark.tsx) */
+.watermark-logo.hop {
+  transform-origin: 50% 100%;
+  animation: hop 460ms ease-out;
+}
+
+@keyframes hop {
+  0% { transform: none; }
+  18% { transform: translateY(0) scale(1.06, 0.92); }
+  45% { transform: translateY(-22%) scale(0.95, 1.06); }
+  72% { transform: translateY(0) scale(1.07, 0.92); }
+  88% { transform: translateY(0) scale(0.98, 1.02); }
+  100% { transform: none; }
+}
+
+/* the hover greeting (upmade-watermark.tsx): smiling eyes, and the left hand raised beside the body and waved, as the
+   website navbar's agent does (Brand/logoWave.ts: from its rest spot out and up to (4.5 24.5) and (8.5 21.5)) */
+.watermark-logo .happy {
+  display: none;
+}
+
+.watermark-logo.smiling .lids {
+  display: none;
+}
+
+.watermark-logo.smiling .happy {
+  display: inline;
+}
+
+.watermark-logo.waving .hand-l {
+  animation: wave 1150ms ease-in-out;
+}
+
+@keyframes wave {
+  0% { transform: none; }
+  17% { transform: translate(-4.7px, -18.5px); }
+  27% { transform: translate(-0.7px, -21.5px); }
+  36% { transform: translate(-4.7px, -18.5px); }
+  46% { transform: translate(-0.7px, -21.5px); }
+  55% { transform: translate(-4.7px, -18.5px); }
+  65% { transform: translate(-0.7px, -21.5px); }
+  76% { transform: translate(-4.7px, -18.5px); }
+  100% { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .watermark-logo .gaze,
+  .watermark-logo .lids {
+    transition: none;
+  }
+
+  .watermark-logo.hop,
+  .watermark-logo.waving .hand-l {
+    animation: none;
+  }
 }
 
 /* High contrast modes recolour the text and background but not SVG colours: let the outlines follow the text */
