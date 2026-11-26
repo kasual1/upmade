@@ -26,16 +26,16 @@ export const iframeElementsContent: UpmadeIframeContent = {
     .card { display: flex; flex-direction: column; gap: 14px; width: 100%; height: 100%; padding: 18px; box-sizing: border-box; border: 1px solid #e5e7eb; border-radius: 12px; background: #ffffff; }
     header { display: flex; align-items: baseline; justify-content: space-between; }
     h2 { margin: 0; font-size: 18px; }
-    a { color: #056bb4; font-size: 13px; }
+    a { color: #6fc3ff; font-size: 13px; }
     .periods { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 3px; border-radius: 9px; background: #f3f4f6; }
     .period { height: 30px; border: 0; border-radius: 7px; background: transparent; color: #5f6368; font: inherit; font-size: 13px; font-weight: 600; }
-    .period.active { background: #ffffff; color: #056bb4; box-shadow: 0 1px 4px rgba(32, 33, 36, 0.12); }
+    .period.active { background: #ffffff; color: #6fc3ff; box-shadow: 0 1px 4px rgba(32, 33, 36, 0.12); }
     .seats { display: flex; align-items: center; gap: 10px; }
     .label { flex: 1; color: #5f6368; font-size: 13px; }
     .step { width: 30px; height: 30px; border: 1px solid #dadce0; border-radius: 8px; background: #ffffff; font: inherit; font-size: 16px; }
     output { min-width: 24px; text-align: center; font-weight: 700; }
     .total { display: flex; margin: 0; }
-    .checkout { margin-top: auto; height: 40px; border: 0; border-radius: 9px; background: #056bb4; color: #ffffff; font: inherit; font-size: 14px; font-weight: 700; }
+    .checkout { margin-top: auto; height: 40px; border: 0; border-radius: 9px; background: #6fc3ff; color: #ffffff; font: inherit; font-size: 14px; font-weight: 700; }
   `,
   script: `
     const plan = { seats: 3, yearly: false };

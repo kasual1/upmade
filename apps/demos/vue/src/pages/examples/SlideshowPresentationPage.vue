@@ -54,7 +54,7 @@ async function seedSlides() {
       height: 450,
       shapeType: ShapeType.Rectangle,
       fillColor: { light: '#ffffff', dark: '#1b1b1e' },
-      strokeColor: { light: '#19793c', dark: '#146533' },
+      strokeColor: { light: '#4ade80', dark: '#43c873' },
       strokeWidth: 4,
     }),
   )
@@ -65,7 +65,7 @@ async function seedSlides() {
       translateX: -350,
       translateY: -150,
       fontSize: 36,
-      fontColor: { light: '#19793c', dark: '#7ee2b8' },
+      fontColor: { light: '#4ade80', dark: '#7ee2b8' },
     }),
   )
 
@@ -102,7 +102,7 @@ async function seedSlides() {
       height: 450,
       shapeType: ShapeType.Rectangle,
       fillColor: { light: '#ffffff', dark: '#1b1b1e' },
-      strokeColor: { light: '#19793c', dark: '#146533' },
+      strokeColor: { light: '#4ade80', dark: '#43c873' },
       strokeWidth: 4,
     }),
   )
@@ -113,7 +113,7 @@ async function seedSlides() {
       translateX: 850,
       translateY: -150,
       fontSize: 36,
-      fontColor: { light: '#19793c', dark: '#7ee2b8' },
+      fontColor: { light: '#4ade80', dark: '#7ee2b8' },
     }),
   )
 
@@ -150,7 +150,7 @@ async function seedSlides() {
       height: 450,
       shapeType: ShapeType.Rectangle,
       fillColor: { light: '#ffffff', dark: '#1b1b1e' },
-      strokeColor: { light: '#19793c', dark: '#146533' },
+      strokeColor: { light: '#4ade80', dark: '#43c873' },
       strokeWidth: 4,
     }),
   )
@@ -161,7 +161,7 @@ async function seedSlides() {
       translateX: 2050,
       translateY: -150,
       fontSize: 36,
-      fontColor: { light: '#19793c', dark: '#7ee2b8' },
+      fontColor: { light: '#4ade80', dark: '#7ee2b8' },
     }),
   )
 
@@ -284,7 +284,7 @@ async function navigateToSlide(index: number) {
   padding: 12px 24px;
   background: #ffffff;
   border-bottom: 1px solid #d4ece0;
-  box-shadow: 0 1px 3px rgba(25, 121, 60, 0.06);
+  box-shadow: 0 1px 3px rgba(74, 222, 128, 0.06);
 }
 
 .brand {
@@ -298,8 +298,8 @@ async function navigateToSlide(index: number) {
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  background-color: rgba(25, 121, 60, 0.1);
-  color: #19793c;
+  background-color: rgba(74, 222, 128, 0.1);
+  color: #4ade80;
   padding: 2px 8px;
   border-radius: 99px;
   letter-spacing: 0.5px;
@@ -322,7 +322,7 @@ async function navigateToSlide(index: number) {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(25, 121, 60, 0.08);
+  background: rgba(74, 222, 128, 0.08);
   padding: 4px;
   border-radius: 8px;
 }
@@ -338,8 +338,8 @@ async function navigateToSlide(index: number) {
   cursor: pointer;
   font-size: 13px;
   font-weight: 500;
-  color: #19793c;
-  box-shadow: 0 1px 2px rgba(25, 121, 60, 0.08);
+  color: #4ade80;
+  box-shadow: 0 1px 2px rgba(74, 222, 128, 0.08);
   transition: all 0.2s ease;
 }
 

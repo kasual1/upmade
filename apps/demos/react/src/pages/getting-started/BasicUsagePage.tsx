@@ -175,7 +175,7 @@ function buttonStyle(active: boolean): React.CSSProperties {
     padding: "6px 12px",
     border: `2px solid #0a0a0a`,
     borderRadius: "999px",
-    background: active ? "#056bb4" : "#ffffff",
+    background: active ? "#6fc3ff" : "#ffffff",
     color: active ? "#ffffff" : "#0a0a0a",
     fontWeight: 600,
     fontSize: "13px",

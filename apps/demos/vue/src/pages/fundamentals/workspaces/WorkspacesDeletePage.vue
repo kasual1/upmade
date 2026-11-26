@@ -40,7 +40,7 @@ function workspaceTabStyle(active: boolean): CSSProperties {
     padding: '6px 12px',
     border: '2px solid #0a0a0a',
     borderRadius: '999px',
-    background: active ? '#19793c' : '#ffffff',
+    background: active ? '#4ade80' : '#ffffff',
     color: active ? '#ffffff' : '#0a0a0a',
     cursor: 'pointer',
     fontSize: '13px',

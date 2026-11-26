@@ -598,8 +598,8 @@ function asUpmadeObject(obj: AnyObject) {
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  background-color: rgba(25, 121, 60, 0.1);
-  color: #19793c;
+  background-color: rgba(74, 222, 128, 0.1);
+  color: #4ade80;
   padding: 2px 8px;
   border-radius: 99px;
   letter-spacing: 0.5px;
@@ -608,7 +608,7 @@ function asUpmadeObject(obj: AnyObject) {
 
 .panel-title {
   margin: 0;
-  color: #19793c;
+  color: #4ade80;
   font-size: 18px;
   line-height: 1.2;
 }
@@ -641,13 +641,13 @@ button {
   font-size: 12px;
   font-family: inherit;
   color: #214f3d;
-  box-shadow: 0 1px 2px rgba(25, 121, 60, 0.06);
+  box-shadow: 0 1px 2px rgba(74, 222, 128, 0.06);
   transition: all 0.2s ease;
 }
 
 button:hover,
 button.active {
-  background: #19793c;
+  background: #4ade80;
   color: #ffffff;
 }
 
@@ -663,7 +663,7 @@ button.active {
 
 .search-input:focus {
   outline: none;
-  border-color: #19793c;
+  border-color: #4ade80;
 }
 
 .filter-header {
@@ -687,8 +687,8 @@ button.active {
   border-radius: 12px;
   box-shadow: none;
   border: 1px solid #d4ece0;
-  background: rgba(25, 121, 60, 0.06);
-  color: #19793c;
+  background: rgba(74, 222, 128, 0.06);
+  color: #4ade80;
 }
 
 .tree-container {
@@ -696,7 +696,7 @@ button.active {
   overflow-y: auto;
   border: 1px solid #d4ece0;
   border-radius: 4px;
-  background: rgba(25, 121, 60, 0.02);
+  background: rgba(74, 222, 128, 0.02);
   padding: 4px;
 }
 
@@ -716,12 +716,12 @@ button.active {
 }
 
 .tree-node:hover {
-  background: rgba(25, 121, 60, 0.06);
+  background: rgba(74, 222, 128, 0.06);
 }
 
 .tree-node.selected {
-  background: rgba(25, 121, 60, 0.08);
-  border-left: 3px solid #19793c;
+  background: rgba(74, 222, 128, 0.08);
+  border-left: 3px solid #4ade80;
 }
 
 .tree-node.hidden-obj {
@@ -784,12 +784,12 @@ button.active {
 }
 
 .node-action.delete:hover {
-  background: rgba(25, 121, 60, 0.08);
-  color: #19793c;
+  background: rgba(74, 222, 128, 0.08);
+  color: #4ade80;
 }
 
 .inspector {
-  background: rgba(25, 121, 60, 0.02);
+  background: rgba(74, 222, 128, 0.02);
   padding: 10px;
   border-radius: 4px;
   border: 1px solid #d4ece0;
@@ -824,7 +824,7 @@ button.active {
 
 .inspector-field input:focus {
   outline: none;
-  border-color: #19793c;
+  border-color: #4ade80;
 }
 
 .inspector-field input[type='range'] {
@@ -834,8 +834,8 @@ button.active {
   height: 6px;
   border-radius: 999px;
   border: none;
-  background: linear-gradient(90deg, #19793c, #146533);
-  accent-color: #19793c;
+  background: linear-gradient(90deg, #4ade80, #43c873);
+  accent-color: #4ade80;
   cursor: pointer;
 }
 
@@ -846,7 +846,7 @@ button.active {
   height: 14px;
   border-radius: 50%;
   border: 2px solid #ffffff;
-  background: #19793c;
+  background: #4ade80;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
   transition: transform 0.15s ease;
 }
@@ -859,7 +859,7 @@ button.active {
   height: 6px;
   border: none;
   border-radius: 999px;
-  background: linear-gradient(90deg, #19793c, #146533);
+  background: linear-gradient(90deg, #4ade80, #43c873);
 }
 
 .inspector-field input[type='range']::-moz-range-thumb {
@@ -867,7 +867,7 @@ button.active {
   height: 14px;
   border-radius: 50%;
   border: 2px solid #ffffff;
-  background: #19793c;
+  background: #4ade80;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
   cursor: pointer;
 }

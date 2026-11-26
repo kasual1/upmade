@@ -190,6 +190,6 @@ dd { margin: 0; overflow: hidden; font-weight: 600; text-overflow: ellipsis; whi
 .actions > .primary { flex-basis: 100%; }
 button { height: 28px; padding: 0 10px; border: 1px solid #dadce0; border-radius: 8px; background: #ffffff; color: #202124; cursor: pointer; font: inherit; font-weight: 600; }
 button:hover { background: #f3f4f6; }
-button.primary { border-color: #19793c; background: #19793c; color: #ffffff; }
-button.primary:hover { border-color: #146533; background: #146533; }
+button.primary { border-color: #4ade80; background: #4ade80; color: #ffffff; }
+button.primary:hover { border-color: #43c873; background: #43c873; }
 </style>

@@ -15,7 +15,7 @@ const user: IUpmadeUser = {
   displayName: 'Ada Lovelace',
   email: 'ada@example.com',
   oauthProvider: 'demo',
-  color: '#19793c',
+  color: '#4ade80',
   isGuest: false,
 }
 const activeUsers: IUpmadeUser[] = [

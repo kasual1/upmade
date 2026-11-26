@@ -38,7 +38,7 @@ const headerStyle: CSSProperties = {
   padding: "12px 24px",
   background: "#ffffff",
   borderBottom: "1px solid #d8e8ee",
-  boxShadow: "0 1px 3px rgba(5, 107, 180, 0.06)",
+  boxShadow: "0 1px 3px rgba(111, 195, 255, 0.06)",
 };
 
 const badgeStyle: CSSProperties = {
@@ -46,8 +46,8 @@ const badgeStyle: CSSProperties = {
   fontSize: "11px",
   fontWeight: 700,
   textTransform: "uppercase",
-  backgroundColor: "rgba(5, 107, 180, 0.1)",
-  color: "#056bb4",
+  backgroundColor: "rgba(111, 195, 255, 0.1)",
+  color: "#6fc3ff",
   padding: "2px 8px",
   borderRadius: "99px",
   letterSpacing: "0.5px",
@@ -64,7 +64,7 @@ const navButtonsStyle: CSSProperties = {
   display: "flex",
   alignItems: "center",
   gap: "12px",
-  background: "rgba(5, 107, 180, 0.08)",
+  background: "rgba(111, 195, 255, 0.08)",
   padding: "4px",
   borderRadius: "8px",
 };
@@ -99,8 +99,8 @@ function navButtonStyle(disabled: boolean): CSSProperties {
     cursor: disabled ? "not-allowed" : "pointer",
     fontSize: "13px",
     fontWeight: 500,
-    color: disabled ? "#8aa0aa" : "#056bb4",
-    boxShadow: disabled ? "none" : "0 1px 2px rgba(5, 107, 180, 0.08)",
+    color: disabled ? "#8aa0aa" : "#6fc3ff",
+    boxShadow: disabled ? "none" : "0 1px 2px rgba(111, 195, 255, 0.08)",
     opacity: disabled ? 0.5 : 1,
     transition: "all 0.2s ease",
   };
@@ -120,7 +120,7 @@ export function SlideshowPresentationPage() {
         height: 450,
         shapeType: ShapeType.Rectangle,
         fillColor: { light: "#ffffff", dark: "#1b1b1e" },
-        strokeColor: { light: "#056bb4", dark: "#056bb4" },
+        strokeColor: { light: "#6fc3ff", dark: "#6fc3ff" },
         strokeWidth: 4,
       }),
     );
@@ -131,7 +131,7 @@ export function SlideshowPresentationPage() {
         translateX: -350,
         translateY: -150,
         fontSize: 36,
-        fontColor: { light: "#056bb4", dark: "#056bb4" },
+        fontColor: { light: "#6fc3ff", dark: "#6fc3ff" },
       }),
     );
 
@@ -168,7 +168,7 @@ export function SlideshowPresentationPage() {
         height: 450,
         shapeType: ShapeType.Rectangle,
         fillColor: { light: "#ffffff", dark: "#1b1b1e" },
-        strokeColor: { light: "#056bb4", dark: "#056bb4" },
+        strokeColor: { light: "#6fc3ff", dark: "#6fc3ff" },
         strokeWidth: 4,
       }),
     );
@@ -179,7 +179,7 @@ export function SlideshowPresentationPage() {
         translateX: 850,
         translateY: -150,
         fontSize: 36,
-        fontColor: { light: "#056bb4", dark: "#056bb4" },
+        fontColor: { light: "#6fc3ff", dark: "#6fc3ff" },
       }),
     );
 
@@ -216,7 +216,7 @@ export function SlideshowPresentationPage() {
         height: 450,
         shapeType: ShapeType.Rectangle,
         fillColor: { light: "#ffffff", dark: "#1b1b1e" },
-        strokeColor: { light: "#056bb4", dark: "#056bb4" },
+        strokeColor: { light: "#6fc3ff", dark: "#6fc3ff" },
         strokeWidth: 4,
       }),
     );
@@ -227,7 +227,7 @@ export function SlideshowPresentationPage() {
         translateX: 2050,
         translateY: -150,
         fontSize: 36,
-        fontColor: { light: "#056bb4", dark: "#056bb4" },
+        fontColor: { light: "#6fc3ff", dark: "#6fc3ff" },
       }),
     );
 

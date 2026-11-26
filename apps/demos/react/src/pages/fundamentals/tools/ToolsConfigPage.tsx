@@ -30,11 +30,11 @@ const toolbarItems: UpmadeToolbarItem[] = [
     icon: "pen",
     isDefault: true,
     config: {
-      color: { light: "#056bb4", dark: "#056bb4", label: "React Blue" },
+      color: { light: "#6fc3ff", dark: "#6fc3ff", label: "React Blue" },
       size: 8,
       opacity: 1,
       palette: [
-        { light: "#056bb4", dark: "#056bb4", label: "React Blue" },
+        { light: "#6fc3ff", dark: "#6fc3ff", label: "React Blue" },
         { light: "#1f2937", dark: "#f3f4f6", label: "Ink" },
         { light: "#16a34a", dark: "#4ade80", label: "Green" },
       ],
@@ -69,14 +69,14 @@ const toolbarItems: UpmadeToolbarItem[] = [
     config: {
       shapeType: ShapeType.Ellipse,
       fillColor: { light: "#e0f2fe", dark: "#0c4a6e" },
-      strokeColor: { light: "#056bb4", dark: "#056bb4", label: "React Blue" },
+      strokeColor: { light: "#6fc3ff", dark: "#6fc3ff", label: "React Blue" },
       strokeWidth: 4,
       opacity: 1,
       fontColor: { light: "#1f2937", dark: "#f3f4f6", label: "Ink" },
       fontSize: 16,
       fontFamily: "Arial",
       palette: [
-        { light: "#056bb4", dark: "#056bb4", label: "React Blue" },
+        { light: "#6fc3ff", dark: "#6fc3ff", label: "React Blue" },
         { light: "#f59e0b", dark: "#fbbf24", label: "Amber" },
         { light: "#1f2937", dark: "#f3f4f6", label: "Ink" },
       ],
@@ -99,7 +99,7 @@ const toolbarItems: UpmadeToolbarItem[] = [
       availableFonts: ["Georgia", "Courier New"],
       palette: [
         { light: "#1f2937", dark: "#f3f4f6", label: "Ink" },
-        { light: "#056bb4", dark: "#056bb4", label: "React Blue" },
+        { light: "#6fc3ff", dark: "#6fc3ff", label: "React Blue" },
       ],
       sizes: [8, 12, 24],
     },

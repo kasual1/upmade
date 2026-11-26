@@ -36,7 +36,7 @@
 }
 
 .demo-toolbar > button.active {
-  background: #19793c;
+  background: #4ade80;
   color: #ffffff;
   border-color: #0a0a0a;
 }

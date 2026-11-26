@@ -5,8 +5,8 @@ import { createSeedObjects } from '../getting-started/seed-objects'
 
 export { getEditorRef }
 
-export const accent = '#19793c'
-export const accentDark = '#146533'
+export const accent = '#4ade80'
+export const accentDark = '#43c873'
 
 export const hostStyle: CSSProperties = {
   display: 'flex',

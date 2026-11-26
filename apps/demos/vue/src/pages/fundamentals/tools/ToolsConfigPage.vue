@@ -32,11 +32,11 @@ const toolbarItems: UpmadeToolbarItem[] = [
     icon: 'pen',
     isDefault: true,
     config: {
-      color: { light: '#19793c', dark: '#7ee2b8', label: 'Vue Green' },
+      color: { light: '#4ade80', dark: '#7ee2b8', label: 'Vue Green' },
       size: 8,
       opacity: 1,
       palette: [
-        { light: '#19793c', dark: '#7ee2b8', label: 'Vue Green' },
+        { light: '#4ade80', dark: '#7ee2b8', label: 'Vue Green' },
         { light: '#1f2937', dark: '#f3f4f6', label: 'Ink' },
         { light: '#0284c7', dark: '#38bdf8', label: 'Sky' },
       ],
@@ -71,14 +71,14 @@ const toolbarItems: UpmadeToolbarItem[] = [
     config: {
       shapeType: ShapeType.Ellipse,
       fillColor: { light: '#dcfce7', dark: '#14532d' },
-      strokeColor: { light: '#19793c', dark: '#7ee2b8', label: 'Vue Green' },
+      strokeColor: { light: '#4ade80', dark: '#7ee2b8', label: 'Vue Green' },
       strokeWidth: 4,
       opacity: 1,
       fontColor: { light: '#1f2937', dark: '#f3f4f6', label: 'Ink' },
       fontSize: 16,
       fontFamily: 'Arial',
       palette: [
-        { light: '#19793c', dark: '#7ee2b8', label: 'Vue Green' },
+        { light: '#4ade80', dark: '#7ee2b8', label: 'Vue Green' },
         { light: '#f59e0b', dark: '#fbbf24', label: 'Amber' },
         { light: '#1f2937', dark: '#f3f4f6', label: 'Ink' },
       ],
@@ -101,7 +101,7 @@ const toolbarItems: UpmadeToolbarItem[] = [
       availableFonts: ['Georgia', 'Courier New'],
       palette: [
         { light: '#1f2937', dark: '#f3f4f6', label: 'Ink' },
-        { light: '#19793c', dark: '#7ee2b8', label: 'Vue Green' },
+        { light: '#4ade80', dark: '#7ee2b8', label: 'Vue Green' },
       ],
       sizes: [8, 12, 24],
     },

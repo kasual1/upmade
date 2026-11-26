@@ -134,7 +134,7 @@ const iconButtonStyle: CSSProperties = {
 
 const primaryButtonStyle: CSSProperties = {
   ...actionButtonStyle,
-  background: "rgba(5, 107, 180, 0.92)",
+  background: "rgba(111, 195, 255, 0.92)",
   borderColor: "rgba(255, 255, 255, 0.35)",
   color: "#ffffff",
 };

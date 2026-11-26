@@ -67,8 +67,8 @@ const taglineStyle: CSSProperties = {
   fontSize: "11px",
   fontWeight: 700,
   textTransform: "uppercase",
-  backgroundColor: "rgba(5, 107, 180, 0.1)",
-  color: "#056bb4",
+  backgroundColor: "rgba(111, 195, 255, 0.1)",
+  color: "#6fc3ff",
   padding: "2px 8px",
   borderRadius: "99px",
   letterSpacing: "0.5px",
@@ -98,12 +98,12 @@ const treeContainerStyle: CSSProperties = {
   overflowY: "auto",
   border: "1px solid #d8e8ee",
   borderRadius: "4px",
-  background: "rgba(5, 107, 180, 0.02)",
+  background: "rgba(111, 195, 255, 0.02)",
   padding: "4px",
 };
 
 const inspectorStyle: CSSProperties = {
-  background: "rgba(5, 107, 180, 0.02)",
+  background: "rgba(111, 195, 255, 0.02)",
   padding: "10px",
   borderRadius: "4px",
   border: "1px solid #d8e8ee",
@@ -140,9 +140,9 @@ function filterChipStyle(active: boolean): CSSProperties {
     fontSize: "11px",
     borderRadius: "12px",
     boxShadow: "none",
-    border: `1px solid ${active ? "#056bb4" : "#d8e8ee"}`,
-    background: active ? "#056bb4" : "rgba(5, 107, 180, 0.06)",
-    color: active ? "#ffffff" : "#056bb4",
+    border: `1px solid ${active ? "#6fc3ff" : "#d8e8ee"}`,
+    background: active ? "#6fc3ff" : "rgba(111, 195, 255, 0.06)",
+    color: active ? "#ffffff" : "#6fc3ff",
     cursor: "pointer",
     fontFamily: "inherit",
   };
@@ -455,8 +455,8 @@ export function ObjectExplorerPage() {
             paddingLeft: `${depth * 16 + 6}px`,
             borderRadius: "4px",
             marginBottom: "1px",
-              background: isSelected ? "rgba(5, 107, 180, 0.08)" : "transparent",
-              borderLeft: isSelected ? "3px solid #056bb4" : "3px solid transparent",
+              background: isSelected ? "rgba(111, 195, 255, 0.08)" : "transparent",
+              borderLeft: isSelected ? "3px solid #6fc3ff" : "3px solid transparent",
             opacity: obj.isVisible === false ? 0.6 : 1,
           }}
         >
@@ -552,7 +552,7 @@ export function ObjectExplorerPage() {
         <InfoPanel panel={infoPanel} width="340px" bodyPadding="12px" contentColumn>
           <div style={{ borderBottom: "1px solid #d8e8ee", paddingBottom: "10px" }}>
             <span style={taglineStyle}>Explorer Mode</span>
-            <h2 style={{ margin: 0, color: "#056bb4", fontSize: "18px", lineHeight: 1.2 }}>
+            <h2 style={{ margin: 0, color: "#6fc3ff", fontSize: "18px", lineHeight: 1.2 }}>
               Hierarchical Object Explorer
             </h2>
           </div>
@@ -717,7 +717,7 @@ export function ObjectExplorerPage() {
                   step="0.1"
                   value={selectedObject.opacity ?? 1}
                   onChange={(event) => void updateSelectedProperty("opacity", event)}
-                  style={{ width: "100%", accentColor: "#056bb4", cursor: "pointer" }}
+                  style={{ width: "100%", accentColor: "#6fc3ff", cursor: "pointer" }}
                 />
               </div>
             </section>
