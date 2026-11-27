@@ -1275,14 +1275,42 @@ describe('agentic create and transform actions', () => {
       expect(selection()).toEqual([circle]);
     });
 
-    it('clears the selection as soon as a creating action starts', async () => {
+    it('clears the selection when a creating action presses, not while its cursor flies there', async () => {
       const a = addShape(0, 0, 100, 50);
       await perform({ type: 'select', objectIds: [a.id] });
-      const promise = actions.perform('agent', { type: 'createShape', x: 300, y: 300, width: 100, height: 100 });
+      const promise = actions.perform('agent', { type: 'createShape', x: 1500, y: 1500, width: 100, height: 100 });
       await flushMicrotasks();
+      // Flying to where the shape goes: the old selection stays.
+      expect(selection()).toEqual([a.id]);
+      for (let i = 0; i < 200 && cursors.get('agent')!.pressCount === 0; i++) {
+        now += 16;
+        cursors.tick(now);
+        await flushMicrotasks();
+        if (cursors.get('agent')!.pressCount === 0) expect(selection()).toEqual([a.id]);
+      }
+      // Pressed down to draw: deselected.
       expect(selection()).toEqual([]);
       expect(cursors.get('agent')!.selectedObjectIds).not.toContain(a.id);
       await settle(promise);
+    });
+
+    it('shows the objects of a select only once the cursor clicks them', async () => {
+      const a = addShape(0, 0, 100, 50);
+      const b = addShape(1500, 1500, 100, 50);
+      await perform({ type: 'select', objectIds: [a.id] });
+      const promise = actions.perform('agent', { type: 'select', objectIds: [b.id] });
+      await flushMicrotasks();
+      expect(cursors.get('agent')!.selectedObjectIds).toEqual([a.id]);
+      for (let i = 0; i < 200 && cursors.get('agent')!.pressCount === 0; i++) {
+        now += 16;
+        cursors.tick(now);
+        await flushMicrotasks();
+        if (cursors.get('agent')!.pressCount === 0) expect(cursors.get('agent')!.selectedObjectIds).toEqual([a.id]);
+      }
+      // The press deselects a and shows b.
+      expect(cursors.get('agent')!.selectedObjectIds).toEqual([b.id]);
+      await settle(promise);
+      expect(selection()).toEqual([b.id]);
     });
 
     it('keeps the selection for actions on selected objects', async () => {
@@ -1326,6 +1354,12 @@ describe('agentic create and transform actions', () => {
       const controller = new AbortController();
       const promise = actions.perform('agent', { type: 'createShape', x: 300, y: 300, width: 400, height: 400 }, { signal: controller.signal });
       await flushMicrotasks();
+      for (let i = 0; i < 200 && map.allObjects().length < 2; i++) {
+        now += 16;
+        cursors.tick(now);
+        await flushMicrotasks();
+      }
+      // Drawing: the selection was cleared on the press.
       expect(selection()).toEqual([]);
       controller.abort();
       await expect(settle(promise)).resolves.toEqual({ completed: false, reason: 'aborted' });

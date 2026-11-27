@@ -288,18 +288,26 @@ describe('UpmadeAgenticActionManager', () => {
       expect(cursors.get('agent')).toMatchObject({ attachedTo: { objectId: 'a', anchor: 'center' }, activeAction: null, canUndo: true });
     });
 
-    it('animates the drag and shows the target as selected while running', async () => {
+    it('animates the drag and shows the target as selected from the press on', async () => {
       add('a', 0, 0);
       const promise = actions.perform('agent', { type: 'moveObject', objectId: 'a', to: { x: 650, y: 25 } });
       await flushMicrotasks();
-      expect(cursors.get('agent')).toMatchObject({ activeAction: 'moveObject', selectedObjectIds: ['a'] });
+      // Flying to the object: not selected yet.
+      expect(cursors.get('agent')).toMatchObject({ activeAction: 'moveObject', selectedObjectIds: [] });
 
       const xs: number[] = [];
+      let selectedBeforePress = false;
+      let selectedOnPress = false;
       for (let i = 0; i < 200; i++) {
         await step();
         xs.push(obj('a')!.translateX);
-        if (cursors.get('agent')!.activeAction === null) break;
+        const cursor = cursors.get('agent')!;
+        if (cursor.pressCount === 0 && cursor.selectedObjectIds.length > 0) selectedBeforePress = true;
+        if (cursor.isPressed && cursor.selectedObjectIds.includes('a')) selectedOnPress = true;
+        if (cursor.activeAction === null) break;
       }
+      expect(selectedBeforePress).toBe(false);
+      expect(selectedOnPress).toBe(true);
       await expect(promise).resolves.toEqual({ completed: true, objectIds: ['a'] });
       expect(obj('a')!.translateX).toBeCloseTo(600);
       expect(xs.some(x => x > 0 && x < 600)).toBe(true);

@@ -69,6 +69,8 @@ export interface UpmadeAgenticRunHost {
   getSelection(cursorId: string): string[];
   /** Shows the cursor's explicit selection plus what its running action displays. */
   showSelection(cursorId: string): void;
+  /** The cursor pressed for the first time in this run: selection changes that happen on a press apply now. */
+  handleFirstPress(run: UpmadeAgenticActionRun): void;
 }
 
 interface Waiter {
@@ -108,10 +110,22 @@ export class UpmadeAgenticActionRun {
   /** An abort that arrived while `applyingHistory` was set. */
   heldAbort: { reason: UpmadeAgenticActionFailureReason; objectIds?: string[] } | null = null;
   /**
-   * Agents: the explicit selection the action cleared when it started because it works outside it; restored if
-   * the action ends without keeping changes. `null` when the action left the selection alone.
+   * Agents: whether the action works outside the agent's selection, so its first press clears the selection,
+   * like a person's click elsewhere. Decided when the action starts.
+   */
+  deselectOnPress = false;
+  /**
+   * Agents: the explicit selection the action cleared on its first press; restored if the action ends without
+   * keeping changes. `null` when the action left the selection alone.
    */
   clearedSelection: string[] | null = null;
+  /** Whether the cursor has pressed in this run. */
+  hasPressed = false;
+  /**
+   * Whether `displayIds` are shown as selected. Like a person's selection, they show once the cursor presses on
+   * the objects (not while it flies there), or when the executor shows objects on purpose (`display()`).
+   */
+  displaying = false;
   /** Whether the action changed anything. */
   hasMutated = false;
   /** Whether the outcome is decided. */
@@ -350,10 +364,15 @@ export class UpmadeAgenticActionRun {
     }
   }
 
-  /** Presses the cursor, after re-checking for conflicts. */
+  /** Presses the cursor, after re-checking for conflicts. The first press shows the targets as selected. */
   async press(): Promise<void> {
     this.assertActive();
     this.host.checkpoint(this);
+    if (!this.hasPressed) {
+      this.hasPressed = true;
+      this.displaying = true;
+      this.host.handleFirstPress(this);
+    }
     if (this.instant) {
       return;
     }
@@ -476,6 +495,7 @@ export class UpmadeAgenticActionRun {
   /** Shows other objects as selected while the action runs, e.g. a group once it is created. */
   display(objectIds: string[]): void {
     this.displayIds = [...objectIds];
+    this.displaying = true;
     this.host.showSelection(this.cursorId);
   }
 

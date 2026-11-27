@@ -209,7 +209,7 @@ The interaction is performed with DOM events, so the content's handlers run as f
 
 Selects objects for the agent. Agent selections are outlined in the agent's color and never change the user's selection. `additive: true` adds to the agent's selection instead of replacing it.
 
-An agent's selection lasts while the agent works on it, like a person's: an action on objects that are all in the selection keeps it, and an action on anything else clears it when the action starts, like a click elsewhere (it comes back if the action keeps no changes). Objects an action creates (shapes, text, paths, lines, added objects, copies, groups) become the agent's selection. Moving the cursor, `undo` and `redo` leave the selection as it is.
+An agent's selection lasts while the agent works on it, like a person's: an action on objects that are all in the selection keeps it, and an action on anything else clears it when the agent's cursor presses, like a click elsewhere (it comes back if the action keeps no changes). Objects an action creates (shapes, text, paths, lines, added objects, copies, groups) become the agent's selection. Moving the cursor, `undo` and `redo` leave the selection as it is.
 
 ```ts
 select(objectIds: string[], options?: { additive?: boolean } & UpmadeAgenticActionOptions): Promise<UpmadeAgenticActionResult>

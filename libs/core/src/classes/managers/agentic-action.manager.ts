@@ -371,6 +371,8 @@ export class UpmadeAgenticActionManager implements UpmadeAgenticRunHost {
 
     run.runSettleHooks();
     if (outcome.kind === 'commit') {
+      // An action that never pressed still deselects once it completes.
+      if (run.deselectOnPress) this.applyDeselect(run);
       this.selectCreatedObjects(run, map, outcome.objectIds, createdIds);
     } else if (run.clearedSelection && !(keep && run.hasMutated) && this.getSelection(run.cursorId).length === 0) {
       // Nothing happened: the selection the action cleared comes back (without objects deleted meanwhile).
@@ -761,7 +763,8 @@ export class UpmadeAgenticActionManager implements UpmadeAgenticRunHost {
   showSelection(cursorId: string): void {
     const explicit = this._selections.get(cursorId)?.ids ?? [];
     const running = this._running.get(cursorId);
-    const shown = running && !running.settled && running.executing ? [...explicit, ...running.displayIds] : [...explicit];
+    // A running action's targets show once its cursor has pressed on them, not while it flies there.
+    const shown = running && !running.settled && running.executing && running.displaying ? [...explicit, ...running.displayIds] : [...explicit];
     this._core.agenticCursorManager.setSelectedObjectIds(cursorId, Array.from(new Set(shown)));
   }
 
@@ -769,20 +772,43 @@ export class UpmadeAgenticActionManager implements UpmadeAgenticRunHost {
   //
   // An agent's selection lasts as long as the agent works on it, like a person's:
   // - an action on objects that are all in the selection keeps it (move, resize, style, type into it, click it);
-  // - an action on anything else, or one that creates objects (on empty canvas), clears it when it starts, like a
-  //   click elsewhere; if the action then keeps nothing, the selection comes back;
+  // - an action on anything else, or one that creates objects (on empty canvas), clears it when its cursor first
+  //   presses, like a click elsewhere; if the action then keeps nothing, the selection comes back;
+  // - a `select` that replaces the selection clears the old one on its press too, and shows the new one;
   // - an action that creates objects selects them once it completes (copies, a new group, a drawn shape or line);
   // - `select`, `clearSelection`, `undo` and `redo` manage the selection themselves; moving the cursor never changes it.
   // Actors working as the user don't follow the rule: their selection is the user's own.
 
-  /** Clears the agent's selection when the action starting now works outside it. */
+  /** Decides, as the action starts, whether its first press clears the agent's selection: when it works outside it. */
   private deselectIfWorkingElsewhere(run: UpmadeAgenticActionRun, preparation: UpmadeAgenticPreparation): void {
-    if (run.actorKind !== 'agent' || SELECTION_RULE_EXEMPT_ACTIONS.has(run.action.type)) return;
+    if (run.actorKind !== 'agent') return;
     const selection = this._selections.get(run.cursorId);
     if (!selection) return;
+    if (run.action.type === 'select') {
+      // A click that selects other objects deselects the old ones on the press; shift-click (additive) keeps them.
+      run.deselectOnPress = !run.action.additive;
+      return;
+    }
+    if (SELECTION_RULE_EXEMPT_ACTIONS.has(run.action.type)) return;
     const touched = this.getTouchedObjectIds(run, preparation);
     if (touched.length > 0 && touched.every(id => selection.expanded.has(id))) return;
-    run.clearedSelection = [...selection.ids];
+    run.deselectOnPress = true;
+  }
+
+  /** The run's cursor pressed for the first time: a pending deselect applies, and its targets show as selected. @internal */
+  handleFirstPress(run: UpmadeAgenticActionRun): void {
+    if (run.deselectOnPress) {
+      this.applyDeselect(run);
+    }
+    this.showSelection(run.cursorId);
+  }
+
+  /** Clears the agent's selection for a run working elsewhere, remembering it in case the run keeps nothing. */
+  private applyDeselect(run: UpmadeAgenticActionRun): void {
+    run.deselectOnPress = false;
+    const ids = this.getSelection(run.cursorId);
+    if (ids.length === 0) return;
+    run.clearedSelection = ids;
     this.setSelection(run.cursorId, []);
   }
 
