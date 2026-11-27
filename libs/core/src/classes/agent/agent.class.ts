@@ -630,15 +630,20 @@ export class UpmadeAgent implements IUpmadeUser {
     return this._core;
   }
 
-  /** Creates the cursor in `core` and starts listening. Throws if the cursor can't be created. @internal */
-  _attach(core: UpmadeCore): void {
+  /**
+   * Creates the cursor in `core` and starts listening. Returns whether the cursor starts behind the home (the chat box).
+   * Throws if the cursor can't be created. @internal
+   */
+  _attach(core: UpmadeCore): boolean {
     // The start position may name an object that is gone, that this editor's document never had (an agent added
     // again, or moved from a removed editor), that has no position, or that can't point at elements for an element
     // target: the cursor then starts at the viewport center.
     const initial = this._initialPosition;
     const start = initial && canStartAt(core, initial) ? core.agenticCursorManager.resolveTarget(initial) : null;
     // Without a start position of its own, the agent comes out from behind its home (the editor's chat box).
-    const position = start && Number.isFinite(start.x) && Number.isFinite(start.y) ? initial : (core.agentManager.getHomePoint() ?? undefined);
+    const ownStart = start && Number.isFinite(start.x) && Number.isFinite(start.y) ? initial : undefined;
+    const home = ownStart ? null : core.agentManager.getHomePoint();
+    const position = ownStart ?? home ?? undefined;
     // The cursor reads how it looks from the agent, so name, color, icon, status and visibility live only here.
     const agent = this;
     const cursor = {
@@ -705,6 +710,7 @@ export class UpmadeAgent implements IUpmadeUser {
       }),
     ];
     this.notifyChange();
+    return !!home;
   }
 
   /** Removes the cursor (its running action is rolled back) and stops listening. @internal */

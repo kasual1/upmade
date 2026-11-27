@@ -3,6 +3,11 @@ import { UpmadeAgent, isUpmadeAgent } from '../agent/agent.class';
 import type { UpmadeAgentPresence } from '../../interfaces/agent.interface';
 import { UpmadeEventHelper } from '../../helpers/event.helper';
 
+/** How far above the home's top edge (in screen pixels) an added agent flies to. */
+const HOME_EXIT_DISTANCE_PX = 72;
+/** Up to how far sideways (in screen pixels) from the home's center added agents land, by their ID. */
+const HOME_EXIT_SPREAD_PX = 64;
+
 /**
  * The agents added to one editor. Behind `editor.addAgent()`, `removeAgent()`, `getAgent()`,
  * `getAgents()` and the `agentsChange` event.
@@ -86,6 +91,35 @@ export class UpmadeAgentManager {
     return { x: (x - state.translateX) / state.scale, y: (y - state.translateY) / state.scale };
   }
 
+  /**
+   * Where an agent that appeared behind the home flies to: just above the home's top edge, spread sideways by its ID
+   * so agents added together don't land on each other. `null` without a home.
+   */
+  getHomeExitPoint(agentId: string): { x: number; y: number } | null {
+    const rect = this.getHomeRect();
+    const state = this._core.store?.state;
+    if (!rect || !state || !(state.scale > 0)) {
+      return null;
+    }
+    let hash = 0;
+    for (let i = 0; i < agentId.length; i++) hash = (hash * 31 + agentId.charCodeAt(i)) | 0;
+    const spread = ((Math.abs(hash) % 97) / 96 - 0.5) * 2 * HOME_EXIT_SPREAD_PX;
+    const x = (rect.left + rect.right) / 2 + spread;
+    const y = rect.top - HOME_EXIT_DISTANCE_PX;
+    return { x: (x - state.translateX) / state.scale, y: (y - state.translateY) / state.scale };
+  }
+
+  /** Flies an agent that appeared behind the home out of it, unless it is hidden or already busy. */
+  private flyOutOfHome(agent: UpmadeAgent): void {
+    const cursor = this._core.agenticCursorManager.get(agent.id);
+    const exit = cursor?.visible && !cursor.isMoving ? this.getHomeExitPoint(agent.id) : null;
+    if (!exit) {
+      return;
+    }
+    // An action or move started meanwhile takes over the cursor; the fly-out then just ends.
+    this._core.agenticCursorManager.move(agent.id, exit, { speed: agent.speed }).catch(() => undefined);
+  }
+
   /** Whether the agent is flying home to be removed. */
   isLeaving(agentOrId: UpmadeAgent | string): boolean {
     return this._leaving.has(typeof agentOrId === 'string' ? agentOrId : agentOrId?.id);
@@ -122,10 +156,13 @@ export class UpmadeAgentManager {
       owner.agentManager.remove(agent);
     }
 
-    agent._attach(this._core);
+    const startsAtHome = agent._attach(this._core);
     this._agents.set(agent.id, agent);
     this._agentSubscriptions.set(agent.id, agent.on('change', () => this.scheduleChange()));
     this.scheduleChange();
+    if (startsAtHome) {
+      this.flyOutOfHome(agent);
+    }
     return agent;
   }
 

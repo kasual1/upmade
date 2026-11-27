@@ -250,6 +250,36 @@ describe('UpmadeAgent', () => {
       expect(core.agenticCursorManager.get('b')!.position).toEqual({ x: 10, y: 20 });
     });
 
+    it('flies an added agent out of the home, to just above its top edge', async () => {
+      setHome();
+      const agent = add(new UpmadeAgent({ id: 'a', name: 'A', speed: 2000 }));
+      const exit = core.agentManager.getHomeExitPoint('a')!;
+      // The home spans x 900–1100 and y 1800–1900: the exit is 72px above it, up to 64px off center.
+      expect(exit.y).toBe(1800 - 72);
+      expect(Math.abs(exit.x - 1000)).toBeLessThanOrEqual(64);
+      expect(core.agenticCursorManager.get('a')!.isMoving).toBe(true);
+
+      for (let i = 0; i < 200 && core.agenticCursorManager.get('a')!.isMoving; i++) await step();
+      expect(agent.state.position).toEqual(exit);
+    });
+
+    it('lets an action started right away take over from the fly-out', async () => {
+      setHome();
+      const shape = addShape(100, 100);
+      const agent = add(new UpmadeAgent({ id: 'a', name: 'A', speed: 4000 }));
+      const result = await settle(agent.perform({ type: 'select', objectIds: [shape.id] }));
+      expect(result).toMatchObject({ completed: true });
+      expect(core.agenticActionManager.getSelection('a')).toEqual([shape.id]);
+    });
+
+    it('does not fly out agents that start at their own position or are hidden', () => {
+      setHome();
+      add(new UpmadeAgent({ id: 'a', name: 'A', position: { x: 10, y: 20 } }));
+      add(new UpmadeAgent({ id: 'b', name: 'B', visible: false }));
+      expect(core.agenticCursorManager.get('a')!.isMoving).toBe(false);
+      expect(core.agenticCursorManager.get('b')!.isMoving).toBe(false);
+    });
+
     it('flies a removed agent home first and removes it there; it accepts no work on the way', async () => {
       setHome();
       const agent = add(new UpmadeAgent({ id: 'a', name: 'A', position: { x: 100, y: 100 }, speed: 2000 }));

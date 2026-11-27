@@ -77,7 +77,7 @@ export namespace Components {
          */
         "addObjects": <T extends UpmadeBaseObject>(objects: T[]) => Promise<T[]>;
         /**
-          * An element on top of the engine that agents come out from behind when added and go back behind when removed, e.g. a chat box: added agents appear at its center, removed agents fly back there before they disappear, and cursors are hidden while behind it. The editor sets it to its chat box. Unset, agents appear at the viewport center and disappear where they are.
+          * An element on top of the engine that agents come out from behind when added and go back behind when removed, e.g. a chat box: added agents appear at its center and fly out to just above it, removed agents fly back there before they disappear, and cursors are hidden while behind it. The editor sets it to its chat box. Unset, agents appear at the viewport center and disappear where they are.
          */
         "agentHome"?: HTMLElement;
         /**
@@ -896,7 +896,7 @@ declare namespace LocalJSX {
          */
         "activeWorkspaceId"?: string;
         /**
-          * An element on top of the engine that agents come out from behind when added and go back behind when removed, e.g. a chat box: added agents appear at its center, removed agents fly back there before they disappear, and cursors are hidden while behind it. The editor sets it to its chat box. Unset, agents appear at the viewport center and disappear where they are.
+          * An element on top of the engine that agents come out from behind when added and go back behind when removed, e.g. a chat box: added agents appear at its center and fly out to just above it, removed agents fly back there before they disappear, and cursors are hidden while behind it. The editor sets it to its chat box. Unset, agents appear at the viewport center and disappear where they are.
          */
         "agentHome"?: HTMLElement;
         /**

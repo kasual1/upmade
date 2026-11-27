@@ -41,7 +41,7 @@ Throws a `TypeError` when `name` is missing or empty.
 | status | string | — | What the agent is doing (e.g. `'Thinking…'`), shown in place of its name on the cursor label until cleared. |
 | cursorActions | UpmadeCursorLabelAction[] | `[UPMADE_REMOVE_AGENT_CURSOR_ACTION]` | Buttons after the name or status on the cursor label. By default an "X" that removes the agent; `[]` shows none. See [Cursor Label](#cursor-label). |
 | visible | boolean | `true` | Whether the cursor is visible. |
-| position | UpmadeAgenticTarget | Behind the chat box (center of the viewport without one) | Where the cursor starts when the agent is added. Without it, the agent comes out from behind the editor's chat box while it shows. An object target sticks the cursor to that object. An element target starts at the center of the object and sticks the cursor to the element once the page has reported it. If the object does not exist then, for example because it was deleted or the editor shows another document, the cursor starts at the center of the viewport. |
+| position | UpmadeAgenticTarget | Behind the chat box (center of the viewport without one) | Where the cursor starts when the agent is added. Without it, while the editor's chat box shows, the agent appears behind it and flies out to just above it. An object target sticks the cursor to that object. An element target starts at the center of the object and sticks the cursor to the element once the page has reported it. If the object does not exist then, for example because it was deleted or the editor shows another document, the cursor starts at the center of the viewport. |
 
 `isUpmadeAgent(value)` returns whether a value is an `UpmadeAgent`, also when it comes from another copy of the package.
 
