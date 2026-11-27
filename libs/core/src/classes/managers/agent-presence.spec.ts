@@ -75,6 +75,24 @@ describe('agent presence', () => {
       ]);
     });
 
+    it('shares the cursor icon and sends a changed icon at once', async () => {
+      const { core, map } = createCore();
+      core.agentBroadcaster.start();
+      const agent = core.agentManager.add(new UpmadeAgent({ id: 'a', name: 'A', cursorIcon: '<svg viewBox="0 0 1 1"/>' }));
+      await flushMicrotasks();
+      expect(sentAgents(map)[0].cursorIcon).toBe('<svg viewBox="0 0 1 1"/>');
+      const calls = map.setLocalAgents.mock.calls.length;
+
+      agent.cursorIcon = '/icons/a.svg';
+      await flushMicrotasks();
+      expect(map.setLocalAgents.mock.calls.length).toBe(calls + 1);
+      expect(sentAgents(map)[0].cursorIcon).toBe('/icons/a.svg');
+
+      agent.cursorIcon = null;
+      await flushMicrotasks();
+      expect(sentAgents(map)[0]).not.toHaveProperty('cursorIcon');
+    });
+
     it('leaves out agents with broadcast off and removes them when it is turned off', async () => {
       const { core, map } = createCore();
       core.agentBroadcaster.start();
@@ -265,6 +283,23 @@ describe('agent presence', () => {
         'https://example.com/a.png',
         '/avatars/b.png',
         'data:image/png;base64,AAAA',
+        null,
+        null,
+        null,
+      ]);
+    });
+
+    it('keeps only cursor icons the overlay can draw', () => {
+      const { core } = createCore();
+      const icons = ['<svg viewBox="0 0 1 1"/>', '/icons/b.svg', '<img src=x onerror="alert(1)">', 'javascript:alert(1)', 42];
+      core.remoteAgentManager.handleAwarenessStates(
+        new Map([[2, { agents: icons.map((cursorIcon, index) => remoteAgent({ id: `a${index}`, cursorIcon })) }]]),
+        1,
+      );
+
+      expect(core.remoteAgentManager.getAll().map((agent: { cursorIcon?: string }) => agent.cursorIcon ?? null)).toEqual([
+        '<svg viewBox="0 0 1 1"/>',
+        '/icons/b.svg',
         null,
         null,
         null,

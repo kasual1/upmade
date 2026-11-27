@@ -495,4 +495,55 @@ describe('UpmadeAwarenessCursors', () => {
       expect((component as any).hasActiveDrawingCursors()).toBe(true);
     });
   });
+
+  describe('cursor label', () => {
+    interface VNode {
+      $tag$?: unknown;
+      $attrs$?: Record<string, any> | null;
+      $children$?: VNode[] | null;
+      $text$?: string;
+    }
+    const byClass = (node: VNode | null | undefined, className: string, out: VNode[] = []): VNode[] => {
+      if (!node) return out;
+      if (typeof node.$attrs$?.class === 'string' && node.$attrs$.class.split(' ').includes(className)) out.push(node);
+      (node.$children$ ?? []).forEach(child => byClass(child, className, out));
+      return out;
+    };
+    const renderUser = (user: Record<string, unknown>, cursor = { x: 200, y: 200 }) => {
+      component.componentDidLoad();
+      const callback = (mockCore.store.objects.onAwarenessChange as jest.Mock).mock.calls[0][0];
+      callback(new Map([[2, { user: { id: 'other', color: '#00ff00', ...user }, cursor }]]));
+      return component.render() as unknown as VNode;
+    };
+
+    it('shows the name in a label without an icon by default', () => {
+      const root = renderUser({ displayName: 'Ada' });
+      const [label] = byClass(root, 'cursor-label');
+
+      expect(label.$attrs$!.class).not.toContain('has-icon');
+      expect(byClass(root, 'cursor-label-icon')).toHaveLength(0);
+      expect(byClass(root, 'cursor-label-text')[0].$children$?.[0]).toMatchObject({ $text$: 'Ada' });
+    });
+
+    it("draws the user's cursor icon as an image before the name", () => {
+      const root = renderUser({ displayName: 'Ada', cursorIcon: '<svg viewBox="0 0 1 1"/>' });
+      const [icon] = byClass(root, 'cursor-label-icon');
+
+      expect(icon.$tag$).toBe('img');
+      expect(decodeURIComponent(icon.$attrs$!.src)).toBe('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1"/>');
+    });
+
+    it('ignores an icon a collaborator sends that cannot be drawn safely', () => {
+      const root = renderUser({ displayName: 'Ada', cursorIcon: '<img src=x onerror="alert(1)">' });
+      expect(byClass(root, 'cursor-label-icon')).toHaveLength(0);
+    });
+
+    it('shows the icon on the edge indicator of an off-screen user', () => {
+      const root = renderUser({ displayName: 'Ada Lovelace', cursorIcon: '/icons/ada.svg' }, { x: 5000, y: 200 });
+      const [label] = byClass(root, 'edge-label');
+
+      expect(byClass(label, 'cursor-label-icon')[0].$attrs$!.src).toBe('/icons/ada.svg');
+      expect(byClass(label, 'cursor-label-text')[0].$children$?.[0]).toMatchObject({ $text$: 'AL' });
+    });
+  });
 });

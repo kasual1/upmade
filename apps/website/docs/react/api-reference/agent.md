@@ -33,8 +33,9 @@ Throws a `TypeError` when `name` is missing or empty.
 |--------|------|---------|-------------|
 | id | string | `'agent-…'` | Unique ID. Becomes the `userId` of the objects the agent creates. |
 | name | string | — | Required. Name shown in the cursor label. |
-| color | string | Derived from the name | Any CSS color for the cursor, its label, and the agent's selection. |
+| color | string | Derived from the name | Any CSS color for the cursor arrow and the agent's selection. |
 | avatarUrl | string | — | URL of an avatar image, shown in the avatar stack and reported in `agentsChange`. Initials of the name are shown when omitted. |
+| cursorIcon | string | — | Icon shown before the name on the cursor label: SVG markup (`'<svg …>…</svg>'`) or an image URL (`http:`, `https:`, `data:image/`, or relative). No icon when omitted. See [Cursor Label](#cursor-label). |
 | speed | number | `1200` | Default speed of moves and actions in screen pixels per second. |
 | broadcast | boolean | `true` | Whether collaborators see the agent. See [Collaboration](#collaboration). |
 | status | string | — | Status message shown below the cursor label. |
@@ -55,11 +56,28 @@ Throws a `TypeError` when `name` is missing or empty.
 | displayName | string | Read-only. Same as `name`, so an agent can be used where an `IUpmadeUser` is expected. |
 | color | string | Any CSS color. Setting it recolors the cursor and the agent's selection. |
 | avatarUrl | string \| undefined | URL of the avatar image. |
+| cursorIcon | string \| null | Icon shown before the name on the cursor label. Setting it updates the label; `null` removes the icon. |
 | profileImageUrl | string \| undefined | Read-only. Same as `avatarUrl`. |
 | speed | number \| undefined | Default speed of moves and actions in screen pixels per second. `undefined` uses `1200`. |
 | broadcast | boolean | Whether collaborators see the agent. Setting it takes effect at once: `false` removes the agent from the presence of collaborators, `true` shares it again. Objects that the agent changes sync either way. |
 | isAdded | boolean | Read-only. Whether the agent is added to an editor. |
 | state | UpmadeAgentState | Read-only. A snapshot of the agent's state. See [State](#state). |
+
+### Cursor Label
+
+The cursor label is a white, rounded pill next to the cursor arrow, with the agent's name. Pass `cursorIcon` to show an icon before the name, for example the agent's logo:
+
+```ts
+const agent = new UpmadeAgent({
+  name: 'Agent',
+  color: '#F472B6',
+  cursorIcon: '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="15" rx="6" fill="#F472B6"/></svg>',
+});
+```
+
+The icon is drawn as an image, 18px by default, so markup without an `xmlns` attribute works too, and scripts or event handlers in it never run. Collaborators see the icon as well; it is limited to 8192 characters. Users get the same label: set `cursorIcon` on the [`user`](./editor.md#user-management) (`IUpmadeUser`) to show an icon on their cursor in the editors of collaborators.
+
+Restyle the label with the CSS variables `--upmade-agentic-cursor-label-background-color`, `-text-color`, `-border-color`, `-border-radius`, `-box-shadow`, `-font-size`, and `-icon-size` (for collaborators' cursors: `--upmade-awareness-cursor-label-…`).
 
 ---
 
@@ -531,12 +549,12 @@ const json = formatAgentToolResult(result.reason ? { ...result, hint: AGENT_TOOL
 
 When the editor shares presence with collaborators, it shares every agent whose [`broadcast`](#properties) is `true`, the default. See [Collaboration](../advanced/agents.md#collaboration) for a guide.
 
-- **What is shared:** the name, color, avatar URL, status, visibility, running action and queue length, cursor position and attachment, presses, the agent's selection, and the objects of its running action. The agent's history and the agent object itself are not shared. A cursor that sticks to an element inside an object is shared by its position only, sent at most every 100 ms like other cursor motion: the editors of collaborators don't track the element, so there the cursor follows it only through these updates.
-- **When:** only when something changed. Adding or removing the agent, renaming, recoloring, changing the avatar, hiding or showing it, and turning `broadcast` on or off are sent at once. The status, activity, selection, and cursor motion are sent at most every 100 ms. Each workspace has its own presence, so the agents are shared in the open workspace.
+- **What is shared:** the name, color, avatar URL, cursor icon, status, visibility, running action and queue length, cursor position and attachment, presses, the agent's selection, and the objects of its running action. The agent's history and the agent object itself are not shared. A cursor that sticks to an element inside an object is shared by its position only, sent at most every 100 ms like other cursor motion: the editors of collaborators don't track the element, so there the cursor follows it only through these updates.
+- **When:** only when something changed. Adding or removing the agent, renaming, recoloring, changing the avatar or cursor icon, hiding or showing it, and turning `broadcast` on or off are sent at once. The status, activity, selection, and cursor motion are sent at most every 100 ms. Each workspace has its own presence, so the agents are shared in the open workspace.
 - **Limits:** the status is cut to 200 characters, and the selection and the objects of the running action to 50 IDs each.
 - **Requirement:** a sync provider with awareness, such as the WebSocket and Hocuspocus providers, or `BroadcastSyncProvider.with({ awareness: true })` between tabs. Without one, nothing is shared. See [Providers](./providers.md).
 
-The editors of collaborators show the agent's cursor, dashed outlines around its selection and the objects of its running action, and its avatar. They list it as a [`UpmadeRemoteAgentPresence`](#upmaderemoteagentpresence) in `getRemoteAgents()` and `agentsChange`, but `getAgent()` does not return it there. Their agents refuse objects that it has selected or is working on with `'claimed-by-agent'`. An avatar URL from a collaborator is only used when it is an `http:`, `https:`, `data:image/`, or relative URL.
+The editors of collaborators show the agent's cursor, dashed outlines around its selection and the objects of its running action, and its avatar. They list it as a [`UpmadeRemoteAgentPresence`](#upmaderemoteagentpresence) in `getRemoteAgents()` and `agentsChange`, but `getAgent()` does not return it there. Their agents refuse objects that it has selected or is working on with `'claimed-by-agent'`. An avatar URL or cursor icon URL from a collaborator is only used when it is an `http:`, `https:`, `data:image/`, or relative URL, and a cursor icon is always drawn as an image.
 
 ---
 
@@ -627,6 +645,7 @@ interface UpmadeAgentOptions {
   name: string;
   color?: string;
   avatarUrl?: string;
+  cursorIcon?: string;
   speed?: number;
   broadcast?: boolean;
   status?: string;

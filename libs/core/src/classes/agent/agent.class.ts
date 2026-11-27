@@ -104,6 +104,7 @@ export class UpmadeAgent implements IUpmadeUser {
   private _name: string;
   private _color: string;
   private _avatarUrl?: string;
+  private _cursorIcon: string | null;
   private _speed?: number;
   private _broadcast: boolean;
   private _status: string | null;
@@ -123,6 +124,7 @@ export class UpmadeAgent implements IUpmadeUser {
     this._name = options.name;
     this._color = options.color || UpmadeUserColorHelper.generateColorFromName(options.name);
     this._avatarUrl = options.avatarUrl;
+    this._cursorIcon = options.cursorIcon || null;
     this._speed = options.speed;
     this._broadcast = options.broadcast ?? true;
     this._status = options.status || null;
@@ -166,6 +168,19 @@ export class UpmadeAgent implements IUpmadeUser {
 
   set avatarUrl(url: string | undefined) {
     this._avatarUrl = url;
+    this.notifyChange();
+  }
+
+  /**
+   * Icon shown before the name on the cursor label: SVG markup or an image URL. `null` (the default) shows no icon.
+   */
+  get cursorIcon(): string | null {
+    return this._cursorIcon;
+  }
+
+  set cursorIcon(icon: string | null | undefined) {
+    this._cursorIcon = icon || null;
+    this._core?.agenticCursorManager.refresh(this.id);
     this.notifyChange();
   }
 
@@ -595,7 +610,7 @@ export class UpmadeAgent implements IUpmadeUser {
     const initial = this._initialPosition;
     const start = initial && canStartAt(core, initial) ? core.agenticCursorManager.resolveTarget(initial) : null;
     const position = start && Number.isFinite(start.x) && Number.isFinite(start.y) ? initial : undefined;
-    // The cursor reads how it looks from the agent, so name, color, status and visibility live only here.
+    // The cursor reads how it looks from the agent, so name, color, icon, status and visibility live only here.
     const agent = this;
     const cursor = {
       id: this.id,
@@ -605,6 +620,9 @@ export class UpmadeAgent implements IUpmadeUser {
         },
         get color() {
           return agent._color;
+        },
+        get cursorIcon() {
+          return agent._cursorIcon;
         },
         get status() {
           return agent._status;
@@ -706,7 +724,7 @@ export class UpmadeAgent implements IUpmadeUser {
     }
     const state = this.state;
     const { position: _position, ...rest } = state;
-    const key = JSON.stringify([rest, this._name, this._color, this._avatarUrl, this._broadcast]);
+    const key = JSON.stringify([rest, this._name, this._color, this._avatarUrl, this._cursorIcon, this._broadcast]);
     if (key === this._lastStateKey) {
       return;
     }

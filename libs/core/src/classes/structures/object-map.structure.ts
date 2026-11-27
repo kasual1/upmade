@@ -17,6 +17,7 @@ import { IUpmadeUser } from '../../interfaces/user.interface';
 import { runMigrations } from '../../helpers/migration.helper';
 import { WORKSPACE_MIGRATIONS } from '../../migrations/workspace.migrations';
 import { UpmadeUserColorHelper } from '../../helpers/user-color.helper';
+import { UpmadeViewportOverlayHelper } from '../../helpers/viewport-overlay.helper';
 import { ObjectHelper } from '../../helpers/object.helper';
 import { UpmadeAgentOrigin } from './agent-origin.class';
 import type { UpmadeObjectChangeSource } from '../../interfaces/object-change-event.interface';
@@ -260,6 +261,7 @@ export class UpmadeObjectMap<T extends UpmadeBaseObject<any>> {
       id: user.id,
       displayName,
       color: user.color || UpmadeUserColorHelper.generateColorFromName(displayName),
+      ...(UpmadeViewportOverlayHelper.getCursorIconSrc(user.cursorIcon) ? { cursorIcon: user.cursorIcon } : {}),
     });
   }
 

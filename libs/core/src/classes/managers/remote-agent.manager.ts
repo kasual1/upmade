@@ -7,6 +7,7 @@ import { AGENT_BROADCAST_INTERVAL_MS, AGENT_BROADCAST_MAX_IDS, AGENT_BROADCAST_M
 import { isAgenticAnchor } from '../../helpers/agentic-geometry.helper';
 import { UpmadeEventHelper } from '../../helpers/event.helper';
 import { UpmadeMathHelper } from '../../helpers/math.helper';
+import { UpmadeViewportOverlayHelper } from '../../helpers/viewport-overlay.helper';
 
 /** A collaborator's agent as the cursor overlay draws it. */
 export interface UpmadeRemoteAgentCursor extends UpmadeAgenticCursor {
@@ -109,6 +110,7 @@ export class UpmadeRemoteAgentManager {
       name: entry.agent.name,
       color: entry.agent.color,
       ...(entry.agent.avatarUrl ? { avatarUrl: entry.agent.avatarUrl } : {}),
+      ...(entry.agent.cursorIcon ? { cursorIcon: entry.agent.cursorIcon } : {}),
       status: entry.agent.status ?? undefined,
       visible: entry.agent.visible,
       position: { ...entry.rendered },
@@ -151,7 +153,7 @@ export class UpmadeRemoteAgentManager {
     return this._claimed.has(objectId) || (kind === 'target' && this._selected.has(objectId));
   }
 
-  /** Subscribes to structural changes (agents added or removed, name, color, status, activity, selection). */
+  /** Subscribes to structural changes (agents added or removed, name, color, icon, status, activity, selection). */
   onChange(listener: () => void): () => void {
     this._changeListeners.add(listener);
     return () => this._changeListeners.delete(listener);
@@ -270,7 +272,9 @@ function parseAgent(raw: unknown): UpmadeAwarenessAgent | null {
     id: value['id'].slice(0, MAX_NAME_LENGTH),
     name: value['name'].slice(0, MAX_NAME_LENGTH),
     color: value['color'].slice(0, MAX_NAME_LENGTH),
-    ...(isSafeImageUrl(value['avatarUrl']) ? { avatarUrl: value['avatarUrl'] } : {}),
+    ...(UpmadeViewportOverlayHelper.isSafeImageUrl(value['avatarUrl']) ? { avatarUrl: value['avatarUrl'] } : {}),
+    // Only icons the overlay can draw (as an image, never as markup).
+    ...(UpmadeViewportOverlayHelper.getCursorIconSrc(value['cursorIcon']) ? { cursorIcon: value['cursorIcon'] as string } : {}),
     status: typeof value['status'] === 'string' && value['status'] ? value['status'].slice(0, AGENT_BROADCAST_MAX_STATUS_LENGTH) : null,
     visible: value['visible'] !== false,
     activeAction: typeof value['activeAction'] === 'string' ? value['activeAction'] : null,
@@ -320,13 +324,4 @@ function parseHostUser(raw: unknown): { id: string; displayName?: string; color?
     ...(typeof value['displayName'] === 'string' ? { displayName: value['displayName'] } : {}),
     ...(typeof value['color'] === 'string' ? { color: value['color'] } : {}),
   };
-}
-
-/** http(s), `data:image/` and relative URLs only, so a collaborator cannot point avatars at other schemes. */
-function isSafeImageUrl(value: unknown): value is string {
-  if (typeof value !== 'string' || value.length === 0 || value.length > 2048) {
-    return false;
-  }
-  const scheme = /^([a-z][a-z0-9+.-]*):/i.exec(value.trim())?.[1]?.toLowerCase();
-  return scheme === undefined || scheme === 'http' || scheme === 'https' || (scheme === 'data' && /^data:image\//i.test(value.trim()));
 }

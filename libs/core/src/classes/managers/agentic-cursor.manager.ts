@@ -718,6 +718,7 @@ export class UpmadeAgenticCursorManager {
       id: entry.id,
       name: entry.appearance.name,
       color: entry.appearance.color,
+      ...(entry.appearance.cursorIcon ? { cursorIcon: entry.appearance.cursorIcon } : {}),
       status: entry.appearance.status || undefined,
       visible: entry.appearance.visible,
       position: { ...entry.position },

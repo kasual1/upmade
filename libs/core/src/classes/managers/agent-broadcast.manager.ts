@@ -13,7 +13,7 @@ export const AGENT_BROADCAST_MAX_IDS = 50;
  * `agents`: identity, status, activity, cursor position and the objects each agent works on.
  *
  * The payload is built at most every 100 ms (leading and trailing) and only sent when it changed, so
- * idle agents send nothing. Adding or removing an agent, renaming, recoloring or hiding it and turning
+ * idle agents send nothing. Adding or removing an agent, renaming, recoloring, changing its icon or hiding it and turning
  * `broadcast` on or off are sent at once; status, activity, motion and selections follow the throttle.
  */
 export class UpmadeAgentBroadcaster {
@@ -36,7 +36,7 @@ export class UpmadeAgentBroadcaster {
       return;
     }
     this._started = true;
-    // Added, removed, renamed, recolored, hidden, broadcast toggled: send at once. Any other change of an
+    // Added, removed, renamed, recolored, icon changed, hidden, broadcast toggled: send at once. Any other change of an
     // agent (status, activity, selection, history) follows the throttle.
     this._core.agentManager.onChange(() => (structureOf(this.buildPayload()) !== this._lastStructure ? this.flush() : this.schedule()));
     this._core.agenticCursorManager.onChange(() => this.schedule());
@@ -75,6 +75,7 @@ export class UpmadeAgentBroadcaster {
         name: agent.name,
         color: cursor.color,
         ...(agent.avatarUrl ? { avatarUrl: agent.avatarUrl } : {}),
+        ...(cursor.cursorIcon ? { cursorIcon: cursor.cursorIcon } : {}),
         status,
         visible: cursor.visible,
         activeAction: cursor.activeAction,
@@ -148,7 +149,7 @@ export class UpmadeAgentBroadcaster {
 
 /** The part of a payload that is sent without waiting for the throttle. */
 function structureOf(payload: UpmadeAwarenessAgent[]): string {
-  return JSON.stringify(payload.map(agent => [agent.id, agent.name, agent.color, agent.avatarUrl ?? null, agent.visible]));
+  return JSON.stringify(payload.map(agent => [agent.id, agent.name, agent.color, agent.avatarUrl ?? null, agent.cursorIcon ?? null, agent.visible]));
 }
 
 function round(value: number): number {

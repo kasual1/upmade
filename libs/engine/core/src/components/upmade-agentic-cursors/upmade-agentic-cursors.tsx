@@ -20,7 +20,7 @@ const DEFAULT_HANDLE_SIZE_PX = 6;
  * selection of one object, its rotation handle. Everything is keyed by the cursor key, so the same agent ID
  * in two tabs never collides.
  *
- * Structural changes (added/removed cursors, name, color, status, selections) re-render through
+ * Structural changes (added/removed cursors, name, color, icon, status, selections) re-render through
  * Stencil. Per-frame movement of on-screen cursors, outlines and handles is written directly to the
  * elements, in Stencil's write phase: the engine renders objects there too, so an outline is drawn in
  * the same frame as the object state it follows and never runs ahead of the object.
@@ -272,7 +272,7 @@ export class UpmadeAgenticCursors {
         <CursorArrow color={cursor.color} />
         {(cursor.name || cursor.status) && (
           <div class="agentic-cursor-labels">
-            {cursor.name && <CursorLabel color={cursor.color} text={cursor.name} />}
+            {cursor.name && <CursorLabel text={cursor.name} icon={cursor.cursorIcon} />}
             {/* One element for every status: a new text doesn't replay the entry animation. */}
             {cursor.status && (
               <span key="status" class="agentic-cursor-status" title={cursor.status}>
@@ -297,6 +297,7 @@ export class UpmadeAgenticCursors {
         edge={clamped.edge}
         color={cursor.color}
         label={cursor.name ? UpmadeViewportOverlayHelper.getInitials(cursor.name) : '•'}
+        icon={cursor.cursorIcon}
         classes={{ 'agentic-edge-indicator': true }}
       />
     );
