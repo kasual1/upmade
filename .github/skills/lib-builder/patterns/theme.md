@@ -31,7 +31,7 @@ style={{ color: 'var(--upmade-my-component-text-color, #333333)' }}
 node scripts/generate-theme-interface.js
 ```
 
-This scans all `.css` and `.tsx` files for `--upmade-*` patterns and regenerates `theme.interface.ts`.
+This scans the `.css`, `.ts` and `.tsx` sources of core, engine and editor (not specs or `.d.ts`) for `--upmade-*` variables and adds a key to `theme.interface.ts` for each new one. The update is additive: categories, keys and JSDoc comments already in the interface are kept, so document a new key or category by writing a JSDoc comment on it by hand; the next run keeps it. Keys no source uses any more are reported, not removed. `--check` exits with 1, without writing, if the interface is not up to date.
 
 ### Step 3: Add values to theme presets
 
@@ -74,7 +74,9 @@ Examples:
 
 ## Category Detection
 
-The generator groups variables by matching known category prefixes (longest match first). To add a new top-level category, add it to the `KNOWN_CATEGORIES` array in `scripts/generate-theme-interface.js`.
+The generator groups variables by matching known category prefixes (longest match first, so `titlebar-menu` wins over `titlebar` and `object-appear` over `object`). To add a new top-level category, add it to the `KNOWN_CATEGORIES` array in `scripts/generate-theme-interface.js`. Variables of no known category are reported and not added: a theme sets `--upmade-<category>-<key>`, so it could not set them. Shared values go under `global` (`--upmade-global-*`).
+
+Variables the engine computes or sets itself (e.g. `--upmade-content-border-radius`, `--upmade-object-appear-index`) are not theme values: list them in `PRIVATE_VARIABLES`. Partial names such as `--upmade-titlebar-menu-${key}` or `--upmade-titlebar-menu-*` in a comment are skipped.
 
 ## How Themes Are Applied
 

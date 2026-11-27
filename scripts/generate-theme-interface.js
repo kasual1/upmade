@@ -1,8 +1,15 @@
 /**
- * Script to find all CSS variables (--upmade-*) in the engine/editor component CSS files
- * and generate/update the theme.interface.ts file.
+ * Finds the CSS variables (--upmade-*) used in the core, engine and editor sources and updates
+ * libs/core/src/interfaces/theme.interface.ts so that `UpmadeTheme` has a key for each of them.
  *
- * Usage: node scripts/generate-theme-interface.js
+ * The update is additive and keeps what was written by hand:
+ * - categories and keys already in the interface are kept, with their JSDoc comments, even when no source uses
+ *   them any more (they are reported, so they can be removed by hand);
+ * - variables of a new category or key are added, in sorted order.
+ *
+ * Usage:
+ *   node scripts/generate-theme-interface.js          update the interface
+ *   node scripts/generate-theme-interface.js --check  exit with 1, without writing, if it is not up to date
  */
 
 const fs = require('fs');
@@ -13,11 +20,17 @@ const CORE_SOURCE_DIR = path.join(__dirname, '../libs/core/src');
 const ENGINE_SOURCE_DIR = path.join(__dirname, '../libs/engine/core/src');
 const EDITOR_SOURCE_DIR = path.join(__dirname, '../libs/editor/core/src');
 const THEME_INTERFACE_PATH = path.join(CORE_SOURCE_DIR, 'interfaces', 'theme.interface.ts');
-const CSS_FILE_PATTERN = /\.(css|tsx|ts)$/;
+const SOURCE_FILE_PATTERN = /\.(css|tsx|ts)$/;
+// Specs reference variables that don't exist (to test that they don't), and `.d.ts` files are generated from sources.
+const EXCLUDED_FILE_PATTERN = /\.(spec|test)\.tsx?$|\.d\.ts$/;
 const CSS_VARIABLE_PATTERN = /--upmade-([a-zA-Z0-9-]+)/g;
 
-// Known categories based on component structure
+/**
+ * Theme categories, in kebab-case as in the variable names (`--upmade-<category>-<key>`). A variable belongs to the
+ * longest category its name starts with, so `titlebar-menu` wins over `titlebar` and `object-appear` over `object`.
+ */
 const KNOWN_CATEGORIES = [
+  'global',
   'engine',
   'snap',
   'toolbar',
@@ -61,23 +74,45 @@ const KNOWN_CATEGORIES = [
   'chat-box',
   'sync-indicator',
   'titlebar',
+  'titlebar-menu',
   'element-highlight',
   'loading-placeholder',
-  'object-appear'
+  'object',
+  'object-appear',
+  'dynamic-object',
+  'iframe',
+  'image',
+  'text',
 ];
 
+const SORTED_CATEGORIES = [...KNOWN_CATEGORIES].sort((a, b) => b.length - a.length);
+
 /**
- * Recursively find all CSS files in a directory
+ * Variables that are not theme values: the engine computes or sets them itself, for its own styles or for the
+ * content of objects to read. A theme key for them would do nothing, or be overwritten.
  */
-function findCssFiles(dir, files = []) {
+const PRIVATE_VARIABLES = new Set([
+  // Set on each object's container from the theme (`object`, `iframe`, `dynamicObject`, `image`) or the object.
+  '--upmade-content-border-radius',
+  // Set inline on each appearing object: its position in the batch it was inserted with.
+  '--upmade-object-appear-index',
+  // Set inside iframe documents from `global.defaultCursor` and `global.pointerCursor`.
+  '--upmade-iframe-default-cursor',
+  '--upmade-iframe-pointer-cursor',
+]);
+
+/**
+ * Recursively find all source files in a directory
+ */
+function findSourceFiles(dir, files = []) {
   const entries = fs.readdirSync(dir, { withFileTypes: true });
 
   for (const entry of entries) {
     const fullPath = path.join(dir, entry.name);
 
     if (entry.isDirectory()) {
-      findCssFiles(fullPath, files);
-    } else if (entry.isFile() && CSS_FILE_PATTERN.test(entry.name)) {
+      findSourceFiles(fullPath, files);
+    } else if (entry.isFile() && SOURCE_FILE_PATTERN.test(entry.name) && !EXCLUDED_FILE_PATTERN.test(entry.name)) {
       files.push(fullPath);
     }
   }
@@ -86,7 +121,9 @@ function findCssFiles(dir, files = []) {
 }
 
 /**
- * Extract all CSS variable names from a file
+ * Extract the CSS variable names from a file. Skips names that are only the start of a name: built in a template
+ * literal or by concatenation (`--upmade-titlebar-menu-${key}`, `'--upmade-menu-' + key`) or written as a pattern
+ * in a comment (`--upmade-titlebar-menu-*`).
  */
 function extractVariablesFromFile(filePath) {
   const content = fs.readFileSync(filePath, 'utf-8');
@@ -97,199 +134,323 @@ function extractVariablesFromFile(filePath) {
   CSS_VARIABLE_PATTERN.lastIndex = 0;
 
   while ((match = CSS_VARIABLE_PATTERN.exec(content)) !== null) {
-    variables.add(`--upmade-${match[1]}`);
+    const name = match[1];
+    const next = content[match.index + match[0].length];
+
+    if (name.endsWith('-') || next === '$' || next === '*' || next === '{') {
+      continue;
+    }
+
+    variables.add(`--upmade-${name}`);
   }
 
   return Array.from(variables);
 }
 
 /**
- * Determine the category for a CSS variable
+ * Determine the category for a CSS variable, or null if its name starts with none.
  */
 function getCategoryForVariable(variable) {
   const name = variable.replace('--upmade-', '');
 
-  // Sort categories by length (longest first) to match most specific first
-  const sortedCategories = [...KNOWN_CATEGORIES].sort((a, b) => b.length - a.length);
-
-  for (const category of sortedCategories) {
+  for (const category of SORTED_CATEGORIES) {
     if (name.startsWith(`${category}-`)) {
       return category;
     }
   }
 
-  // Special handling for sub-categories
-  if (name.startsWith('menu-item-')) {
-    return 'menu';
-  }
-  if (name.startsWith('context-menu-item-')) {
-    return 'context-menu';
-  }
-  if (name.startsWith('control-')) {
-    return 'controls';
-  }
-
-  return 'global';
+  return null;
 }
 
 /**
- * Group variables by category
+ * Convert kebab-case to camelCase
  */
-function groupVariablesByCategory(variables) {
-  const groups = {};
+function kebabToCamel(str) {
+  return str.replace(/-([a-z0-9])/g, (_, letter) => letter.toUpperCase());
+}
 
-  for (const variable of variables) {
-    const category = getCategoryForVariable(variable);
+/**
+ * Convert camelCase to kebab-case, as `ThemeHelper.camelToKebab` does
+ */
+function camelToKebab(str) {
+  return str.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+}
 
-    if (!groups[category]) {
-      groups[category] = new Set();
+/**
+ * Convert a CSS variable name to the camelCase key in its category
+ */
+function toPropertyName(cssVariable, category) {
+  return kebabToCamel(cssVariable.replace(`--upmade-${category}-`, ''));
+}
+
+/**
+ * Parse the categories and keys of the current `UpmadeTheme` interface, with the JSDoc comment before each. Throws
+ * on anything else than `name: ThemeName`, categories and their `string` keys, rather than dropping it.
+ *
+ * @returns Map of category name → { comment, keys: Map of key → { comment } }, comments as arrays of trimmed lines
+ */
+function parseThemeInterface(content) {
+  const categories = new Map();
+  const lines = content.split(/\r?\n/);
+  const start = lines.findIndex((line) => /^export interface UpmadeTheme \{\s*$/.test(line));
+
+  if (start === -1) {
+    throw new Error('Could not find `export interface UpmadeTheme {`');
+  }
+
+  let category = null;
+  let comment = null;
+  let inComment = false;
+
+  for (let i = start + 1; i < lines.length; i++) {
+    const line = lines[i].trim();
+    const fail = (reason) => {
+      throw new Error(`${reason} at line ${i + 1}: \`${lines[i]}\``);
+    };
+
+    if (inComment) {
+      comment.push(line);
+      inComment = !line.includes('*/');
+      continue;
     }
-    groups[category].add(variable);
+
+    if (line === '') {
+      comment = null;
+      continue;
+    }
+
+    if (line.startsWith('/*')) {
+      comment = [line];
+      inComment = !line.includes('*/');
+      continue;
+    }
+
+    if (category === null) {
+      if (line === '}') {
+        return categories;
+      }
+      if (/^name: ThemeName;$/.test(line)) {
+        comment = null;
+        continue;
+      }
+      const match = /^([A-Za-z_$][\w$]*)\?: \{$/.exec(line);
+      if (!match) {
+        fail('Unexpected line in UpmadeTheme, expected a category');
+      }
+      if (categories.has(match[1])) {
+        fail(`Duplicate category \`${match[1]}\``);
+      }
+      category = { name: match[1], comment, keys: new Map() };
+      categories.set(match[1], category);
+      comment = null;
+      continue;
+    }
+
+    if (/^\};?$/.test(line)) {
+      category = null;
+      comment = null;
+      continue;
+    }
+
+    const match = /^([A-Za-z_$][\w$]*)\?: string;$/.exec(line);
+    if (!match) {
+      fail(`Unexpected line in category \`${category.name}\`, expected an optional string key`);
+    }
+    if (!category.keys.has(match[1])) {
+      category.keys.set(match[1], { comment });
+    }
+    comment = null;
   }
 
-  return groups;
+  throw new Error('UpmadeTheme is not closed');
 }
 
 /**
- * Convert CSS variable name to camelCase property name
+ * Emit a comment, re-indented
  */
-function toCamelCase(cssVariable, category) {
-  let name = cssVariable.replace('--upmade-', '');
-
-  // Remove category prefix if present
-  const categoryPrefix = category;
-  if (name.startsWith(`${categoryPrefix}-`)) {
-    name = name.substring(categoryPrefix.length + 1);
-  }
-
-  // Convert kebab-case to camelCase
-  return name.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
-}
-
-/**
- * Convert category name to PascalCase for interface grouping
- */
-function categoryToCamelCase(category) {
-  return category.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+function pushComment(lines, comment, indent) {
+  comment.forEach((line, index) => {
+    lines.push(index === 0 ? `${indent}${line}` : `${indent} ${line}`);
+  });
 }
 
 /**
  * Generate the TypeScript theme interface content
+ *
+ * @param categories - Map of category name → { comment, keys: Map of key → { comment } }
  */
-function generateThemeInterface(groups) {
+function generateThemeInterface(categories) {
   const lines = [];
 
   // Type definition for theme name
-  lines.push("/**");
-  lines.push(" * Theme name type for available themes");
-  lines.push(" */");
+  lines.push('/**');
+  lines.push(' * Theme name type for available themes');
+  lines.push(' */');
   lines.push("export type ThemeName = 'light' | 'dark' | (string & NonNullable<unknown>);");
-  lines.push("");
+  lines.push('');
 
   // Main interface
-  lines.push("/**");
-  lines.push(" * Complete theme definition with all CSS variable values grouped by category");
-  lines.push(" */");
-  lines.push("export interface UpmadeTheme {");
-  lines.push("  /** Theme identifier */");
-  lines.push("  name: ThemeName;");
+  lines.push('/**');
+  lines.push(' * Complete theme definition with all CSS variable values grouped by category');
+  lines.push(' */');
+  lines.push('export interface UpmadeTheme {');
+  lines.push('  /** Theme identifier */');
+  lines.push('  name: ThemeName;');
 
-  // Sort categories: global first, then alphabetically
-  const sortedCategories = Object.keys(groups).sort((a, b) => {
-    if (a === 'global') return -1;
-    if (b === 'global') return 1;
-    return a.localeCompare(b);
-  });
+  for (const name of sortCategories(categories.keys())) {
+    const category = categories.get(name);
+    const label = camelToKebab(name).replace(/-/g, ' ');
 
-  for (const category of sortedCategories) {
-    const variables = Array.from(groups[category]).sort();
-    const categoryName = categoryToCamelCase(category);
-    const categoryLabel = category.replace(/-/g, ' ');
+    lines.push('');
+    pushComment(lines, category.comment ?? [`/** ${label.charAt(0).toUpperCase() + label.slice(1)} variables */`], '  ');
+    lines.push(`  ${name}?: {`);
 
-    lines.push("");
-    lines.push(`  /** ${categoryLabel.charAt(0).toUpperCase() + categoryLabel.slice(1)} variables */`);
-    lines.push(`  ${categoryName}?: {`);
-
-    const seenProps = new Set();
-    for (const variable of variables) {
-      const propName = toCamelCase(variable, category);
-      if (seenProps.has(propName)) {
-        continue;
+    for (const key of sortKeys(category.keys.keys())) {
+      const { comment } = category.keys.get(key);
+      if (comment) {
+        pushComment(lines, comment, '    ');
       }
-      seenProps.add(propName);
-      lines.push(`    ${propName}?: string;`);
+      lines.push(`    ${key}?: string;`);
     }
 
-    lines.push("  };");
+    lines.push('  };');
   }
 
-  lines.push("}");
+  lines.push('}');
+  lines.push('');
 
   return lines.join('\n');
+}
+
+/**
+ * Sort category names: global first, then alphabetically
+ */
+function sortCategories(names) {
+  return Array.from(names).sort((a, b) => {
+    if (a === 'global') return -1;
+    if (b === 'global') return 1;
+    return camelToKebab(a).localeCompare(camelToKebab(b));
+  });
+}
+
+/**
+ * Sort keys by their name in CSS
+ */
+function sortKeys(keys) {
+  return Array.from(keys).sort((a, b) => {
+    const kebabA = camelToKebab(a);
+    const kebabB = camelToKebab(b);
+    return kebabA < kebabB ? -1 : kebabA > kebabB ? 1 : 0;
+  });
 }
 
 /**
  * Main execution
  */
 function main() {
-  console.log('🔍 Scanning CSS files for CSS variables...\n');
+  const check = process.argv.includes('--check');
 
-  const cssFiles = [
-    ...findCssFiles(CORE_SOURCE_DIR),
-    ...findCssFiles(ENGINE_SOURCE_DIR),
-    ...findCssFiles(EDITOR_SOURCE_DIR),
+  console.log('🔍 Scanning source files for CSS variables...\n');
+
+  const sourceFiles = [
+    ...findSourceFiles(CORE_SOURCE_DIR),
+    ...findSourceFiles(ENGINE_SOURCE_DIR),
+    ...findSourceFiles(EDITOR_SOURCE_DIR),
   ];
-  console.log(`Found ${cssFiles.length} CSS files\n`);
+  console.log(`Found ${sourceFiles.length} source files\n`);
 
   // Collect all unique variables
   const allVariables = new Set();
 
-  for (const file of cssFiles) {
-    const variables = extractVariablesFromFile(file);
-    for (const variable of variables) {
+  for (const file of sourceFiles) {
+    for (const variable of extractVariablesFromFile(file)) {
       allVariables.add(variable);
     }
   }
 
   console.log(`Found ${allVariables.size} unique CSS variables\n`);
 
-  // Group by category
-  const groups = groupVariablesByCategory(allVariables);
+  const current = fs.existsSync(THEME_INTERFACE_PATH) ? fs.readFileSync(THEME_INTERFACE_PATH, 'utf-8') : null;
+  const categories = current ? parseThemeInterface(current) : new Map();
 
-  // Print summary
-  console.log('📊 Variables grouped by category:');
-  console.log('='.repeat(60));
+  // Keys of the current interface that a source still uses, to report the others
+  const usedKeys = new Set();
+  const added = [];
+  const skipped = [];
+  const uncategorized = [];
 
-  const sortedCategories = Object.keys(groups).sort((a, b) => {
-    if (a === 'global') return -1;
-    if (b === 'global') return 1;
-    return a.localeCompare(b);
-  });
+  for (const variable of Array.from(allVariables).sort()) {
+    if (PRIVATE_VARIABLES.has(variable)) {
+      skipped.push(variable);
+      continue;
+    }
 
-  for (const category of sortedCategories) {
-    const variables = Array.from(groups[category]).sort();
-    console.log(`\n[${category}] (${variables.length} variables)`);
-    const seenSummaryProps = new Set();
-    for (const variable of variables) {
-      const propName = toCamelCase(variable, category);
-      if (seenSummaryProps.has(propName)) {
-        continue;
+    const category = getCategoryForVariable(variable);
+    if (!category) {
+      // A component's own override with the theme value as its fallback, e.g.
+      // `var(--upmade-cursor-trail-color, var(--upmade-global-cursor-trail-color, …))`, has the global key.
+      if (!allVariables.has(variable.replace('--upmade-', '--upmade-global-'))) {
+        uncategorized.push(variable);
       }
-      seenSummaryProps.add(propName);
-      console.log(`  ${propName}`);
+      continue;
+    }
+
+    const categoryName = kebabToCamel(category);
+    const key = toPropertyName(variable, category);
+    usedKeys.add(`${categoryName}.${key}`);
+
+    if (!categories.has(categoryName)) {
+      categories.set(categoryName, { name: categoryName, comment: null, keys: new Map() });
+    }
+    const keys = categories.get(categoryName).keys;
+    if (!keys.has(key)) {
+      keys.set(key, { comment: null });
+      added.push(`${categoryName}.${key}  (${variable})`);
     }
   }
 
-  // Generate the interface content
-  const interfaceContent = generateThemeInterface(groups);
+  const unused = [];
+  for (const [categoryName, category] of categories) {
+    for (const key of category.keys.keys()) {
+      if (!usedKeys.has(`${categoryName}.${key}`)) {
+        unused.push(`${categoryName}.${key}  (--upmade-${camelToKebab(categoryName)}-${camelToKebab(key)})`);
+      }
+    }
+  }
 
-  // Write to file
+  const report = (title, items) => {
+    if (items.length === 0) return;
+    console.log(`${title} (${items.length}):`);
+    for (const item of items) console.log(`  ${item}`);
+    console.log('');
+  };
+
+  report('➕ New keys', added);
+  report('🔒 Skipped private variables', skipped);
+  report(
+    '⚠️  Variables of no known category, not added: a theme sets --upmade-<category>-<key>, so it cannot set them ' +
+      '(read the --upmade-global-* variable, or add the category to KNOWN_CATEGORIES)',
+    uncategorized
+  );
+  report('⚠️  Kept keys that no source uses (remove them by hand if they are obsolete)', unused);
+
+  const interfaceContent = generateThemeInterface(categories);
+  const relativePath = path.relative(process.cwd(), THEME_INTERFACE_PATH);
+  const keyCount = Array.from(categories.values()).reduce((count, category) => count + category.keys.size, 0);
+
+  if (interfaceContent === current) {
+    console.log(`✅ ${relativePath} is up to date (${categories.size} categories, ${keyCount} keys)`);
+    return;
+  }
+
+  if (check) {
+    console.error(`❌ ${relativePath} is not up to date: run node scripts/generate-theme-interface.js`);
+    process.exitCode = 1;
+    return;
+  }
+
   fs.writeFileSync(THEME_INTERFACE_PATH, interfaceContent, 'utf-8');
-
-  console.log('\n' + '='.repeat(60));
-  console.log(`✅ Updated ${path.relative(process.cwd(), THEME_INTERFACE_PATH)}`);
-  console.log(`   Total categories: ${sortedCategories.length}`);
-  console.log(`   Total variables: ${allVariables.size}`);
+  console.log(`✅ Updated ${relativePath} (${categories.size} categories, ${keyCount} keys)`);
 }
 
 main();

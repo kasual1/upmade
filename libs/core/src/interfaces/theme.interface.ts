@@ -16,6 +16,8 @@ export interface UpmadeTheme {
     agenticCursorLabelFontSize?: string;
     agenticCursorLabelTextColor?: string;
     agenticCursorRippleSize?: string;
+    agenticCursorRotationHandleBorderWidth?: string;
+    agenticCursorRotationHandleFill?: string;
     agenticCursorSelectionBorderWidth?: string;
     agenticCursorSelectionFillOpacity?: string;
     agenticCursorStatusBackgroundColor?: string;
@@ -23,15 +25,18 @@ export interface UpmadeTheme {
     agenticCursorStatusMaxLines?: string;
     agenticCursorStatusMaxWidth?: string;
     agenticCursorStatusTextColor?: string;
+    borderColor?: string;
     cursorTrailColor?: string;
     cursorTrailOpacity?: string;
+    defaultCursor?: string;
     dividerColor?: string;
     focusColor?: string;
-    borderColor?: string;
-    defaultCursor?: string;
     focusRingColor?: string;
     fontFamily?: string;
     iconColor?: string;
+    iframeDefaultCursor?: string;
+    iframePointerCursor?: string;
+    name?: string;
     pointerCursor?: string;
     primaryColor?: string;
     primaryHoverColor?: string;
@@ -39,9 +44,6 @@ export interface UpmadeTheme {
     scrollbarThumbColor?: string;
     textPrimary?: string;
     textSecondary?: string;
-    iframeDefaultCursor?: string;
-    iframePointerCursor?: string;
-    name?: string;
   };
 
   /** Active users variables */
@@ -217,11 +219,6 @@ export interface UpmadeTheme {
     widthSmall?: string;
   };
 
-  dynamicObject?: {
-    borderRadius?: string;
-    boxShadow?: string;
-  };
-  
   /** Dropdown variables */
   dropdown?: {
     accentColor?: string;
@@ -235,6 +232,12 @@ export interface UpmadeTheme {
     textColor?: string;
     triggerFontSize?: string;
     triggerPadding?: string;
+  };
+
+  /** Dynamic object variables. Unset ones default to those of `object`. */
+  dynamicObject?: {
+    borderRadius?: string;
+    boxShadow?: string;
   };
 
   /** Editor variables */
@@ -274,23 +277,25 @@ export interface UpmadeTheme {
     textColor?: string;
   };
 
+  /** Iframe object variables. Unset ones default to those of `object`. */
+  iframe?: {
+    borderRadius?: string;
+    boxShadow?: string;
+  };
+
+  /** Image object variables */
+  image?: {
+    /** Corner radius of images. Unset by default, so images keep square corners. */
+    borderRadius?: string;
+    dropShadow?: string;
+  };
+
   /** Line endings variables */
   lineEndings?: {
     hoverBackgroundColor?: string;
     labelColor?: string;
     optionBackground?: string;
     selectedBackgroundColor?: string;
-  };
-
-  iframe?: {
-    borderRadius?: string;
-    boxShadow?: string;
-  };
-
-  image?: {
-    /** Corner radius of images. Unset by default, so images keep square corners. */
-    borderRadius?: string;
-    dropShadow?: string;
   };
 
   /** Loading placeholder variables, for the placeholder the engine draws over objects whose `isLoading` is set */
@@ -517,6 +522,7 @@ export interface UpmadeTheme {
     handleColor?: string;
     handleSize?: string;
     handleStrokeColor?: string;
+    resizeHandleVisibility?: string;
   };
 
   /** Settings variables */

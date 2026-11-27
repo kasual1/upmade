@@ -51,6 +51,6 @@ The logic lives in `libs/core/src`; the Stencil components live in `libs/engine/
 ### Theming
 Upmade uses a CSS custom property (CSS variables) based theming system. All themeable properties are defined as `--upmade-*` CSS variables in component stylesheets.
 
-- **Theme Interface Generation**: Run `node scripts/generate-theme-interface.js` to scan all CSS and TSX files for `--upmade-*` variables and automatically generate/update the `UpmadeTheme` interface in `libs/core/src/interfaces/theme.interface.ts`. This groups variables by category (e.g., toolbar, menu, dialog).
+- **Theme Interface Generation**: Run `node scripts/generate-theme-interface.js` to scan the CSS, TS and TSX sources for `--upmade-*` variables and add the new ones to the `UpmadeTheme` interface in `libs/core/src/interfaces/theme.interface.ts`. This groups variables by category (e.g., toolbar, menu, dialog) and keeps existing keys and their JSDoc comments; `--check` verifies the interface is up to date.
 - **Theme Definitions**: Theme presets are defined in `libs/core/src/themes/` (e.g., `light-theme.ts`, `dark-theme.ts`) and implement the `UpmadeTheme` interface.
 - **Adding New Theme Variables**: When adding new CSS variables to components, re-run the generation script and update the theme files accordingly.
