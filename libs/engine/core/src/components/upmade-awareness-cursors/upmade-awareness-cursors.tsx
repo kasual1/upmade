@@ -1,6 +1,16 @@
 import { Component, Host, Prop, State, h } from '@stencil/core';
-import { UpmadeCore, UpmadePath, UpmadeLine, UpmadeRemoteCursorState, IUpmadeUser, UpmadeViewportOverlayHelper } from '@upmade/core';
+import {
+  UpmadeCore,
+  UpmadePath,
+  UpmadeLine,
+  UpmadePoint,
+  UpmadeRemoteCursorState,
+  UpmadeSelectionGroup,
+  IUpmadeUser,
+  UpmadeViewportOverlayHelper,
+} from '@upmade/core';
 import { CursorArrow, CursorLabel, EdgeIndicator } from '../shared/cursor/cursor-visuals';
+import { getSelectionTopLeft } from '../shared/cursor/selection-anchor';
 
 const STALE_THRESHOLD_MS = 10_000;
 const REMOVE_THRESHOLD_MS = 30_000;
@@ -18,6 +28,9 @@ export class UpmadeAwarenessCursors {
 
   @State() remoteCursors: Map<number, UpmadeRemoteCursorState> = new Map();
   @State() objectVersion: number = 0;
+
+  /** IDs of the objects each collaborator has selected, by awareness client ID (from their selection groups). */
+  private remoteSelections: Map<number, string[]> = new Map();
 
   private cleanupIntervalId: ReturnType<typeof setInterval> | undefined;
   private objectChangeRafId: ReturnType<typeof requestAnimationFrame> | null = null;
@@ -104,7 +117,37 @@ export class UpmadeAwarenessCursors {
       }
     }
 
+    this.refreshRemoteSelections(updated);
     this.remoteCursors = updated;
+  }
+
+  /**
+   * Finds the selection group of each collaborator. A group stamped with a client ID belongs to that tab;
+   * an older group without one belongs to the user with its user ID.
+   */
+  private refreshRemoteSelections(cursors: Map<number, UpmadeRemoteCursorState>): void {
+    const groups = (this.core.store.objects?.filter?.(object => object instanceof UpmadeSelectionGroup) ?? []) as UpmadeSelectionGroup[];
+    const next = new Map<number, string[]>();
+    if (groups.length > 0) {
+      for (const cursor of cursors.values()) {
+        const group = groups.find(
+          candidate =>
+            candidate.objectIds.length > 0 &&
+            (candidate.clientId != null ? candidate.clientId === cursor.clientId : candidate.userId != null && candidate.userId === cursor.user.id),
+        );
+        if (group) next.set(cursor.clientId, group.objectIds);
+      }
+    }
+    this.remoteSelections = next;
+  }
+
+  /** World point where a collaborator's label sits while they have objects selected: above the selection's top-left corner. */
+  private getSelectionAnchor(cursor: UpmadeRemoteCursorState): UpmadePoint | null {
+    const objectIds = this.remoteSelections.get(cursor.clientId);
+    if (!objectIds || objectIds.length === 0) return null;
+    const objects = this.core.store.objects;
+    if (!objects) return null;
+    return getSelectionTopLeft(objectIds.map(id => objects.findById(id)));
   }
 
   private cleanupStaleCursors() {
@@ -126,24 +169,24 @@ export class UpmadeAwarenessCursors {
     }
   }
 
+  /** A cursor that hasn't moved for a while fades out; a collaborator with a selection keeps their label. */
   private isStale(cursor: UpmadeRemoteCursorState): boolean {
+    if (this.remoteSelections.has(cursor.clientId)) return false;
     return Date.now() - cursor.lastCursorMove > STALE_THRESHOLD_MS;
   }
 
-  private hasActiveDrawingCursors(): boolean {
-    for (const cursor of this.remoteCursors.values()) {
-      if (cursor.activeObjectId) return true;
-    }
-    return false;
-  }
-
+  /**
+   * Remote changes move drawing tips and selected objects, and select or deselect objects
+   * (selection groups live in the document), so labels and cursors are re-derived.
+   */
   private handleRemoteObjectChange(): void {
-    if (!this.hasActiveDrawingCursors()) return;
+    if (this.remoteCursors.size === 0) return;
 
     // Debounce via rAF to batch multiple rapid Yjs updates into a single re-render
     if (this.objectChangeRafId !== null) return;
     this.objectChangeRafId = requestAnimationFrame(() => {
       this.objectChangeRafId = null;
+      this.refreshRemoteSelections(this.remoteCursors);
       this.objectVersion++;
     });
   }
@@ -208,6 +251,19 @@ export class UpmadeAwarenessCursors {
     return (
       <Host>
         {cursors.map(remoteCursor => {
+          const color = remoteCursor.user.color || '#6B7280';
+
+          // While a collaborator has objects selected, their cursor is hidden and
+          // their label sits above the top-left corner of the selection instead
+          const selectionAnchor = this.getSelectionAnchor(remoteCursor);
+          if (selectionAnchor) {
+            const anchor = this.worldToScreen(selectionAnchor.x, selectionAnchor.y);
+            if (this.isInViewport(anchor.x, anchor.y)) {
+              return this.renderCursor(remoteCursor, anchor.x, anchor.y, color, false, false, true);
+            }
+            return this.showEdgeIndicators ? this.renderEdgeIndicator(remoteCursor, anchor.x, anchor.y, color, false, false) : null;
+          }
+
           if (!remoteCursor.cursor) return null;
 
           // When a remote user is actively drawing, derive cursor position from
@@ -229,7 +285,6 @@ export class UpmadeAwarenessCursors {
 
           const inViewport = this.isInViewport(screen.x, screen.y);
           const stale = this.isStale(remoteCursor);
-          const color = remoteCursor.user.color || '#6B7280';
 
           if (inViewport) {
             return this.renderCursor(remoteCursor, screen.x, screen.y, color, stale, trackingObject);
@@ -276,11 +331,13 @@ export class UpmadeAwarenessCursors {
     color: string,
     stale: boolean,
     trackingObject: boolean,
+    selecting: boolean = false,
   ) {
+    // One element for both states, so the label glides between the pointer and the selection
     return (
       <div
         key={`cursor-${cursor.clientId}`}
-        class={{ 'awareness-cursor': true, stale, 'tracking-object': trackingObject }}
+        class={{ 'awareness-cursor': true, stale, 'tracking-object': trackingObject, 'is-selecting': selecting }}
         style={{ transform: `translate(${screenX}px, ${screenY}px)` }}
       >
         <CursorArrow color={color} />

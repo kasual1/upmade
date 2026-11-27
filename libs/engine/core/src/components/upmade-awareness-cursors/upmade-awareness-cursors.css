@@ -59,3 +59,18 @@
               width var(--upmade-awareness-cursor-transition-duration, 100ms) ease-out,
               height var(--upmade-awareness-cursor-transition-duration, 100ms) ease-out;
 }
+
+.awareness-cursor .cursor-arrow {
+  transition: opacity 150ms ease;
+}
+
+/* A collaborator with objects selected: no arrow, the label sits just above the selection's top-left corner. */
+.awareness-cursor.is-selecting .cursor-arrow {
+  opacity: 0;
+}
+
+.awareness-cursor.is-selecting .cursor-label {
+  left: 0;
+  top: 0;
+  transform: translateY(calc(-100% - var(--upmade-awareness-selection-label-offset, 4px)));
+}

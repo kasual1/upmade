@@ -8,6 +8,7 @@ jest.mock('@stencil/core', () => ({
 class MockUpmadePath { }
 class MockUpmadeLine { }
 class MockUpmadeShape { }
+class MockUpmadeSelectionGroup { }
 
 jest.mock('@upmade/core/src/classes/objects/path.class', () => ({
   UpmadePath: MockUpmadePath,
@@ -17,6 +18,9 @@ jest.mock('@upmade/core/src/classes/objects/line.class', () => ({
 }));
 jest.mock('@upmade/core/src/classes/objects/shape.class', () => ({
   UpmadeShape: MockUpmadeShape,
+}));
+jest.mock('@upmade/core/src/classes/objects/selection-group.class', () => ({
+  UpmadeSelectionGroup: MockUpmadeSelectionGroup,
 }));
 
 import { UpmadeAwarenessCursors } from './upmade-awareness-cursors';
@@ -472,27 +476,91 @@ describe('UpmadeAwarenessCursors', () => {
     });
   });
 
-  describe('hasActiveDrawingCursors', () => {
-    it('should return false when no cursor has activeObjectId', () => {
-      component.componentDidLoad();
-
-      const callback = (mockCore.store.objects.onAwarenessChange as jest.Mock).mock.calls[0][0];
-      callback(createAwarenessStates([
-        { clientId: 2, user: { id: 'other', name: 'Other', color: '#00ff00' }, cursor: { x: 200, y: 200 } },
-      ]));
-
-      expect((component as any).hasActiveDrawingCursors()).toBe(false);
+  describe('selection labels', () => {
+    const polygonAt = (x: number, y: number, w: number, h: number) => ({
+      rotatedPolygon: {
+        topLeft: { x, y },
+        topRight: { x: x + w, y },
+        bottomRight: { x: x + w, y: y + h },
+        bottomLeft: { x, y: y + h },
+      },
     });
 
-    it('should return true when at least one cursor has activeObjectId', () => {
-      component.componentDidLoad();
+    const makeGroup = (props: { objectIds: string[]; clientId?: number; userId?: string }) =>
+      Object.assign(new MockUpmadeSelectionGroup(), props);
 
-      const callback = (mockCore.store.objects.onAwarenessChange as jest.Mock).mock.calls[0][0];
+    const setup = (groups: any[], objects: Record<string, any>) => {
+      (mockCore.store.objects as any).filter = jest.fn((predicate: (o: any) => boolean) => [...groups, ...Object.values(objects)].filter(predicate));
+      (mockCore.store.objects.findById as jest.Mock).mockImplementation((id: string) => objects[id]);
+      component.componentDidLoad();
+      return (mockCore.store.objects.onAwarenessChange as jest.Mock).mock.calls[0][0];
+    };
+
+    const findCursorNode = (key: string) => {
+      const host = component.render() as any;
+      const flat = (host.$children$ ?? []).flat(Infinity).filter(Boolean);
+      const node = flat.find((candidate: any) => candidate.$key$ === key);
+      const classes = node.$attrs$.class;
+      const selecting = typeof classes === 'string' ? classes.split(/\s+/).includes('is-selecting') : !!classes['is-selecting'];
+      return { node, selecting, transform: node.$attrs$.style.transform };
+    };
+
+    it('anchors the label at the top-left of the collaborator\'s selection', () => {
+      const callback = setup([makeGroup({ objectIds: ['a', 'b'], clientId: 2 })], {
+        a: polygonAt(100, 80, 50, 50),
+        b: polygonAt(60, 120, 20, 20),
+      });
       callback(createAwarenessStates([
-        { clientId: 2, user: { id: 'other', name: 'Other', color: '#00ff00' }, cursor: { x: 200, y: 200 }, activeObjectId: 'path-1' },
+        { clientId: 2, user: { id: 'other', name: 'Other', color: '#00ff00' }, cursor: { x: 400, y: 400 } },
       ]));
 
-      expect((component as any).hasActiveDrawingCursors()).toBe(true);
+      expect((component as any).getSelectionAnchor(component.remoteCursors.get(2))).toEqual({ x: 60, y: 80 });
+
+      const cursor = findCursorNode('cursor-2');
+      expect(cursor.selecting).toBe(true);
+      expect(cursor.transform).toBe('translate(60px, 80px)');
+    });
+
+    it('shows the pointer again once the selection is gone', () => {
+      const groups = [makeGroup({ objectIds: ['a'], clientId: 2 })];
+      const callback = setup(groups, { a: polygonAt(100, 80, 50, 50) });
+      const states = createAwarenessStates([
+        { clientId: 2, user: { id: 'other', name: 'Other', color: '#00ff00' }, cursor: { x: 400, y: 300 } },
+      ]);
+      callback(states);
+      expect(findCursorNode('cursor-2').selecting).toBe(true);
+
+      groups.length = 0;
+      callback(states);
+
+      const cursor = findCursorNode('cursor-2');
+      expect(cursor.selecting).toBe(false);
+      expect(cursor.transform).toBe('translate(400px, 300px)');
+    });
+
+    it('ignores another tab\'s selection group and matches unstamped groups by user', () => {
+      const callback = setup(
+        [makeGroup({ objectIds: ['a'], clientId: 9, userId: 'other' }), makeGroup({ objectIds: ['b'], userId: 'third' })],
+        { a: polygonAt(10, 10, 5, 5), b: polygonAt(30, 40, 5, 5) },
+      );
+      callback(createAwarenessStates([
+        { clientId: 2, user: { id: 'other', name: 'Other', color: '#00ff00' }, cursor: { x: 400, y: 300 } },
+        { clientId: 3, user: { id: 'third', name: 'Third', color: '#0000ff' }, cursor: { x: 500, y: 300 } },
+      ]));
+
+      expect((component as any).getSelectionAnchor(component.remoteCursors.get(2))).toBeNull();
+      expect((component as any).getSelectionAnchor(component.remoteCursors.get(3))).toEqual({ x: 30, y: 40 });
+    });
+
+    it('keeps the label of a collaborator with a selection from going stale', () => {
+      const callback = setup([makeGroup({ objectIds: ['a'], clientId: 2 })], { a: polygonAt(0, 0, 10, 10) });
+      callback(createAwarenessStates([
+        { clientId: 2, user: { id: 'other', name: 'Other', color: '#00ff00' }, cursor: { x: 400, y: 300 } },
+      ]));
+      const cursor = component.remoteCursors.get(2)!;
+      cursor.lastCursorMove = Date.now() - 60_000;
+
+      expect((component as any).isStale(cursor)).toBe(false);
     });
   });
 });

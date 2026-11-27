@@ -1,6 +1,7 @@
 import { Component, Host, Prop, State, h, writeTask } from '@stencil/core';
 import { UpmadeCore, UpmadeAgenticCursor, UpmadeLine, UpmadePoint, UpmadeViewportOverlayHelper } from '@upmade/core';
 import { CursorArrow, CursorLabel, EdgeIndicator } from '../shared/cursor/cursor-visuals';
+import { getSelectionTopLeft } from '../shared/cursor/selection-anchor';
 
 /** A cursor to draw: a local agent (key = its ID) or a collaborator's agent (key = `r:<client>:<id>`). */
 type DrawnCursor = UpmadeAgenticCursor & { key: string; isRemote?: boolean };
@@ -9,6 +10,8 @@ interface RenderedPosition {
   x: number;
   y: number;
   inViewport: boolean;
+  /** Whether the cursor showed only its labels, above its selection. */
+  selecting: boolean;
 }
 
 /** Size of the engine's selection handles when `--upmade-selection-handle-size` is not set. */
@@ -17,7 +20,8 @@ const DEFAULT_HANDLE_SIZE_PX = 6;
 /**
  * Renders the cursors of the local agents (`UpmadeAgenticCursorManager`) and of collaborators' agents
  * (`UpmadeRemoteAgentManager`), the outlines of the objects each agent has selected and, like a person's
- * selection of one object, its rotation handle. Everything is keyed by the cursor key, so the same agent ID
+ * selection of one object, its rotation handle. While an agent has objects selected, its arrow is hidden
+ * and its labels sit above the top-left corner of the selection; they return to the arrow on deselect. Everything is keyed by the cursor key, so the same agent ID
  * in two tabs never collides.
  *
  * Structural changes (added/removed cursors, name, color, status, selections) re-render through
@@ -133,16 +137,20 @@ export class UpmadeAgenticCursors {
     for (const cursor of cursorsList) {
       if (!cursor.visible) continue;
 
-      const screen = UpmadeViewportOverlayHelper.worldToScreen(state, cursor.position.x, cursor.position.y);
+      const { screen, selecting } = this.getScreenAnchor(cursor);
       const inViewport = UpmadeViewportOverlayHelper.isInViewport(state, screen.x, screen.y);
       const previous = this.renderedPositions.get(cursor.key);
 
+      if (previous && previous.selecting !== selecting) {
+        needsRender = true;
+        continue;
+      }
       if (previous && previous.x === screen.x && previous.y === screen.y) continue;
 
       const element = this.cursorElements.get(cursor.key);
       if (inViewport && previous?.inViewport && element) {
         element.style.transform = `translate(${screen.x}px, ${screen.y}px)`;
-        this.renderedPositions.set(cursor.key, { x: screen.x, y: screen.y, inViewport });
+        this.renderedPositions.set(cursor.key, { x: screen.x, y: screen.y, inViewport, selecting });
       } else {
         needsRender = true;
       }
@@ -230,12 +238,12 @@ export class UpmadeAgenticCursors {
           </svg>
         )}
         {cursors.map(cursor => {
-          const screen = UpmadeViewportOverlayHelper.worldToScreen(state, cursor.position.x, cursor.position.y);
+          const { screen, selecting } = this.getScreenAnchor(cursor);
           const inViewport = UpmadeViewportOverlayHelper.isInViewport(state, screen.x, screen.y);
-          this.renderedPositions.set(cursor.key, { x: screen.x, y: screen.y, inViewport });
+          this.renderedPositions.set(cursor.key, { x: screen.x, y: screen.y, inViewport, selecting });
 
           if (inViewport) {
-            return this.renderCursor(cursor, screen.x, screen.y);
+            return this.renderCursor(cursor, screen.x, screen.y, selecting);
           }
           if (this.showEdgeIndicators) {
             return this.renderEdgeIndicator(cursor, screen.x, screen.y);
@@ -246,7 +254,19 @@ export class UpmadeAgenticCursors {
     );
   }
 
-  private renderCursor(cursor: DrawnCursor, screenX: number, screenY: number) {
+  /**
+   * Screen point the cursor element sits at: the cursor's position, or, while the agent has objects
+   * selected, the top-left corner of the selection, where only its labels show.
+   */
+  private getScreenAnchor(cursor: DrawnCursor): { screen: UpmadePoint; selecting: boolean } {
+    const state = this.core.store.state;
+    const objects = this.core.store.objects;
+    const topLeft = objects && cursor.selectedObjectIds.length > 0 ? getSelectionTopLeft(cursor.selectedObjectIds.map(id => objects.findById(id))) : null;
+    const world = topLeft ?? cursor.position;
+    return { screen: UpmadeViewportOverlayHelper.worldToScreen(state, world.x, world.y), selecting: !!topLeft };
+  }
+
+  private renderCursor(cursor: DrawnCursor, screenX: number, screenY: number, selecting: boolean) {
     return (
       <div
         key={`agentic-cursor-${cursor.key}`}
@@ -256,6 +276,7 @@ export class UpmadeAgenticCursors {
           'is-attached': !!cursor.attachedTo,
           'is-pressed': cursor.isPressed,
           'is-remote': !!cursor.isRemote,
+          'is-selecting': selecting,
         }}
         data-cursor-id={cursor.id}
         style={{ transform: `translate(${screenX}px, ${screenY}px)`, '--agentic-cursor-color': cursor.color }}
