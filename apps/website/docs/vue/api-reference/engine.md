@@ -694,10 +694,10 @@ addAgent(agent: UpmadeAgent): Promise<UpmadeAgent>
 
 #### removeAgent
 
-Removes an agent, given the agent or its ID: its running action is rolled back, its queued actions resolve with `'agent-removed'`, and its cursor and history are dropped. The agent can be added again. Resolves with `false` if the agent was not added.
+Removes an agent, given the agent or its ID: its running action is rolled back, its queued actions resolve with `'agent-removed'`, and its cursor and history are dropped. The agent can be added again. While an `agentHome` is set, the cursor first flies back behind it and the agent is removed when it gets there; it accepts no actions on the way, and adding it again keeps it. The promise resolves once the agent is gone. `immediate: true` removes it at once. Resolves with `false` if the agent was not added.
 
 ```ts
-removeAgent(agent: UpmadeAgent | string): Promise<boolean>
+removeAgent(agent: UpmadeAgent | string, options?: { immediate?: boolean }): Promise<boolean>
 ```
 
 #### getAgent

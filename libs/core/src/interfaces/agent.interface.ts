@@ -36,7 +36,10 @@ export interface UpmadeAgentOptions {
   cursorActions?: UpmadeCursorLabelAction[];
   /** Whether the cursor is visible. Defaults to `true`. */
   visible?: boolean;
-  /** Where the cursor appears when the agent is added. Defaults to the center of the viewport. */
+  /**
+   * Where the cursor appears when the agent is added. Defaults to the center of the engine's `agentHome` (in the
+   * editor: behind the chat box), else the center of the viewport.
+   */
   position?: UpmadeAgenticTarget;
 }
 

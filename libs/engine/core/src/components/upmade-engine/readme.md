@@ -10,6 +10,7 @@
 | Property                 | Attribute                  | Description                                                                                                                                                                                                                                                                                                                                                                                           | Type                                  | Default     |
 | ------------------------ | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- | ----------- |
 | `activeWorkspaceId`      | `active-workspace-id`      | Optional workspace ID to load. If provided, the engine will look up and load this workspace by ID.                                                                                                                                                                                                                                                                                                    | `string`                              | `undefined` |
+| `agentHome`              | --                         | An element on top of the engine that agents come out from behind when added and go back behind when removed, e.g. a chat box: added agents appear at its center, removed agents fly back there before they disappear, and cursors are hidden while behind it. The editor sets it to its chat box. Unset, agents appear at the viewport center and disappear where they are.                           | `HTMLElement`                         | `undefined` |
 | `assetStorageConfig`     | --                         | Configuration for binary asset storage (e.g., images).  The Yjs document only persists asset ids; the actual bytes are stored by the providers listed here. Defaults to IndexedDB-only storage. To support cross-device image sync alongside a networked sync provider (Hocuspocus, WebSocket), configure at least one remote asset provider such as `HttpAssetProvider` or `PresignedAssetProvider`. | `UpmadeAssetStorageConfig`            | `undefined` |
 | `chatSession`            | --                         | A chat session bound to this engine: its tools act on this canvas. With an agent, the agent is added here. A session replaced by another one is unbound once its running prompt ends.                                                                                                                                                                                                                 | `UpmadeChatSession`                   | `undefined` |
 | `cursorTarget`           | --                         | The HTML element to apply cursor styles to. Defaults to `document.body` if not set.                                                                                                                                                                                                                                                                                                                   | `HTMLElement`                         | `undefined` |
@@ -1004,16 +1005,19 @@ Type: `Promise<void>`
 
 
 
-### `removeAgent(agent: UpmadeAgent | string) => Promise<boolean>`
+### `removeAgent(agent: UpmadeAgent | string, options?: { immediate?: boolean; }) => Promise<boolean>`
 
 Removes an agent: its running action is rolled back, its queued actions resolve with
 `'agent-removed'`, and its cursor and history are dropped. The agent can be added again.
+With an `agentHome` (in the editor: the chat box), the cursor first flies back behind it; the promise
+resolves once the agent is gone. `immediate: true` removes it at once.
 
 #### Parameters
 
-| Name    | Type                    | Description            |
-| ------- | ----------------------- | ---------------------- |
-| `agent` | `string \| UpmadeAgent` | - The agent or its ID. |
+| Name      | Type                       | Description                          |
+| --------- | -------------------------- | ------------------------------------ |
+| `agent`   | `string \| UpmadeAgent`    | - The agent or its ID.               |
+| `options` | `{ immediate?: boolean; }` | - `immediate`: skip the flight home. |
 
 #### Returns
 

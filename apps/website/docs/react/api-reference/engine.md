@@ -307,6 +307,7 @@ worldToScreen(x: number, y: number): Promise<{ x: number; y: number }>
 | activeWorkspaceId | string | Optional workspace ID to load. |
 | workspaces | UpmadeWorkspace[] | Optional authoritative workspace catalog for this engine instance. |
 | syncConfig | UpmadeSyncConfig | Configuration for synchronization providers. |
+| agentHome | HTMLElement | An element on top of the engine that agents come out from behind and go back behind, e.g. a chat box. Added agents without a `position` appear at its center, removed agents fly back there before they disappear, and agent cursors are hidden while behind it. The editor sets it to its chat box. Unset, agents appear at the viewport center and disappear where they are. |
 | user | IUpmadeUser | Current user for awareness broadcasting. |
 | userStatus | string | What the current user is doing, e.g. `'typing…'` or a message they typed. Collaborators see it in place of the user's name on the cursor label, like an agent's status (cut to 200 characters); unset or `''` shows the name. |
 | userCursorActions | UpmadeCursorLabelAction[] | Buttons after the name or status on collaborators' cursor labels, e.g. to follow a user. None by default. A click calls the action's `onClick` and emits `cursorLabelAction`. |
@@ -892,10 +893,10 @@ addAgent(agent: UpmadeAgent): Promise<UpmadeAgent>
 
 #### removeAgent
 
-Removes an agent, given the agent or its ID: its running action is rolled back, its queued actions resolve with `'agent-removed'`, and its cursor and history are dropped. The agent can be added again. Resolves with `false` if the agent was not added.
+Removes an agent, given the agent or its ID: its running action is rolled back, its queued actions resolve with `'agent-removed'`, and its cursor and history are dropped. The agent can be added again. While an `agentHome` is set, the cursor first flies back behind it and the agent is removed when it gets there; it accepts no actions on the way, and adding it again keeps it. The promise resolves once the agent is gone. `immediate: true` removes it at once. Resolves with `false` if the agent was not added.
 
 ```ts
-removeAgent(agent: UpmadeAgent | string): Promise<boolean>
+removeAgent(agent: UpmadeAgent | string, options?: { immediate?: boolean }): Promise<boolean>
 ```
 
 #### getAgent

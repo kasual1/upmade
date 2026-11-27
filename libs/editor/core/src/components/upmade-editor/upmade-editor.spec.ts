@@ -120,9 +120,20 @@ describe('UpmadeEditor', () => {
       await component.getAgents();
 
       expect(mockEngine.addAgent).toHaveBeenCalledWith(agent);
-      expect(mockEngine.removeAgent).toHaveBeenCalledWith('planner');
+      expect(mockEngine.removeAgent).toHaveBeenCalledWith('planner', {});
       expect(mockEngine.getAgent).toHaveBeenCalledWith('planner');
       expect(mockEngine.getAgents).toHaveBeenCalled();
+    });
+
+    it('makes the chat box the home of agents while it shows', async () => {
+      const chatBox = document.createElement('div');
+      (component as any).setChatBoxElement(chatBox);
+      await Promise.resolve();
+      expect((component as any).chatBoxElement).toBe(chatBox);
+
+      (component as any).setChatBoxElement(undefined);
+      await Promise.resolve();
+      expect((component as any).chatBoxElement).toBeUndefined();
     });
 
     it('re-emits agentsChange from the engine without letting it bubble', () => {

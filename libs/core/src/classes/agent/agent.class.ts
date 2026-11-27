@@ -295,6 +295,10 @@ export class UpmadeAgent implements IUpmadeUser {
    */
   async moveTo(target: UpmadeAgenticTarget, options: UpmadeAgenticMoveOptions = {}): Promise<UpmadeAgenticMoveResult> {
     const core = this.requireCore();
+    if (core.agentManager.isLeaving(this.id)) {
+      // On its way home to be removed.
+      return { completed: false };
+    }
     return core.agenticCursorManager.move(this.id, target, { ...options, speed: options.speed ?? this._speed });
   }
 
@@ -316,6 +320,10 @@ export class UpmadeAgent implements IUpmadeUser {
    */
   async perform(action: UpmadeAgenticAction, options: UpmadeAgenticActionOptions = {}): Promise<UpmadeAgenticActionResult> {
     const core = this.requireCore();
+    if (core.agentManager.isLeaving(this.id)) {
+      // On its way home to be removed.
+      return { completed: false, reason: 'agent-removed' };
+    }
     // Decided when the action starts: an action started before a task, or by a task that has ended, never throws.
     const task = this._task;
     if (task?.cancelled) {
@@ -629,7 +637,8 @@ export class UpmadeAgent implements IUpmadeUser {
     // target: the cursor then starts at the viewport center.
     const initial = this._initialPosition;
     const start = initial && canStartAt(core, initial) ? core.agenticCursorManager.resolveTarget(initial) : null;
-    const position = start && Number.isFinite(start.x) && Number.isFinite(start.y) ? initial : undefined;
+    // Without a start position of its own, the agent comes out from behind its home (the editor's chat box).
+    const position = start && Number.isFinite(start.x) && Number.isFinite(start.y) ? initial : (core.agentManager.getHomePoint() ?? undefined);
     // The cursor reads how it looks from the agent, so name, color, icon, status and visibility live only here.
     const agent = this;
     const cursor = {

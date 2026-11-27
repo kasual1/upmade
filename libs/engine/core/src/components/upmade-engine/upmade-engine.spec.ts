@@ -195,6 +195,8 @@ describe('UpmadeEngine', () => {
       getPresences: jest.fn().mockReturnValue([]),
       onChange: jest.fn(),
       setDisposed: jest.fn(),
+      setHome: jest.fn(),
+      whenRemoved: jest.fn().mockResolvedValue(undefined),
     },
     agentBroadcaster: {
       clear: jest.fn(),
@@ -3219,7 +3221,8 @@ describe('UpmadeEngine', () => {
       await expect(engine.getAgents()).resolves.toEqual([agent]);
       await expect(engine.getRemoteAgents()).resolves.toEqual(remote);
       expect(core.agentManager.add).toHaveBeenCalledWith(agent);
-      expect(core.agentManager.remove).toHaveBeenCalledWith('planner');
+      expect(core.agentManager.remove).toHaveBeenCalledWith('planner', {});
+      expect(core.agentManager.whenRemoved).toHaveBeenCalledWith('planner');
     });
 
     it('emits agentsChange with local agents first, then remote ones, when either manager changes', () => {

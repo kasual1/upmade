@@ -13,6 +13,8 @@ interface RenderedPosition {
   inViewport: boolean;
   /** Whether the arrow was hidden: the agent was idle with its labels above its selection. */
   idle: boolean;
+  /** Whether the cursor was hidden behind the agents' home (the chat box). */
+  behindHome: boolean;
 }
 
 /** Size of the engine's selection handles when `--upmade-selection-handle-size` is not set. */
@@ -106,6 +108,7 @@ export class UpmadeAgenticCursors {
     const state = this.core.store.state;
     let needsRender = false;
     const cursorsList = this.getCursors();
+    const homeRect = this.getHomeRect();
 
     // Selection outlines and handles follow their objects (drags, remote changes, pan and zoom).
     const selections = this.collectSelections(cursorsList);
@@ -162,8 +165,9 @@ export class UpmadeAgenticCursors {
       const inViewport = UpmadeViewportOverlayHelper.isInViewport(state, screen.x, screen.y);
       const previous = this.renderedPositions.get(cursor.key);
       const idle = !!label && this.isIdle(cursor);
+      const behindHome = this.isBehindHome(cursor, screen, homeRect);
 
-      if (previous && previous.idle !== idle) {
+      if (previous && (previous.idle !== idle || previous.behindHome !== behindHome)) {
         needsRender = true;
         continue;
       }
@@ -172,7 +176,7 @@ export class UpmadeAgenticCursors {
       const element = this.cursorElements.get(cursor.key);
       if (inViewport && previous?.inViewport && element) {
         element.style.transform = `translate(${screen.x}px, ${screen.y}px)`;
-        this.renderedPositions.set(cursor.key, { x: screen.x, y: screen.y, inViewport, idle });
+        this.renderedPositions.set(cursor.key, { x: screen.x, y: screen.y, inViewport, idle, behindHome });
       } else {
         needsRender = true;
       }
@@ -193,6 +197,7 @@ export class UpmadeAgenticCursors {
     for (const key of Array.from(this.renderedPositions.keys())) {
       if (!renderedKeys.has(key)) this.renderedPositions.delete(key);
     }
+    const homeRect = this.getHomeRect();
     const labels = cursors
       .map(cursor => ({ cursor, position: this.getSelectionLabelPosition(cursor) }))
       .filter((label): label is { cursor: DrawnCursor; position: UpmadePoint } => !!label.position && this.hasLabels(label.cursor));
@@ -281,10 +286,11 @@ export class UpmadeAgenticCursors {
           const labelsAtSelection = this.renderedLabelPositions.has(cursor.key);
           // With its labels above the selection, an idle agent's arrow hides until it acts again.
           const idle = labelsAtSelection && this.isIdle(cursor);
-          this.renderedPositions.set(cursor.key, { x: screen.x, y: screen.y, inViewport, idle });
+          const behindHome = this.isBehindHome(cursor, screen, homeRect);
+          this.renderedPositions.set(cursor.key, { x: screen.x, y: screen.y, inViewport, idle, behindHome });
 
           if (inViewport) {
-            return this.renderCursor(cursor, screen.x, screen.y, labelsAtSelection, idle);
+            return this.renderCursor(cursor, screen.x, screen.y, labelsAtSelection, idle, behindHome);
           }
           if (this.showEdgeIndicators) {
             return this.renderEdgeIndicator(cursor, screen.x, screen.y, idle);
@@ -330,6 +336,19 @@ export class UpmadeAgenticCursors {
     );
   }
 
+  /** The agents' home (the editor's chat box) in screen coordinates, or `null`. */
+  private getHomeRect() {
+    return this.core.agentManager?.getHomeRect?.() ?? null;
+  }
+
+  /**
+   * Whether a local agent's cursor is behind its home: it is hidden there entirely, label included, so it comes out
+   * from behind the chat box when added and disappears behind it when removed.
+   */
+  private isBehindHome(cursor: DrawnCursor, screen: UpmadePoint, rect: { left: number; top: number; right: number; bottom: number } | null): boolean {
+    return !!rect && !cursor.isRemote && screen.x >= rect.left && screen.x <= rect.right && screen.y >= rect.top && screen.y <= rect.bottom;
+  }
+
   /** Whether the agent is doing nothing: no running or queued action, no movement and no press. */
   private isIdle(cursor: DrawnCursor): boolean {
     return !cursor.isMoving && !cursor.isPressed && !cursor.activeAction && cursor.queueLength === 0;
@@ -339,7 +358,7 @@ export class UpmadeAgenticCursors {
    * `labelsAtSelection`: the labels are drawn above the agent's selection, so the arrow shows alone.
    * `idle`: the agent is idle as well, so the arrow is hidden too.
    */
-  private renderCursor(cursor: DrawnCursor, screenX: number, screenY: number, labelsAtSelection: boolean, idle: boolean) {
+  private renderCursor(cursor: DrawnCursor, screenX: number, screenY: number, labelsAtSelection: boolean, idle: boolean, behindHome = false) {
     return (
       <div
         key={`agentic-cursor-${cursor.key}`}
@@ -351,6 +370,7 @@ export class UpmadeAgenticCursors {
           'is-remote': !!cursor.isRemote,
           'is-selecting': labelsAtSelection,
           'is-idle': idle,
+          'is-behind-home': behindHome,
         }}
         data-cursor-id={cursor.id}
         style={{ transform: `translate(${screenX}px, ${screenY}px)`, '--agentic-cursor-color': cursor.color }}

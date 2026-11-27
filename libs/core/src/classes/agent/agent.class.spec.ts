@@ -233,6 +233,76 @@ describe('UpmadeAgent', () => {
     });
   });
 
+  describe('home (the chat box)', () => {
+    const rect = (left: number, top: number, width: number, height: number) =>
+      ({ left, top, right: left + width, bottom: top + height, width, height }) as DOMRect;
+    const setHome = () => {
+      (core.engine as any).host = { getBoundingClientRect: () => rect(0, 0, 2000, 2000) };
+      core.agentManager.setHome({ isConnected: true, getBoundingClientRect: () => rect(900, 1800, 200, 100) } as unknown as HTMLElement);
+    };
+
+    it('lets agents appear at the center of the home, unless they have a position of their own', () => {
+      setHome();
+      add(new UpmadeAgent({ id: 'a', name: 'A' }));
+      add(new UpmadeAgent({ id: 'b', name: 'B', position: { x: 10, y: 20 } }));
+
+      expect(core.agenticCursorManager.get('a')!.position).toEqual({ x: 1000, y: 1850 });
+      expect(core.agenticCursorManager.get('b')!.position).toEqual({ x: 10, y: 20 });
+    });
+
+    it('flies a removed agent home first and removes it there; it accepts no work on the way', async () => {
+      setHome();
+      const agent = add(new UpmadeAgent({ id: 'a', name: 'A', position: { x: 100, y: 100 }, speed: 2000 }));
+
+      expect(core.agentManager.remove(agent)).toBe(true);
+      expect(core.agentManager.isLeaving(agent)).toBe(true);
+      expect(core.agentManager.get('a')).toBe(agent);
+      await expect(agent.perform({ type: 'clearSelection' })).resolves.toEqual({ completed: false, reason: 'agent-removed' });
+      await expect(agent.moveTo({ x: 0, y: 0 })).resolves.toEqual({ completed: false });
+
+      await step();
+      const halfway = core.agenticCursorManager.get('a')!.position;
+      expect(halfway.y).toBeGreaterThan(100);
+      expect(halfway.y).toBeLessThan(1850);
+
+      await settle(core.agentManager.whenRemoved(agent));
+      expect(core.agentManager.get('a')).toBeNull();
+      expect(core.agenticCursorManager.get('a')).toBeNull();
+      expect(agent.state.isAdded).toBe(false);
+    });
+
+    it('removes at once with immediate, without a home, or while disconnected', () => {
+      add(new UpmadeAgent({ id: 'a', name: 'A' }));
+      expect(core.agentManager.remove('a')).toBe(true);
+      expect(core.agentManager.get('a')).toBeNull();
+
+      setHome();
+      add(new UpmadeAgent({ id: 'b', name: 'B', position: { x: 100, y: 100 } }));
+      core.agentManager.remove('b', { immediate: true });
+      expect(core.agentManager.get('b')).toBeNull();
+
+      add(new UpmadeAgent({ id: 'c', name: 'C', position: { x: 100, y: 100 } }));
+      core.agentManager.remove('c');
+      expect(core.agentManager.isLeaving('c')).toBe(true);
+      core.agentManager.setDisposed(true);
+      expect(core.agentManager.get('c')).toBeNull();
+      core.agentManager.setDisposed(false);
+    });
+
+    it('keeps an agent that is added again on its way home', async () => {
+      setHome();
+      const agent = add(new UpmadeAgent({ id: 'a', name: 'A', position: { x: 100, y: 100 } }));
+      core.agentManager.remove(agent);
+      await step();
+
+      expect(add(agent)).toBe(agent);
+      expect(core.agentManager.isLeaving(agent)).toBe(false);
+      for (let i = 0; i < 200; i++) await step();
+      expect(core.agentManager.get('a')).toBe(agent);
+      await expect(agent.perform({ type: 'clearSelection' })).resolves.toMatchObject({ completed: true });
+    });
+  });
+
   describe('cursor label actions', () => {
     it('shows the remove action by default; clicking it removes the agent and emits cursorLabelAction', () => {
       const agent = add(new UpmadeAgent({ id: 'a', name: 'A' }));

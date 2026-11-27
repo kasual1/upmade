@@ -519,6 +519,40 @@ describe('UpmadeAgenticCursors', () => {
     });
   });
 
+  describe('home (the chat box)', () => {
+    const classesOf = (key: string) =>
+      (flatten(component.render() as unknown as VNode).find(node => node.$key$ === key)!.$attrs$!.class as string).split(' ');
+
+    it('hides a local cursor entirely while it is behind the home, and shows it once it comes out', () => {
+      // The cursor at world (10, 10) is drawn at (25, 20).
+      let homeRect: { left: number; top: number; right: number; bottom: number } | null = { left: 0, top: 0, right: 100, bottom: 100 };
+      (component.core as any).agentManager = { getHomeRect: () => homeRect };
+      const cursor = createCursor();
+      cursors = [cursor];
+      expect(classesOf('agentic-cursor-agent')).toContain('is-behind-home');
+
+      // Out from behind it: a frame re-renders it visible.
+      cursor.position = { x: 200, y: 200 };
+      const versionBefore = component.version;
+      frameListener!();
+      flushWrites();
+      expect(component.version).toBe(versionBefore + 1);
+      expect(classesOf('agentic-cursor-agent')).not.toContain('is-behind-home');
+
+      cursor.position = { x: 10, y: 10 };
+      homeRect = null;
+      expect(classesOf('agentic-cursor-agent')).not.toContain('is-behind-home');
+    });
+
+    it("never hides collaborators' agents behind this editor's home", () => {
+      (component.core as any).agentManager = { getHomeRect: () => ({ left: 0, top: 0, right: 100, bottom: 100 }) };
+      cursors = [];
+      const remote = { ...createCursor(), key: 'r:7:agent', clientId: 7, isRemote: true };
+      (component.core as any).remoteAgentManager = { getAll: () => [remote], onChange: () => () => undefined, onFrame: () => () => undefined };
+      expect(classesOf('agentic-cursor-r:7:agent')).not.toContain('is-behind-home');
+    });
+  });
+
   describe('label actions', () => {
     const removeAction = { id: 'remove', icon: 'x', label: 'Remove agent' };
 

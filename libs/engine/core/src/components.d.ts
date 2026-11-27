@@ -77,6 +77,10 @@ export namespace Components {
          */
         "addObjects": <T extends UpmadeBaseObject>(objects: T[]) => Promise<T[]>;
         /**
+          * An element on top of the engine that agents come out from behind when added and go back behind when removed, e.g. a chat box: added agents appear at its center, removed agents fly back there before they disappear, and cursors are hidden while behind it. The editor sets it to its chat box. Unset, agents appear at the viewport center and disappear where they are.
+         */
+        "agentHome"?: HTMLElement;
+        /**
           * Aligns the currently selected objects according to the specified alignment.
           * @param alignment - The alignment direction (e.g., `CenterHorizontal`, `StartVertical`).
          */
@@ -464,11 +468,12 @@ export namespace Components {
          */
         "reinitSync": () => Promise<void>;
         /**
-          * Removes an agent: its running action is rolled back, its queued actions resolve with `'agent-removed'`, and its cursor and history are dropped. The agent can be added again.
+          * Removes an agent: its running action is rolled back, its queued actions resolve with `'agent-removed'`, and its cursor and history are dropped. The agent can be added again. With an `agentHome` (in the editor: the chat box), the cursor first flies back behind it; the promise resolves once the agent is gone. `immediate: true` removes it at once.
           * @param agent - The agent or its ID.
+          * @param options - `immediate`: skip the flight home.
           * @returns `false` if the agent was not added.
          */
-        "removeAgent": (agent: UpmadeAgent | string) => Promise<boolean>;
+        "removeAgent": (agent: UpmadeAgent | string, options?: { immediate?: boolean; }) => Promise<boolean>;
         /**
           * Removes an object from the canvas.
           * @param object - The object to remove.
@@ -890,6 +895,10 @@ declare namespace LocalJSX {
           * Optional workspace ID to load. If provided, the engine will look up and load this workspace by ID.
          */
         "activeWorkspaceId"?: string;
+        /**
+          * An element on top of the engine that agents come out from behind when added and go back behind when removed, e.g. a chat box: added agents appear at its center, removed agents fly back there before they disappear, and cursors are hidden while behind it. The editor sets it to its chat box. Unset, agents appear at the viewport center and disappear where they are.
+         */
+        "agentHome"?: HTMLElement;
         /**
           * Configuration for binary asset storage (e.g., images).  The Yjs document only persists asset ids; the actual bytes are stored by the providers listed here. Defaults to IndexedDB-only storage. To support cross-device image sync alongside a networked sync provider (Hocuspocus, WebSocket), configure at least one remote asset provider such as `HttpAssetProvider` or `PresignedAssetProvider`.
          */

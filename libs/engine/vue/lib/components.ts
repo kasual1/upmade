@@ -25,6 +25,7 @@ export const UpmadeEngine: StencilVueComponent<JSX.UpmadeEngine> = /*@__PURE__*/
   'objectConfig',
   'scaleMax',
   'scaleMin',
+  'agentHome',
   'cursorTarget',
   'lockDrawingScale',
   'theme',

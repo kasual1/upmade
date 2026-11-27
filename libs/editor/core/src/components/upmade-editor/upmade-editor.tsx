@@ -582,6 +582,8 @@ export class UpmadeEditor {
   /** Whether the bound chat session runs a prompt. */
   @State() isChatSessionRunning: boolean = false;
   @State() agents: (UpmadeAgentPresence | UpmadeRemoteAgentPresence)[] = [];
+  /** The chat box while it shows: agents come out from behind it when added and go back behind it when removed. */
+  @State() chatBoxElement?: HTMLElement;
   @State() isToolbarReady: boolean = false;
   @State() isWorkspaceManagerReady: boolean = false;
   @State() availableWorkspaces: UpmadeWorkspace[] = [];
@@ -1128,12 +1130,15 @@ export class UpmadeEditor {
   /**
    * Removes an agent: its running action is rolled back, its queued actions resolve with
    * `'agent-removed'`, and its cursor and history are dropped. The agent can be added again.
+   * While the chat box shows, the cursor first flies back behind it; the promise resolves once the agent is
+   * gone. `immediate: true` removes it at once.
    * @param agent - The agent or its ID.
+   * @param options - `immediate`: skip the flight home.
    * @returns `false` if the agent was not added.
    */
   @Method()
-  async removeAgent(agent: UpmadeAgent | string): Promise<boolean> {
-    return this.engineRef.removeAgent(agent);
+  async removeAgent(agent: UpmadeAgent | string, options: { immediate?: boolean } = {}): Promise<boolean> {
+    return this.engineRef.removeAgent(agent, options);
   }
 
   /**
@@ -1705,6 +1710,15 @@ export class UpmadeEditor {
     event.stopPropagation();
     this.agents = event.detail.agents;
     this.agentsChange.emit(event.detail);
+  }
+
+  private setChatBoxElement(element: HTMLElement | undefined) {
+    // Set from a ref, which runs while rendering: re-render after it, and only for a different element.
+    queueMicrotask(() => {
+      if ((element ?? undefined) !== this.chatBoxElement) {
+        this.chatBoxElement = element ?? undefined;
+      }
+    });
   }
 
   handleCursorLabelAction(event: CustomEvent<UpmadeCursorLabelActionEvent>) {
@@ -2279,6 +2293,7 @@ export class UpmadeEditor {
             syncConfig={this.syncConfig}
             assetStorageConfig={this.assetStorageConfig}
             user={this.user}
+            agentHome={this.chatBoxElement}
             userStatus={this.userStatus}
             userCursorActions={this.userCursorActions}
             chatSession={this.chatSession}
@@ -2347,6 +2362,7 @@ export class UpmadeEditor {
 
           {this.isChatBoxVisible && (
             <upmade-chat-box
+              ref={(el) => this.setChatBoxElement(el)}
               mode={this.chatBoxMode}
               loading={this.isChatBoxLoading || this.isChatSessionRunning}
               terms={this.resolvedTerms}

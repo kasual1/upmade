@@ -318,6 +318,18 @@ export class UpmadeEngine implements UpmadeEngineHost {
       this.core.store.state.scaleMin = newValue;
     }
   }
+  /**
+   * An element on top of the engine that agents come out from behind when added and go back behind when removed,
+   * e.g. a chat box: added agents appear at its center, removed agents fly back there before they disappear, and
+   * cursors are hidden while behind it. The editor sets it to its chat box. Unset, agents appear at the viewport
+   * center and disappear where they are.
+   */
+  @Prop() agentHome?: HTMLElement;
+  @Watch('agentHome')
+  onAgentHomeChange(newValue: HTMLElement | undefined) {
+    this.core.agentManager.setHome(newValue ?? null);
+  }
+
   /** The HTML element to apply cursor styles to. Defaults to `document.body` if not set. */
   @Prop() cursorTarget?: HTMLElement;
   @Watch('cursorTarget')
@@ -1578,12 +1590,19 @@ export class UpmadeEngine implements UpmadeEngineHost {
   /**
    * Removes an agent: its running action is rolled back, its queued actions resolve with
    * `'agent-removed'`, and its cursor and history are dropped. The agent can be added again.
+   * With an `agentHome` (in the editor: the chat box), the cursor first flies back behind it; the promise
+   * resolves once the agent is gone. `immediate: true` removes it at once.
    * @param agent - The agent or its ID.
+   * @param options - `immediate`: skip the flight home.
    * @returns `false` if the agent was not added.
    */
   @Method()
-  async removeAgent(agent: UpmadeAgent | string): Promise<boolean> {
-    return this.core.agentManager.remove(agent);
+  async removeAgent(agent: UpmadeAgent | string, options: { immediate?: boolean } = {}): Promise<boolean> {
+    const removed = this.core.agentManager.remove(agent, options);
+    if (removed) {
+      await this.core.agentManager.whenRemoved(agent);
+    }
+    return removed;
   }
 
   /**
@@ -2791,6 +2810,7 @@ export class UpmadeEngine implements UpmadeEngineHost {
 
   connectedCallback() {
     this.core.agentManager.setDisposed(false);
+    this.core.agentManager.setHome(this.agentHome ?? null);
     this.bindChatSession();
   }
 

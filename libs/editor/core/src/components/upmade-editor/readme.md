@@ -1062,16 +1062,19 @@ Type: `Promise<void>`
 
 
 
-### `removeAgent(agent: UpmadeAgent | string) => Promise<boolean>`
+### `removeAgent(agent: UpmadeAgent | string, options?: { immediate?: boolean; }) => Promise<boolean>`
 
 Removes an agent: its running action is rolled back, its queued actions resolve with
 `'agent-removed'`, and its cursor and history are dropped. The agent can be added again.
+While the chat box shows, the cursor first flies back behind it; the promise resolves once the agent is
+gone. `immediate: true` removes it at once.
 
 #### Parameters
 
-| Name    | Type                    | Description            |
-| ------- | ----------------------- | ---------------------- |
-| `agent` | `string \| UpmadeAgent` | - The agent or its ID. |
+| Name      | Type                       | Description                          |
+| --------- | -------------------------- | ------------------------------------ |
+| `agent`   | `string \| UpmadeAgent`    | - The agent or its ID.               |
+| `options` | `{ immediate?: boolean; }` | - `immediate`: skip the flight home. |
 
 #### Returns
 

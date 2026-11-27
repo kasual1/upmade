@@ -66,6 +66,15 @@
   transition: opacity 150ms ease;
 }
 
+/* Behind the agents' home (the editor's chat box): hidden entirely, so the cursor comes out from behind it. */
+.agentic-cursor.is-behind-home {
+  opacity: 0;
+}
+
+.agentic-cursor.is-behind-home .cursor-label {
+  pointer-events: none;
+}
+
 /*
  * An idle agent whose labels sit above its selection hides its arrow. The fade waits a moment, so the arrow
  * doesn't blink between two actions; it shows again as soon as the agent acts.

@@ -536,11 +536,12 @@ export namespace Components {
         "registerTool": (toolName: string, toolClass: any, toolConfig?: UpmadeTextToolConfig | UpmadeBrushToolConfig | UpmadeLineToolConfig | UpmadeShapeToolConfig) => Promise<UpmadeBaseTool | null>;
         "reinitSync": () => Promise<void>;
         /**
-          * Removes an agent: its running action is rolled back, its queued actions resolve with `'agent-removed'`, and its cursor and history are dropped. The agent can be added again.
+          * Removes an agent: its running action is rolled back, its queued actions resolve with `'agent-removed'`, and its cursor and history are dropped. The agent can be added again. While the chat box shows, the cursor first flies back behind it; the promise resolves once the agent is gone. `immediate: true` removes it at once.
           * @param agent - The agent or its ID.
+          * @param options - `immediate`: skip the flight home.
           * @returns `false` if the agent was not added.
          */
-        "removeAgent": (agent: UpmadeAgent | string) => Promise<boolean>;
+        "removeAgent": (agent: UpmadeAgent | string, options?: { immediate?: boolean; }) => Promise<boolean>;
         "removeObject": <T extends UpmadeBaseObject>(object: T) => Promise<T | null>;
         "removeObjects": <T extends UpmadeBaseObject>(objects: T[]) => Promise<T[]>;
         /**
