@@ -496,16 +496,15 @@ describe('UpmadeAwarenessCursors', () => {
       return (mockCore.store.objects.onAwarenessChange as jest.Mock).mock.calls[0][0];
     };
 
-    const findCursorNode = (key: string) => {
+    const renderNodes = () => {
       const host = component.render() as any;
       const flat = (host.$children$ ?? []).flat(Infinity).filter(Boolean);
-      const node = flat.find((candidate: any) => candidate.$key$ === key);
-      const classes = node.$attrs$.class;
-      const selecting = typeof classes === 'string' ? classes.split(/\s+/).includes('is-selecting') : !!classes['is-selecting'];
-      return { node, selecting, transform: node.$attrs$.style.transform };
+      const byKey = (key: string) => flat.find((candidate: any) => candidate.$key$ === key);
+      const hasLabel = (node: any) => (node.$children$ ?? []).some((child: any) => String(child.$attrs$?.class ?? '').includes('cursor-label'));
+      return { byKey, hasLabel };
     };
 
-    it('anchors the label at the top-left of the collaborator\'s selection', () => {
+    it('keeps the cursor at the pointer and shows the label above the top-left of the collaborator\'s selection', () => {
       const callback = setup([makeGroup({ objectIds: ['a', 'b'], clientId: 2 })], {
         a: polygonAt(100, 80, 50, 50),
         b: polygonAt(60, 120, 20, 20),
@@ -516,26 +515,31 @@ describe('UpmadeAwarenessCursors', () => {
 
       expect((component as any).getSelectionAnchor(component.remoteCursors.get(2))).toEqual({ x: 60, y: 80 });
 
-      const cursor = findCursorNode('cursor-2');
-      expect(cursor.selecting).toBe(true);
-      expect(cursor.transform).toBe('translate(60px, 80px)');
+      const { byKey, hasLabel } = renderNodes();
+      const cursor = byKey('cursor-2');
+      expect(cursor.$attrs$.style.transform).toBe('translate(400px, 400px)');
+      expect(hasLabel(cursor)).toBe(false);
+
+      const label = byKey('selection-label-2');
+      expect(label.$attrs$.style.transform).toBe('translate(60px, 80px)');
+      expect(hasLabel(label)).toBe(true);
     });
 
-    it('shows the pointer again once the selection is gone', () => {
+    it('moves the label back to the cursor once the selection is gone', () => {
       const groups = [makeGroup({ objectIds: ['a'], clientId: 2 })];
       const callback = setup(groups, { a: polygonAt(100, 80, 50, 50) });
       const states = createAwarenessStates([
         { clientId: 2, user: { id: 'other', name: 'Other', color: '#00ff00' }, cursor: { x: 400, y: 300 } },
       ]);
       callback(states);
-      expect(findCursorNode('cursor-2').selecting).toBe(true);
+      expect(renderNodes().byKey('selection-label-2')).toBeDefined();
 
       groups.length = 0;
       callback(states);
 
-      const cursor = findCursorNode('cursor-2');
-      expect(cursor.selecting).toBe(false);
-      expect(cursor.transform).toBe('translate(400px, 300px)');
+      const { byKey, hasLabel } = renderNodes();
+      expect(byKey('selection-label-2')).toBeUndefined();
+      expect(hasLabel(byKey('cursor-2'))).toBe(true);
     });
 
     it('ignores another tab\'s selection group and matches unstamped groups by user', () => {
@@ -552,15 +556,15 @@ describe('UpmadeAwarenessCursors', () => {
       expect((component as any).getSelectionAnchor(component.remoteCursors.get(3))).toEqual({ x: 30, y: 40 });
     });
 
-    it('keeps the label of a collaborator with a selection from going stale', () => {
-      const callback = setup([makeGroup({ objectIds: ['a'], clientId: 2 })], { a: polygonAt(0, 0, 10, 10) });
+    it('keeps the label above the selection when the pointer leaves the canvas', () => {
+      const callback = setup([makeGroup({ objectIds: ['a'], clientId: 2 })], { a: polygonAt(20, 30, 10, 10) });
       callback(createAwarenessStates([
-        { clientId: 2, user: { id: 'other', name: 'Other', color: '#00ff00' }, cursor: { x: 400, y: 300 } },
+        { clientId: 2, user: { id: 'other', name: 'Other', color: '#00ff00' }, cursor: null },
       ]));
-      const cursor = component.remoteCursors.get(2)!;
-      cursor.lastCursorMove = Date.now() - 60_000;
 
-      expect((component as any).isStale(cursor)).toBe(false);
+      const { byKey } = renderNodes();
+      expect(byKey('cursor-2')).toBeUndefined();
+      expect(byKey('selection-label-2').$attrs$.style.transform).toBe('translate(20px, 30px)');
     });
   });
 

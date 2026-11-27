@@ -10,8 +10,6 @@ interface RenderedPosition {
   x: number;
   y: number;
   inViewport: boolean;
-  /** Whether the cursor showed only its labels, above its selection. */
-  selecting: boolean;
 }
 
 /** Size of the engine's selection handles when `--upmade-selection-handle-size` is not set. */
@@ -20,8 +18,8 @@ const DEFAULT_HANDLE_SIZE_PX = 6;
 /**
  * Renders the cursors of the local agents (`UpmadeAgenticCursorManager`) and of collaborators' agents
  * (`UpmadeRemoteAgentManager`), the outlines of the objects each agent has selected and, like a person's
- * selection of one object, its rotation handle. While an agent has objects selected, its arrow is hidden
- * and its labels sit above the top-left corner of the selection; they return to the arrow on deselect. Everything is keyed by the cursor key, so the same agent ID
+ * selection of one object, its rotation handle. While an agent has objects selected, its labels sit above
+ * the top-left corner of the selection, while the arrow stays at the cursor; on deselect they return to the arrow. Everything is keyed by the cursor key, so the same agent ID
  * in two tabs never collides.
  *
  * Structural changes (added/removed cursors, name, color, icon, status, selections) re-render through
@@ -43,6 +41,10 @@ export class UpmadeAgenticCursors {
 
   private readonly cursorElements = new Map<string, HTMLElement>();
   private readonly renderedPositions = new Map<string, RenderedPosition>();
+  /** Labels shown above a selection, by cursor key. */
+  private readonly selectionLabelElements = new Map<string, HTMLElement>();
+  /** Screen point of each rendered selection label, by cursor key; absent when the labels are at the arrow. */
+  private readonly renderedLabelPositions = new Map<string, UpmadePoint>();
   private readonly selectionElements = new Map<string, SVGPolygonElement>();
   /** Press count whose ripple has played per cursor, so re-created cursor elements don't replay it. */
   private readonly playedPressCounts = new Map<string, number>();
@@ -137,20 +139,31 @@ export class UpmadeAgenticCursors {
     for (const cursor of cursorsList) {
       if (!cursor.visible) continue;
 
-      const { screen, selecting } = this.getScreenAnchor(cursor);
+      // Labels above a selection follow the selection, or move back to the arrow on deselect.
+      const label = this.getSelectionLabelPosition(cursor);
+      const renderedLabel = this.renderedLabelPositions.get(cursor.key);
+      if (!label !== !renderedLabel) {
+        needsRender = true;
+      } else if (label && renderedLabel && (label.x !== renderedLabel.x || label.y !== renderedLabel.y)) {
+        const labelElement = this.selectionLabelElements.get(cursor.key);
+        if (labelElement) {
+          labelElement.style.transform = `translate(${label.x}px, ${label.y}px)`;
+          this.renderedLabelPositions.set(cursor.key, label);
+        } else {
+          needsRender = true;
+        }
+      }
+
+      const screen = UpmadeViewportOverlayHelper.worldToScreen(state, cursor.position.x, cursor.position.y);
       const inViewport = UpmadeViewportOverlayHelper.isInViewport(state, screen.x, screen.y);
       const previous = this.renderedPositions.get(cursor.key);
 
-      if (previous && previous.selecting !== selecting) {
-        needsRender = true;
-        continue;
-      }
       if (previous && previous.x === screen.x && previous.y === screen.y) continue;
 
       const element = this.cursorElements.get(cursor.key);
       if (inViewport && previous?.inViewport && element) {
         element.style.transform = `translate(${screen.x}px, ${screen.y}px)`;
-        this.renderedPositions.set(cursor.key, { x: screen.x, y: screen.y, inViewport, selecting });
+        this.renderedPositions.set(cursor.key, { x: screen.x, y: screen.y, inViewport });
       } else {
         needsRender = true;
       }
@@ -171,6 +184,11 @@ export class UpmadeAgenticCursors {
     for (const key of Array.from(this.renderedPositions.keys())) {
       if (!renderedKeys.has(key)) this.renderedPositions.delete(key);
     }
+    const labels = cursors
+      .map(cursor => ({ cursor, position: this.getSelectionLabelPosition(cursor) }))
+      .filter((label): label is { cursor: DrawnCursor; position: UpmadePoint } => !!label.position && this.hasLabels(label.cursor));
+    this.renderedLabelPositions.clear();
+    labels.forEach(label => this.renderedLabelPositions.set(label.cursor.key, label.position));
 
     // Presses made before a cursor was first seen (or while it was hidden) don't ripple later.
     const existingKeys = new Set(all.map(cursor => cursor.key));
@@ -237,13 +255,24 @@ export class UpmadeAgenticCursors {
             ))}
           </svg>
         )}
+        {labels.map(({ cursor, position }) => (
+          <div
+            key={`agentic-selection-label-${cursor.key}`}
+            class={{ 'agentic-selection-label': true, 'is-remote': !!cursor.isRemote }}
+            data-cursor-id={cursor.id}
+            style={{ transform: `translate(${position.x}px, ${position.y}px)`, '--agentic-cursor-color': cursor.color }}
+            ref={el => this.setSelectionLabelElement(cursor.key, el)}
+          >
+            {this.renderLabels(cursor)}
+          </div>
+        ))}
         {cursors.map(cursor => {
-          const { screen, selecting } = this.getScreenAnchor(cursor);
+          const screen = UpmadeViewportOverlayHelper.worldToScreen(state, cursor.position.x, cursor.position.y);
           const inViewport = UpmadeViewportOverlayHelper.isInViewport(state, screen.x, screen.y);
-          this.renderedPositions.set(cursor.key, { x: screen.x, y: screen.y, inViewport, selecting });
+          this.renderedPositions.set(cursor.key, { x: screen.x, y: screen.y, inViewport });
 
           if (inViewport) {
-            return this.renderCursor(cursor, screen.x, screen.y, selecting);
+            return this.renderCursor(cursor, screen.x, screen.y, this.renderedLabelPositions.has(cursor.key));
           }
           if (this.showEdgeIndicators) {
             return this.renderEdgeIndicator(cursor, screen.x, screen.y);
@@ -254,19 +283,37 @@ export class UpmadeAgenticCursors {
     );
   }
 
-  /**
-   * Screen point the cursor element sits at: the cursor's position, or, while the agent has objects
-   * selected, the top-left corner of the selection, where only its labels show.
-   */
-  private getScreenAnchor(cursor: DrawnCursor): { screen: UpmadePoint; selecting: boolean } {
-    const state = this.core.store.state;
+  /** Screen point of the top-left corner of the agent's selection, where its labels sit; `null` without a selection. */
+  private getSelectionLabelPosition(cursor: DrawnCursor): UpmadePoint | null {
     const objects = this.core.store.objects;
-    const topLeft = objects && cursor.selectedObjectIds.length > 0 ? getSelectionTopLeft(cursor.selectedObjectIds.map(id => objects.findById(id))) : null;
-    const world = topLeft ?? cursor.position;
-    return { screen: UpmadeViewportOverlayHelper.worldToScreen(state, world.x, world.y), selecting: !!topLeft };
+    if (!objects || cursor.selectedObjectIds.length === 0) return null;
+    const topLeft = getSelectionTopLeft(cursor.selectedObjectIds.map(id => objects.findById(id)));
+    return topLeft ? UpmadeViewportOverlayHelper.worldToScreen(this.core.store.state, topLeft.x, topLeft.y) : null;
   }
 
-  private renderCursor(cursor: DrawnCursor, screenX: number, screenY: number, selecting: boolean) {
+  private hasLabels(cursor: DrawnCursor): boolean {
+    return !!(cursor.name || cursor.status);
+  }
+
+  /** The name and status of a cursor, at its arrow or above its selection. */
+  private renderLabels(cursor: DrawnCursor) {
+    if (!this.hasLabels(cursor)) return null;
+    return (
+      <div class="agentic-cursor-labels">
+        {cursor.name && <CursorLabel text={cursor.name} icon={cursor.cursorIcon} />}
+        {/* One element for every status: a new text doesn't replay the entry animation. */}
+        {cursor.status && (
+          <span key="status" class="agentic-cursor-status" title={cursor.status}>
+            <span class="agentic-cursor-status-dot"></span>
+            <span class="agentic-cursor-status-text">{cursor.status}</span>
+          </span>
+        )}
+      </div>
+    );
+  }
+
+  /** `labelsAtSelection`: the labels are drawn above the agent's selection, so the arrow shows alone. */
+  private renderCursor(cursor: DrawnCursor, screenX: number, screenY: number, labelsAtSelection: boolean) {
     return (
       <div
         key={`agentic-cursor-${cursor.key}`}
@@ -276,7 +323,7 @@ export class UpmadeAgenticCursors {
           'is-attached': !!cursor.attachedTo,
           'is-pressed': cursor.isPressed,
           'is-remote': !!cursor.isRemote,
-          'is-selecting': selecting,
+          'is-selecting': labelsAtSelection,
         }}
         data-cursor-id={cursor.id}
         style={{ transform: `translate(${screenX}px, ${screenY}px)`, '--agentic-cursor-color': cursor.color }}
@@ -291,18 +338,7 @@ export class UpmadeAgenticCursors {
           ></span>
         )}
         <CursorArrow color={cursor.color} />
-        {(cursor.name || cursor.status) && (
-          <div class="agentic-cursor-labels">
-            {cursor.name && <CursorLabel text={cursor.name} icon={cursor.cursorIcon} />}
-            {/* One element for every status: a new text doesn't replay the entry animation. */}
-            {cursor.status && (
-              <span key="status" class="agentic-cursor-status" title={cursor.status}>
-                <span class="agentic-cursor-status-dot"></span>
-                <span class="agentic-cursor-status-text">{cursor.status}</span>
-              </span>
-            )}
-          </div>
-        )}
+        {!labelsAtSelection && this.renderLabels(cursor)}
       </div>
     );
   }
@@ -329,6 +365,14 @@ export class UpmadeAgenticCursors {
       this.cursorElements.set(id, element);
     } else {
       this.cursorElements.delete(id);
+    }
+  }
+
+  private setSelectionLabelElement(key: string, element: HTMLElement | undefined) {
+    if (element) {
+      this.selectionLabelElements.set(key, element);
+    } else {
+      this.selectionLabelElements.delete(key);
     }
   }
 

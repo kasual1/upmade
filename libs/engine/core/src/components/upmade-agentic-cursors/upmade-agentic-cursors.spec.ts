@@ -183,9 +183,9 @@ describe('UpmadeAgenticCursors', () => {
     const polygon = byClass(root, 'agentic-selection')[0];
     const element = { setAttribute: jest.fn() };
     (polygon.$attrs$!.ref as (el: unknown) => void)(element);
-    // The cursor shows its label above the selection, so it moves with the object too.
-    const cursorElement = { style: { transform: '' } };
-    (byClass(root, 'agentic-cursor')[0].$attrs$!.ref as (el: unknown) => void)(cursorElement);
+    // The labels sit above the selection, so they move with the object too.
+    const labelElement = { style: { transform: '' } };
+    (byClass(root, 'agentic-selection-label')[0].$attrs$!.ref as (el: unknown) => void)(labelElement);
 
     objects.set('a', createObject('a', 10, 0, 10, 5));
     const versionBefore = component.version;
@@ -193,34 +193,41 @@ describe('UpmadeAgenticCursors', () => {
     flushWrites();
 
     expect(element.setAttribute).toHaveBeenCalledWith('points', '25,0 45,0 45,10 25,10');
-    expect(cursorElement.style.transform).toBe('translate(25px, 0px)');
+    expect(labelElement.style.transform).toBe('translate(25px, 0px)');
     expect(component.version).toBe(versionBefore);
   });
 
-  it('hides the arrow and shows the label above the selection\'s top-left corner while the agent has objects selected', () => {
+  it('keeps the arrow at the cursor and shows the labels above the selection\'s top-left corner while the agent has objects selected', () => {
     isRotatable.mockReturnValue(false);
     objects.set('a', createObject('a', 10, 0, 10, 5));
     objects.set('b', createObject('b', 0, 4, 4, 4));
-    const cursor = createCursor({ selectedObjectIds: ['a', 'b'], position: { x: 40, y: 40 } });
+    const cursor = createCursor({ selectedObjectIds: ['a', 'b'], position: { x: 40, y: 40 }, status: 'Moving' });
     cursors = [cursor];
+    const position = UpmadeViewportOverlayHelper.worldToScreen(state, 40, 40);
 
-    let node = byClass(component.render() as unknown as VNode, 'agentic-cursor')[0];
-    expect(node.$attrs$!.class.split(' ')).toContain('is-selecting');
+    let root = component.render() as unknown as VNode;
+    const arrow = byClass(root, 'agentic-cursor')[0];
+    expect(arrow.$attrs$!.style.transform).toBe(`translate(${position.x}px, ${position.y}px)`);
+    expect(byClass(arrow, 'agentic-cursor-labels')).toHaveLength(0);
+    expect(byClass(arrow, 'cursor-arrow')).toHaveLength(1);
+
     // World (0, 0): the left of b and the top of a.
     const topLeft = UpmadeViewportOverlayHelper.worldToScreen(state, 0, 0);
-    expect(node.$attrs$!.style.transform).toBe(`translate(${topLeft.x}px, ${topLeft.y}px)`);
+    const label = byClass(root, 'agentic-selection-label')[0];
+    expect(label.$attrs$!.style.transform).toBe(`translate(${topLeft.x}px, ${topLeft.y}px)`);
+    expect(byClass(label, 'cursor-label')).toHaveLength(1);
+    expect(byClass(label, 'agentic-cursor-status')).toHaveLength(1);
 
-    // Deselecting brings the arrow back at the cursor position, through a re-render.
+    // Deselecting moves the labels back to the arrow, through a re-render.
     cursor.selectedObjectIds = [];
     const versionBefore = component.version;
     frameListener!();
     flushWrites();
     expect(component.version).toBe(versionBefore + 1);
 
-    node = byClass(component.render() as unknown as VNode, 'agentic-cursor')[0];
-    expect(node.$attrs$!.class.split(' ')).not.toContain('is-selecting');
-    const position = UpmadeViewportOverlayHelper.worldToScreen(state, 40, 40);
-    expect(node.$attrs$!.style.transform).toBe(`translate(${position.x}px, ${position.y}px)`);
+    root = component.render() as unknown as VNode;
+    expect(byClass(root, 'agentic-selection-label')).toHaveLength(0);
+    expect(byClass(byClass(root, 'agentic-cursor')[0], 'agentic-cursor-labels')).toHaveLength(1);
   });
 
   it('draws a frame in the write phase, where the engine renders objects, once for both frame loops', () => {
@@ -343,7 +350,7 @@ describe('UpmadeAgenticCursors', () => {
       const stem = { setAttribute: jest.fn() };
       const knob = { setAttribute: jest.fn() };
       (byClass(root, 'agentic-selection')[0].$attrs$!.ref as (el: unknown) => void)({ setAttribute: jest.fn() });
-      (byClass(root, 'agentic-cursor')[0].$attrs$!.ref as (el: unknown) => void)({ style: { transform: '' } });
+      (byClass(root, 'agentic-selection-label')[0].$attrs$!.ref as (el: unknown) => void)({ style: { transform: '' } });
       (stems[0].$attrs$!.ref as (el: unknown) => void)(stem);
       (knobs[0].$attrs$!.ref as (el: unknown) => void)(knob);
 

@@ -169,9 +169,7 @@ export class UpmadeAwarenessCursors {
     }
   }
 
-  /** A cursor that hasn't moved for a while fades out; a collaborator with a selection keeps their label. */
   private isStale(cursor: UpmadeRemoteCursorState): boolean {
-    if (this.remoteSelections.has(cursor.clientId)) return false;
     return Date.now() - cursor.lastCursorMove > STALE_THRESHOLD_MS;
   }
 
@@ -251,20 +249,11 @@ export class UpmadeAwarenessCursors {
     return (
       <Host>
         {cursors.map(remoteCursor => {
-          const color = remoteCursor.user.color || '#6B7280';
-
-          // While a collaborator has objects selected, their cursor is hidden and
-          // their label sits above the top-left corner of the selection instead
-          const selectionAnchor = this.getSelectionAnchor(remoteCursor);
-          if (selectionAnchor) {
-            const anchor = this.worldToScreen(selectionAnchor.x, selectionAnchor.y);
-            if (this.isInViewport(anchor.x, anchor.y)) {
-              return this.renderCursor(remoteCursor, anchor.x, anchor.y, color, false, false, true);
-            }
-            return this.showEdgeIndicators ? this.renderEdgeIndicator(remoteCursor, anchor.x, anchor.y, color, false, false) : null;
-          }
-
           if (!remoteCursor.cursor) return null;
+
+          const color = remoteCursor.user.color || '#6B7280';
+          // While the collaborator has objects selected, the label sits above the selection instead
+          const showLabel = !this.getSelectionAnchor(remoteCursor);
 
           // When a remote user is actively drawing, derive cursor position from
           // the object's latest coordinates (synced via Yjs) instead of the
@@ -287,7 +276,7 @@ export class UpmadeAwarenessCursors {
           const stale = this.isStale(remoteCursor);
 
           if (inViewport) {
-            return this.renderCursor(remoteCursor, screen.x, screen.y, color, stale, trackingObject);
+            return this.renderCursor(remoteCursor, screen.x, screen.y, color, stale, trackingObject, showLabel);
           }
 
           if (this.showEdgeIndicators) {
@@ -295,6 +284,22 @@ export class UpmadeAwarenessCursors {
           }
 
           return null;
+        })}
+        {cursors.map(remoteCursor => {
+          // A collaborator's label sits above the top-left corner of their selection, while the cursor stays with the pointer
+          const selectionAnchor = this.getSelectionAnchor(remoteCursor);
+          if (!selectionAnchor) return null;
+
+          const anchor = this.worldToScreen(selectionAnchor.x, selectionAnchor.y);
+          return (
+            <div
+              key={`selection-label-${remoteCursor.clientId}`}
+              class="awareness-selection-label"
+              style={{ transform: `translate(${anchor.x}px, ${anchor.y}px)` }}
+            >
+              <CursorLabel text={this.getUserDisplayName(remoteCursor.user)} icon={remoteCursor.user.cursorIcon} />
+            </div>
+          );
         })}
         {cursors.map(remoteCursor => {
           if (!remoteCursor.selectionBox) return null;
@@ -331,17 +336,16 @@ export class UpmadeAwarenessCursors {
     color: string,
     stale: boolean,
     trackingObject: boolean,
-    selecting: boolean = false,
+    showLabel: boolean = true,
   ) {
-    // One element for both states, so the label glides between the pointer and the selection
     return (
       <div
         key={`cursor-${cursor.clientId}`}
-        class={{ 'awareness-cursor': true, stale, 'tracking-object': trackingObject, 'is-selecting': selecting }}
+        class={{ 'awareness-cursor': true, stale, 'tracking-object': trackingObject, 'is-selecting': !showLabel }}
         style={{ transform: `translate(${screenX}px, ${screenY}px)` }}
       >
         <CursorArrow color={color} />
-        <CursorLabel text={this.getUserDisplayName(cursor.user)} icon={cursor.user.cursorIcon} />
+        {showLabel && <CursorLabel text={this.getUserDisplayName(cursor.user)} icon={cursor.user.cursorIcon} />}
       </div>
     );
   }
