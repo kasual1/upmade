@@ -13,6 +13,8 @@ import { CursorArrow, CursorLabel, EdgeIndicator } from '../shared/cursor/cursor
 import { getSelectionTopLeft } from '../shared/cursor/selection-anchor';
 
 const STALE_THRESHOLD_MS = 10_000;
+/** How long the cursor of a collaborator with a selection may rest before it hides; their label stays above the selection. */
+const SELECTION_IDLE_THRESHOLD_MS = 1_500;
 const REMOVE_THRESHOLD_MS = 30_000;
 const CLEANUP_INTERVAL_MS = 3_000;
 /** Color of a collaborator whose user state has none. */
@@ -36,6 +38,8 @@ export class UpmadeAwarenessCursors {
 
   private cleanupIntervalId: ReturnType<typeof setInterval> | undefined;
   private objectChangeRafId: ReturnType<typeof requestAnimationFrame> | null = null;
+  /** Re-renders when the next cursor resting at a selection becomes idle. */
+  private idleTimeoutId: ReturnType<typeof setTimeout> | undefined;
   private removeAwarenessChangeListener: (() => void) | undefined;
   private removeObjectsChangeListener: (() => void) | undefined;
 
@@ -74,6 +78,7 @@ export class UpmadeAwarenessCursors {
       globalThis.cancelAnimationFrame(this.objectChangeRafId);
       this.objectChangeRafId = null;
     }
+    this.clearIdleTimeout();
   }
 
   private handleAwarenessChange(states: Map<number, Record<string, unknown>>) {
@@ -121,6 +126,7 @@ export class UpmadeAwarenessCursors {
 
     this.refreshRemoteSelections(updated);
     this.remoteCursors = updated;
+    this.scheduleIdleCheck();
   }
 
   /**
@@ -171,8 +177,42 @@ export class UpmadeAwarenessCursors {
     }
   }
 
+  /**
+   * A cursor that hasn't moved for a while fades out. While its collaborator has objects selected (their label
+   * sits above the selection), it fades out sooner: it shows only while they move it, e.g. to drag the selection.
+   */
   private isStale(cursor: UpmadeRemoteCursorState): boolean {
-    return Date.now() - cursor.lastCursorMove > STALE_THRESHOLD_MS;
+    const restingFor = Date.now() - cursor.lastCursorMove;
+    if (this.isIdleAtSelection(cursor, restingFor)) return true;
+    return restingFor > STALE_THRESHOLD_MS;
+  }
+
+  private isIdleAtSelection(cursor: UpmadeRemoteCursorState, restingFor: number): boolean {
+    return restingFor > SELECTION_IDLE_THRESHOLD_MS && !cursor.activeObjectId && !!this.getSelectionAnchor(cursor);
+  }
+
+  /** Re-renders once the next moving cursor of a collaborator with a selection has rested long enough to hide. */
+  private scheduleIdleCheck(): void {
+    this.clearIdleTimeout();
+    const now = Date.now();
+    let delay = Infinity;
+    for (const cursor of this.remoteCursors.values()) {
+      if (!this.remoteSelections.has(cursor.clientId)) continue;
+      const idleIn = cursor.lastCursorMove + SELECTION_IDLE_THRESHOLD_MS - now;
+      if (idleIn >= 0) delay = Math.min(delay, idleIn);
+    }
+    if (delay === Infinity) return;
+    this.idleTimeoutId = setTimeout(() => {
+      this.idleTimeoutId = undefined;
+      this.objectVersion++;
+    }, delay + 1);
+  }
+
+  private clearIdleTimeout(): void {
+    if (this.idleTimeoutId !== undefined) {
+      clearTimeout(this.idleTimeoutId);
+      this.idleTimeoutId = undefined;
+    }
   }
 
   /**
@@ -187,6 +227,7 @@ export class UpmadeAwarenessCursors {
     this.objectChangeRafId = requestAnimationFrame(() => {
       this.objectChangeRafId = null;
       this.refreshRemoteSelections(this.remoteCursors);
+      this.scheduleIdleCheck();
       this.objectVersion++;
     });
   }

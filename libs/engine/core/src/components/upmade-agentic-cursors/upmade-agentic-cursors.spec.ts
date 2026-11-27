@@ -197,6 +197,42 @@ describe('UpmadeAgenticCursors', () => {
     expect(component.version).toBe(versionBefore);
   });
 
+  it('hides the arrow of an idle agent whose labels sit above its selection, and shows it while it acts', () => {
+    isRotatable.mockReturnValue(false);
+    objects.set('a', createObject('a', 10, 0, 10, 5));
+    const cursor = createCursor({ selectedObjectIds: ['a'], activeAction: 'moveObject' });
+    cursors = [cursor];
+    const classesOf = () => byClass(component.render() as unknown as VNode, 'agentic-cursor')[0].$attrs$!.class.split(' ');
+
+    // Moving the object: the arrow stays visible.
+    expect(classesOf()).not.toContain('is-idle');
+
+    // The move has finished: the arrow hides, through a re-render.
+    cursor.activeAction = null;
+    const versionBefore = component.version;
+    frameListener!();
+    flushWrites();
+    expect(component.version).toBe(versionBefore + 1);
+    expect(classesOf()).toContain('is-idle');
+    expect(byClass(component.render() as unknown as VNode, 'agentic-selection-label')).toHaveLength(1);
+
+    // Queued, gliding or pressing again: visible.
+    for (const busy of [{ queueLength: 1 }, { isMoving: true }, { isPressed: true }]) {
+      Object.assign(cursor, { queueLength: 0, isMoving: false, isPressed: false }, busy);
+      expect(classesOf()).not.toContain('is-idle');
+    }
+
+    // Deselected: the labels are back at the arrow, which shows.
+    Object.assign(cursor, { queueLength: 0, isMoving: false, isPressed: false, selectedObjectIds: [] });
+    expect(classesOf()).not.toContain('is-idle');
+  });
+
+  it('keeps the arrow of an idle agent without a selection', () => {
+    cursors = [createCursor()];
+    const node = byClass(component.render() as unknown as VNode, 'agentic-cursor')[0];
+    expect(node.$attrs$!.class.split(' ')).not.toContain('is-idle');
+  });
+
   it('keeps the arrow at the cursor and shows the labels above the selection\'s top-left corner while the agent has objects selected', () => {
     isRotatable.mockReturnValue(false);
     objects.set('a', createObject('a', 10, 0, 10, 5));

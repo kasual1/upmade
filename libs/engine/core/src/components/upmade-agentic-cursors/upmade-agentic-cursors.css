@@ -57,6 +57,17 @@
   top: 0;
   left: 0;
   will-change: transform;
+  transition: opacity 150ms ease;
+}
+
+/*
+ * An idle agent whose labels sit above its selection hides its arrow. The fade waits a moment, so the arrow
+ * doesn't blink between two actions; it shows again as soon as the agent acts.
+ */
+.agentic-cursor.is-idle,
+.agentic-edge-indicator.is-idle {
+  opacity: 0;
+  transition: opacity 200ms ease var(--upmade-agentic-cursor-idle-hide-delay, var(--upmade-global-agentic-cursor-idle-hide-delay, 400ms));
 }
 
 /* Align the arrow tip (path starts at 5,3 in a 24-unit viewBox drawn at 20px) with the cursor position. */

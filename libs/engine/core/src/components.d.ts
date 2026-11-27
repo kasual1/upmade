@@ -16,7 +16,8 @@ export namespace Components {
      * Renders the cursors of the local agents (`UpmadeAgenticCursorManager`) and of collaborators' agents
      * (`UpmadeRemoteAgentManager`), the outlines of the objects each agent has selected and, like a person's
      * selection of one object, its rotation handle. While an agent has objects selected, its labels sit above
-     * the top-left corner of the selection, while the arrow stays at the cursor; on deselect they return to the arrow. Everything is keyed by the cursor key, so the same agent ID
+     * the top-left corner of the selection, while the arrow stays at the cursor until the agent is idle (no action,
+     * movement or press); on deselect the labels return to the arrow, which shows again. Everything is keyed by the cursor key, so the same agent ID
      * in two tabs never collides.
      * Structural changes (added/removed cursors, name, color, icon, status, selections) re-render through
      * Stencil. Per-frame movement of on-screen cursors, outlines and handles is written directly to the
@@ -722,7 +723,8 @@ declare global {
      * Renders the cursors of the local agents (`UpmadeAgenticCursorManager`) and of collaborators' agents
      * (`UpmadeRemoteAgentManager`), the outlines of the objects each agent has selected and, like a person's
      * selection of one object, its rotation handle. While an agent has objects selected, its labels sit above
-     * the top-left corner of the selection, while the arrow stays at the cursor; on deselect they return to the arrow. Everything is keyed by the cursor key, so the same agent ID
+     * the top-left corner of the selection, while the arrow stays at the cursor until the agent is idle (no action,
+     * movement or press); on deselect the labels return to the arrow, which shows again. Everything is keyed by the cursor key, so the same agent ID
      * in two tabs never collides.
      * Structural changes (added/removed cursors, name, color, icon, status, selections) re-render through
      * Stencil. Per-frame movement of on-screen cursors, outlines and handles is written directly to the
@@ -833,7 +835,8 @@ declare namespace LocalJSX {
      * Renders the cursors of the local agents (`UpmadeAgenticCursorManager`) and of collaborators' agents
      * (`UpmadeRemoteAgentManager`), the outlines of the objects each agent has selected and, like a person's
      * selection of one object, its rotation handle. While an agent has objects selected, its labels sit above
-     * the top-left corner of the selection, while the arrow stays at the cursor; on deselect they return to the arrow. Everything is keyed by the cursor key, so the same agent ID
+     * the top-left corner of the selection, while the arrow stays at the cursor until the agent is idle (no action,
+     * movement or press); on deselect the labels return to the arrow, which shows again. Everything is keyed by the cursor key, so the same agent ID
      * in two tabs never collides.
      * Structural changes (added/removed cursors, name, color, icon, status, selections) re-render through
      * Stencil. Per-frame movement of on-screen cursors, outlines and handles is written directly to the
@@ -1201,7 +1204,8 @@ declare module "@stencil/core" {
              * Renders the cursors of the local agents (`UpmadeAgenticCursorManager`) and of collaborators' agents
              * (`UpmadeRemoteAgentManager`), the outlines of the objects each agent has selected and, like a person's
              * selection of one object, its rotation handle. While an agent has objects selected, its labels sit above
-             * the top-left corner of the selection, while the arrow stays at the cursor; on deselect they return to the arrow. Everything is keyed by the cursor key, so the same agent ID
+             * the top-left corner of the selection, while the arrow stays at the cursor until the agent is idle (no action,
+             * movement or press); on deselect the labels return to the arrow, which shows again. Everything is keyed by the cursor key, so the same agent ID
              * in two tabs never collides.
              * Structural changes (added/removed cursors, name, color, icon, status, selections) re-render through
              * Stencil. Per-frame movement of on-screen cursors, outlines and handles is written directly to the

@@ -542,6 +542,42 @@ describe('UpmadeAwarenessCursors', () => {
       expect(hasLabel(byKey('cursor-2'))).toBe(true);
     });
 
+    it('hides the cursor of a collaborator with a selection once it rests, and shows it when it moves', () => {
+      jest.useFakeTimers();
+      jest.setSystemTime(new Date('2026-01-01T00:00:00Z'));
+      const callback = setup([makeGroup({ objectIds: ['a'], clientId: 2 })], { a: polygonAt(100, 80, 50, 50) });
+      const user = { id: 'other', name: 'Other', color: '#00ff00' };
+      callback(createAwarenessStates([{ clientId: 2, user, cursor: { x: 400, y: 300 } }]));
+      const staleOf = () => {
+        const classes = renderNodes().byKey('cursor-2').$attrs$.class;
+        return typeof classes === 'string' ? classes.split(/\s+/).includes('stale') : !!classes.stale;
+      };
+
+      expect(staleOf()).toBe(false);
+
+      // Resting: a re-render is scheduled for the moment it turns idle.
+      const versionBefore = component.objectVersion;
+      jest.advanceTimersByTime(1_600);
+      expect(component.objectVersion).toBe(versionBefore + 1);
+      expect(staleOf()).toBe(true);
+      expect(renderNodes().byKey('selection-label-2')).toBeDefined();
+
+      // Moving again, e.g. to drag the selection.
+      callback(createAwarenessStates([{ clientId: 2, user, cursor: { x: 420, y: 300 } }]));
+      expect(staleOf()).toBe(false);
+    });
+
+    it('keeps a resting cursor without a selection visible until it goes stale', () => {
+      const callback = setup([], {});
+      callback(createAwarenessStates([
+        { clientId: 2, user: { id: 'other', name: 'Other', color: '#00ff00' }, cursor: { x: 400, y: 300 } },
+      ]));
+      const cursor = component.remoteCursors.get(2)!;
+      cursor.lastCursorMove = Date.now() - 5_000;
+
+      expect((component as any).isStale(cursor)).toBe(false);
+    });
+
     it('ignores another tab\'s selection group and matches unstamped groups by user', () => {
       const callback = setup(
         [makeGroup({ objectIds: ['a'], clientId: 9, userId: 'other' }), makeGroup({ objectIds: ['b'], userId: 'third' })],

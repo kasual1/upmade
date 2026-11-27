@@ -10,6 +10,8 @@ interface RenderedPosition {
   x: number;
   y: number;
   inViewport: boolean;
+  /** Whether the arrow was hidden: the agent was idle with its labels above its selection. */
+  idle: boolean;
 }
 
 /** Size of the engine's selection handles when `--upmade-selection-handle-size` is not set. */
@@ -19,7 +21,8 @@ const DEFAULT_HANDLE_SIZE_PX = 6;
  * Renders the cursors of the local agents (`UpmadeAgenticCursorManager`) and of collaborators' agents
  * (`UpmadeRemoteAgentManager`), the outlines of the objects each agent has selected and, like a person's
  * selection of one object, its rotation handle. While an agent has objects selected, its labels sit above
- * the top-left corner of the selection, while the arrow stays at the cursor; on deselect they return to the arrow. Everything is keyed by the cursor key, so the same agent ID
+ * the top-left corner of the selection, while the arrow stays at the cursor until the agent is idle (no action,
+ * movement or press); on deselect the labels return to the arrow, which shows again. Everything is keyed by the cursor key, so the same agent ID
  * in two tabs never collides.
  *
  * Structural changes (added/removed cursors, name, color, icon, status, selections) re-render through
@@ -157,13 +160,18 @@ export class UpmadeAgenticCursors {
       const screen = UpmadeViewportOverlayHelper.worldToScreen(state, cursor.position.x, cursor.position.y);
       const inViewport = UpmadeViewportOverlayHelper.isInViewport(state, screen.x, screen.y);
       const previous = this.renderedPositions.get(cursor.key);
+      const idle = !!label && this.isIdle(cursor);
 
+      if (previous && previous.idle !== idle) {
+        needsRender = true;
+        continue;
+      }
       if (previous && previous.x === screen.x && previous.y === screen.y) continue;
 
       const element = this.cursorElements.get(cursor.key);
       if (inViewport && previous?.inViewport && element) {
         element.style.transform = `translate(${screen.x}px, ${screen.y}px)`;
-        this.renderedPositions.set(cursor.key, { x: screen.x, y: screen.y, inViewport });
+        this.renderedPositions.set(cursor.key, { x: screen.x, y: screen.y, inViewport, idle });
       } else {
         needsRender = true;
       }
@@ -269,13 +277,16 @@ export class UpmadeAgenticCursors {
         {cursors.map(cursor => {
           const screen = UpmadeViewportOverlayHelper.worldToScreen(state, cursor.position.x, cursor.position.y);
           const inViewport = UpmadeViewportOverlayHelper.isInViewport(state, screen.x, screen.y);
-          this.renderedPositions.set(cursor.key, { x: screen.x, y: screen.y, inViewport });
+          const labelsAtSelection = this.renderedLabelPositions.has(cursor.key);
+          // With its labels above the selection, an idle agent's arrow hides until it acts again.
+          const idle = labelsAtSelection && this.isIdle(cursor);
+          this.renderedPositions.set(cursor.key, { x: screen.x, y: screen.y, inViewport, idle });
 
           if (inViewport) {
-            return this.renderCursor(cursor, screen.x, screen.y, this.renderedLabelPositions.has(cursor.key));
+            return this.renderCursor(cursor, screen.x, screen.y, labelsAtSelection, idle);
           }
           if (this.showEdgeIndicators) {
-            return this.renderEdgeIndicator(cursor, screen.x, screen.y);
+            return this.renderEdgeIndicator(cursor, screen.x, screen.y, idle);
           }
           return null;
         })}
@@ -312,8 +323,16 @@ export class UpmadeAgenticCursors {
     );
   }
 
-  /** `labelsAtSelection`: the labels are drawn above the agent's selection, so the arrow shows alone. */
-  private renderCursor(cursor: DrawnCursor, screenX: number, screenY: number, labelsAtSelection: boolean) {
+  /** Whether the agent is doing nothing: no running or queued action, no movement and no press. */
+  private isIdle(cursor: DrawnCursor): boolean {
+    return !cursor.isMoving && !cursor.isPressed && !cursor.activeAction && cursor.queueLength === 0;
+  }
+
+  /**
+   * `labelsAtSelection`: the labels are drawn above the agent's selection, so the arrow shows alone.
+   * `idle`: the agent is idle as well, so the arrow is hidden too.
+   */
+  private renderCursor(cursor: DrawnCursor, screenX: number, screenY: number, labelsAtSelection: boolean, idle: boolean) {
     return (
       <div
         key={`agentic-cursor-${cursor.key}`}
@@ -324,6 +343,7 @@ export class UpmadeAgenticCursors {
           'is-pressed': cursor.isPressed,
           'is-remote': !!cursor.isRemote,
           'is-selecting': labelsAtSelection,
+          'is-idle': idle,
         }}
         data-cursor-id={cursor.id}
         style={{ transform: `translate(${screenX}px, ${screenY}px)`, '--agentic-cursor-color': cursor.color }}
@@ -343,7 +363,7 @@ export class UpmadeAgenticCursors {
     );
   }
 
-  private renderEdgeIndicator(cursor: DrawnCursor, screenX: number, screenY: number) {
+  private renderEdgeIndicator(cursor: DrawnCursor, screenX: number, screenY: number, idle: boolean) {
     const clamped = UpmadeViewportOverlayHelper.clampToEdge(this.core.store.state, screenX, screenY, this.edgeIndicatorPadding);
     return (
       <EdgeIndicator
@@ -355,7 +375,7 @@ export class UpmadeAgenticCursors {
         color={cursor.color}
         label={cursor.name ? UpmadeViewportOverlayHelper.getInitials(cursor.name) : '•'}
         icon={cursor.cursorIcon}
-        classes={{ 'agentic-edge-indicator': true }}
+        classes={{ 'agentic-edge-indicator': true, 'is-idle': idle }}
       />
     );
   }
