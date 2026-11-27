@@ -35,6 +35,11 @@
   opacity: 0;
 }
 
+/* A faded cursor's label can't be hovered. */
+.awareness-cursor.stale .cursor-label {
+  pointer-events: none;
+}
+
 .awareness-cursor.tracking-object {
   transition-duration: 0ms;
 }

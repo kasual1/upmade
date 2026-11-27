@@ -95,7 +95,7 @@ const agent = new UpmadeAgent({
 agent.cursorActions = [{ id: 'chat', icon: '/icons/chat.svg', label: 'Open chat' }, UPMADE_REMOVE_AGENT_CURSOR_ACTION];
 ```
 
-Only the editor the agent is added to shows its buttons; collaborators see its label without them. Pressing a button never starts a drag or a selection on the canvas. Collaborators' cursors can have buttons too, with the editor's `userCursorActions` prop (none by default).
+The buttons stay hidden until the label is hovered (on touch screens, which cannot hover, they always show). Only the editor the agent is added to shows its buttons; collaborators see its label without them. Pressing a button never starts a drag or a selection on the canvas. Collaborators' cursors can have buttons too, with the editor's `userCursorActions` prop (none by default).
 
 Restyle the label with the CSS variables `--upmade-agentic-cursor-label-background-color`, `-text-color`, `-border-color`, `-border-radius`, `-box-shadow`, `-font-size`, `-icon-size`, `-action-color`, and `-action-hover-background-color` (for collaborators' cursors: `--upmade-awareness-cursor-label-…`).
 

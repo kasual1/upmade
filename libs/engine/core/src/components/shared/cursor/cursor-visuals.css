@@ -57,9 +57,14 @@
   padding-left: 8px;
 }
 
-/* Buttons after the name or status, e.g. the "X" that removes an agent. Only they take the pointer. */
+/*
+ * Buttons after the name or status, e.g. the "X" that removes an agent. They stay collapsed until the label is
+ * hovered (or a button has keyboard focus); a label with buttons takes the pointer for that, other labels never do.
+ * On touch screens, which can't hover, the buttons always show.
+ */
 .cursor-label.has-actions {
-  padding-right: 4px;
+  pointer-events: auto;
+  transition: padding-right 120ms ease;
 }
 
 .cursor-label-action {
@@ -67,17 +72,44 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--_cursor-label-action-size, 18px);
+  width: 0;
   height: var(--_cursor-label-action-size, 18px);
-  margin: 0;
+  /* Takes back the label's gap while collapsed. */
+  margin: 0 0 0 -6px;
   padding: 0;
+  overflow: hidden;
   border: none;
   border-radius: 50%;
   background: transparent;
   color: var(--_cursor-label-action-color, #71717a);
+  opacity: 0;
   cursor: pointer;
   pointer-events: auto;
-  transition: background-color 120ms ease, color 120ms ease;
+  transition: width 120ms ease, margin-left 120ms ease, opacity 120ms ease, background-color 120ms ease, color 120ms ease;
+}
+
+.cursor-label.has-actions:hover,
+.cursor-label.has-actions:focus-within {
+  padding-right: 4px;
+}
+
+.cursor-label.has-actions:hover .cursor-label-action,
+.cursor-label.has-actions:focus-within .cursor-label-action {
+  width: var(--_cursor-label-action-size, 18px);
+  margin-left: 0;
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .cursor-label.has-actions {
+    padding-right: 4px;
+  }
+
+  .cursor-label.has-actions .cursor-label-action {
+    width: var(--_cursor-label-action-size, 18px);
+    margin-left: 0;
+    opacity: 1;
+  }
 }
 
 .cursor-label-action:hover,
@@ -130,6 +162,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .cursor-label.has-actions,
+  .cursor-label-action {
+    transition: none;
+  }
+
   .cursor-label-text,
   .cursor-label.has-status .cursor-label-dot {
     animation: none;
