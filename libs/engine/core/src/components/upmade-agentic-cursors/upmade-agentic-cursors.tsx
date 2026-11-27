@@ -306,19 +306,13 @@ export class UpmadeAgenticCursors {
     return !!(cursor.name || cursor.status);
   }
 
-  /** The name and status of a cursor, at its arrow or above its selection. */
+  /** The label of a cursor (its status while set, else its name), at its arrow or above its selection. */
   private renderLabels(cursor: DrawnCursor) {
     if (!this.hasLabels(cursor)) return null;
     return (
       <div class="agentic-cursor-labels">
-        {cursor.name && <CursorLabel text={cursor.name} icon={cursor.cursorIcon} color={cursor.color} />}
-        {/* One element for every status: a new text doesn't replay the entry animation. */}
-        {cursor.status && (
-          <span key="status" class="agentic-cursor-status" title={cursor.status}>
-            <span class="agentic-cursor-status-dot"></span>
-            <span class="agentic-cursor-status-text">{cursor.status}</span>
-          </span>
-        )}
+        {/* One label: the status (e.g. "Thinking…") shows in place of the name while the agent works. */}
+        <CursorLabel text={cursor.name ?? ''} status={cursor.status} icon={cursor.cursorIcon} color={cursor.color} />
       </div>
     );
   }

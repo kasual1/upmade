@@ -251,8 +251,9 @@ describe('UpmadeAgenticCursors', () => {
     const topLeft = UpmadeViewportOverlayHelper.worldToScreen(state, 0, 0);
     const label = byClass(root, 'agentic-selection-label')[0];
     expect(label.$attrs$!.style.transform).toBe(`translate(${topLeft.x}px, ${topLeft.y}px)`);
+    // One label, showing the status in place of the name.
     expect(byClass(label, 'cursor-label')).toHaveLength(1);
-    expect(byClass(label, 'agentic-cursor-status')).toHaveLength(1);
+    expect(byClass(label, 'cursor-label-text')[0].$children$?.[0]).toMatchObject({ $text$: 'Moving' });
 
     // Deselecting moves the labels back to the arrow, through a re-render.
     cursor.selectedObjectIds = [];
@@ -329,7 +330,8 @@ describe('UpmadeAgenticCursors', () => {
 
     expect(drawn.map(node => node.$key$)).toEqual(['agentic-cursor-agent', 'agentic-cursor-r:7:agent']);
     expect(byClass(root, 'is-remote').length).toBeGreaterThanOrEqual(2); // the cursor and its dashed outline
-    expect(byClass(root, 'agentic-cursor-status-text')[0].$children$?.[0]).toMatchObject({ $text$: 'Remote work' });
+    const texts = byClass(root, 'cursor-label-text').map(node => (node.$children$?.[0] as { $text$?: string } | undefined)?.$text$);
+    expect(texts).toContain('Remote work');
   });
 
   describe('rotation handle', () => {
@@ -517,13 +519,52 @@ describe('UpmadeAgenticCursors', () => {
     });
   });
 
-  it('keeps the status element when the status text changes, so it does not animate in again', () => {
-    cursors = [createCursor({ status: 'One' })];
-    const first = byClass(component.render() as unknown as VNode, 'agentic-cursor-status')[0];
-    cursors = [createCursor({ status: 'Two' })];
-    const second = byClass(component.render() as unknown as VNode, 'agentic-cursor-status')[0];
+  describe('status', () => {
+    const labelOf = () => {
+      const root = component.render() as unknown as VNode;
+      const labels = byClass(root, 'cursor-label');
+      expect(labels).toHaveLength(1);
+      const [text] = byClass(labels[0], 'cursor-label-text');
+      return { label: labels[0], text, value: (text.$children$?.[0] as { $text$?: string } | undefined)?.$text$ };
+    };
 
-    expect(first.$key$).toBe('status');
-    expect(second.$key$).toBe('status');
+    it('shows a single label with the name while the agent has no status', () => {
+      cursors = [createCursor()];
+      const { label, value } = labelOf();
+      expect(value).toBe('Agent');
+      expect(label.$attrs$!.class).not.toContain('has-status');
+      expect(byClass(component.render() as unknown as VNode, 'agentic-cursor-status')).toHaveLength(0);
+    });
+
+    it('shows the status in place of the name, and the name again once it is cleared', () => {
+      cursors = [createCursor({ status: 'Thinking…' })];
+      let { label, text, value } = labelOf();
+      expect(value).toBe('Thinking…');
+      expect(label.$attrs$!.class).toContain('has-status');
+      expect(label.$attrs$!.title).toBe('Agent: Thinking…');
+      expect(text.$key$).toBe('status');
+
+      cursors = [createCursor({ status: undefined })];
+      ({ label, text, value } = labelOf());
+      expect(value).toBe('Agent');
+      expect(text.$key$).toBe('name');
+    });
+
+    it('keeps the text element when the status text changes, so it does not fade in again', () => {
+      cursors = [createCursor({ status: 'One' })];
+      const first = labelOf().text;
+      cursors = [createCursor({ status: 'Two' })];
+      const second = labelOf().text;
+
+      expect(first.$key$).toBe('status');
+      expect(second.$key$).toBe('status');
+    });
+
+    it('shows the status of an agent without a name', () => {
+      cursors = [createCursor({ name: undefined, status: 'Working' })];
+      const { label, value } = labelOf();
+      expect(value).toBe('Working');
+      expect(label.$attrs$!.title).toBe('Working');
+    });
   });
 });

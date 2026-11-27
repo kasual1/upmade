@@ -578,6 +578,36 @@ describe('UpmadeAwarenessCursors', () => {
       expect((component as any).isStale(cursor)).toBe(false);
     });
 
+    it("shows a collaborator's status in place of their name, on the cursor and above a selection", () => {
+      const groups: any[] = [];
+      const callback = setup(groups, { a: polygonAt(100, 80, 50, 50) });
+      const user = { id: 'other', name: 'Other', displayName: 'Other', color: '#00ff00' };
+      const textOf = (node: any) => {
+        const label = (node.$children$ ?? []).find((child: any) => String(child.$attrs$?.class ?? '').includes('cursor-label'));
+        const text = (label.$children$ ?? []).find((child: any) => String(child.$attrs$?.class ?? '').includes('cursor-label-text'));
+        return text.$children$?.[0]?.$text$;
+      };
+
+      callback(new Map([[2, { user, cursor: { x: 400, y: 300 }, status: 'typing…' }]]));
+      expect(component.remoteCursors.get(2)!.status).toBe('typing…');
+      expect(textOf(renderNodes().byKey('cursor-2'))).toBe('typing…');
+
+      groups.push(makeGroup({ objectIds: ['a'], clientId: 2 }));
+      callback(new Map([[2, { user, cursor: { x: 400, y: 300 }, status: 'typing…' }]]));
+      expect(textOf(renderNodes().byKey('selection-label-2'))).toBe('typing…');
+
+      callback(new Map([[2, { user, cursor: { x: 400, y: 300 }, status: null }]]));
+      expect(textOf(renderNodes().byKey('selection-label-2'))).toBe('Other');
+    });
+
+    it('keeps a resting cursor with a status from going stale', () => {
+      const callback = setup([], {});
+      callback(new Map([[2, { user: { id: 'other', color: '#00ff00' }, cursor: { x: 400, y: 300 }, status: 'typing…' }]]));
+      const cursor = component.remoteCursors.get(2)!;
+      cursor.lastCursorMove = Date.now() - 60_000;
+      expect((component as any).isStale(cursor)).toBe(false);
+    });
+
     it('ignores another tab\'s selection group and matches unstamped groups by user', () => {
       const callback = setup(
         [makeGroup({ objectIds: ['a'], clientId: 9, userId: 'other' }), makeGroup({ objectIds: ['b'], userId: 'third' })],

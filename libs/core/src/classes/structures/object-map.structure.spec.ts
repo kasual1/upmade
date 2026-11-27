@@ -1259,6 +1259,30 @@ describe('UpmadeObjectMap', () => {
     });
   });
 
+  describe('setLocalStatus', () => {
+    it('shares the status in awareness, cut to 200 characters, and null to clear', async () => {
+      const mockAwareness = {
+        clientID: 42,
+        on: jest.fn(),
+        off: jest.fn(),
+        getStates: jest.fn().mockReturnValue(new Map()),
+        setLocalStateField: jest.fn(),
+      };
+      const provider = createMockProvider('network');
+      provider.awareness = mockAwareness;
+      const factory = { create: jest.fn().mockReturnValue(provider) };
+      const map2 = new UpmadeObjectMap();
+      await map2.initialize(mockCore as unknown as UpmadeCore, 'ws-1', { providers: [factory] });
+
+      map2.setLocalStatus('typing…');
+      expect(mockAwareness.setLocalStateField).toHaveBeenLastCalledWith('status', 'typing…');
+      map2.setLocalStatus('x'.repeat(300));
+      expect(mockAwareness.setLocalStateField).toHaveBeenLastCalledWith('status', 'x'.repeat(200));
+      map2.setLocalStatus('');
+      expect(mockAwareness.setLocalStateField).toHaveBeenLastCalledWith('status', null);
+    });
+  });
+
   describe('setActiveDrawingObject', () => {
     it('should do nothing when no awareness is available', () => {
       // No awareness set up — should not throw

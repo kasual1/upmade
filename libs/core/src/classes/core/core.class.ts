@@ -98,6 +98,7 @@ export class UpmadeCore {
   private _editorId?: string;
   /** Current user for awareness broadcasting */
   private _user?: IUpmadeUser;
+  private _userStatus: string | null = null;
 
   /**
    * Gets the Upmade engine instance.
@@ -269,6 +270,20 @@ export class UpmadeCore {
     this._user = user;
     this._store.setLocalUserId(user?.id ?? null);
     this._store.objects?.setLocalUser(user);
+  }
+
+  /** What the current user is doing, as collaborators see it on the user's cursor label; `null` when nothing. */
+  get userStatus(): string | null {
+    return this._userStatus;
+  }
+
+  /**
+   * Shows what the current user is doing (e.g. `'typing…'` or a message) to collaborators: their editors show it
+   * in place of the user's name on the cursor label, like an agent's status. `null` or `''` shows the name again.
+   */
+  setUserStatus(status?: string | null): void {
+    this._userStatus = status || null;
+    this._store.objects?.setLocalStatus(this._userStatus);
   }
 
   /**
@@ -496,6 +511,9 @@ export class UpmadeCore {
     // Set local user in awareness after object map is initialized
     if (this._user) {
       objectsMap.setLocalUser(this._user);
+    }
+    if (this._userStatus) {
+      objectsMap.setLocalStatus(this._userStatus);
     }
 
     // Each workspace has its own awareness: share the agents there and forget the old workspace's.

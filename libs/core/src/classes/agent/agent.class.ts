@@ -249,7 +249,7 @@ export class UpmadeAgent implements IUpmadeUser {
 
   // ─── Presence ───────────────────────────────────────────────────────────────
 
-  /** Shows a status message below the cursor label; `null` or `''` hides it. */
+  /** Shows what the agent is doing in place of its name on the cursor label; `null` or `''` shows the name again. */
   setStatus(status: string | null): void {
     this._status = status || null;
     this._core?.agenticCursorManager.refresh(this.id);

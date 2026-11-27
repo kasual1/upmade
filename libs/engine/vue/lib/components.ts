@@ -15,6 +15,7 @@ export const UpmadeEngine: StencilVueComponent<JSX.UpmadeEngine> = /*@__PURE__*/
   'syncConfig',
   'assetStorageConfig',
   'user',
+  'userStatus',
   'chatSession',
   'tools',
   'globalContextMenuItems',

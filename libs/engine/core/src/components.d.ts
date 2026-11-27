@@ -607,6 +607,10 @@ export namespace Components {
          */
         "user"?: IUpmadeUser;
         /**
+          * What the current user is doing, e.g. `'typing…'` or a message they typed. Collaborators see it in place of the user's name on the cursor label, like an agent's status; unset or `''` shows the name.
+         */
+        "userStatus"?: string;
+        /**
           * Bottom boundary of the viewport in world coordinates. Objects beyond this Y position cannot be panned to.
           * @default Infinity
          */
@@ -1068,6 +1072,10 @@ declare namespace LocalJSX {
          */
         "user"?: IUpmadeUser;
         /**
+          * What the current user is doing, e.g. `'typing…'` or a message they typed. Collaborators see it in place of the user's name on the cursor label, like an agent's status; unset or `''` shows the name.
+         */
+        "userStatus"?: string;
+        /**
           * Bottom boundary of the viewport in world coordinates. Objects beyond this Y position cannot be panned to.
           * @default Infinity
          */
@@ -1160,6 +1168,7 @@ declare namespace LocalJSX {
     interface UpmadeEngineAttributes {
         "editorId": string;
         "activeWorkspaceId": string;
+        "userStatus": string;
         "scaleMax": number;
         "scaleMin": number;
         "lockDrawingScale": boolean;

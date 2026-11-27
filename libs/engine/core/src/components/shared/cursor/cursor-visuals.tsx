@@ -9,7 +9,10 @@ export const CursorArrow: FunctionalComponent<{ color: string }> = ({ color }) =
 );
 
 interface CursorLabelProps {
+  /** The name. */
   text: string;
+  /** What the user or agent is doing, e.g. `'Thinking…'`; shown in place of the name while set. */
+  status?: string | null;
   /** SVG markup or image URL shown before the text. When omitted or not usable, a circle in `color` is shown instead. */
   icon?: string | null;
   /** Color of the user or agent, for the default icon: a filled circle. No icon without one. */
@@ -19,17 +22,26 @@ interface CursorLabelProps {
 }
 
 /**
- * Name label rendered next to a cursor arrow: a white pill with an icon before the name, by default a circle in the
- * cursor's color. A custom icon is drawn as an image (never as markup), so icons from collaborators cannot run scripts.
+ * Label rendered next to a cursor arrow: a white pill with an icon before the name, by default a circle in the
+ * cursor's color. While a status is set, it shows in place of the name (the dot pulses), then the name comes back.
+ * A custom icon is drawn as an image (never as markup), so icons from collaborators cannot run scripts.
  */
-export const CursorLabel: FunctionalComponent<CursorLabelProps> = ({ text, icon, color, classes, style }) => {
+export const CursorLabel: FunctionalComponent<CursorLabelProps> = ({ text, status, icon, color, classes, style }) => {
   const iconSrc = UpmadeViewportOverlayHelper.getCursorIconSrc(icon);
   const showDot = !iconSrc && !!color;
+  const statusText = status || null;
   return (
-    <span class={{ 'cursor-label': true, 'has-icon': !!iconSrc, 'has-dot': showDot, ...classes }} style={style}>
+    <span
+      class={{ 'cursor-label': true, 'has-icon': !!iconSrc, 'has-dot': showDot, 'has-status': !!statusText, ...classes }}
+      style={style}
+      title={statusText ? (text ? `${text}: ${statusText}` : statusText) : undefined}
+    >
       {iconSrc && <img class="cursor-label-icon" src={iconSrc} alt="" aria-hidden="true" draggable={false} />}
       {showDot && <span class="cursor-label-icon cursor-label-dot" style={{ backgroundColor: color }} aria-hidden="true"></span>}
-      <span class="cursor-label-text">{text}</span>
+      {/* Re-keyed between name and status, so the switch fades in; a new status text keeps the element. */}
+      <span key={statusText ? 'status' : 'name'} class="cursor-label-text">
+        {statusText ?? text}
+      </span>
     </span>
   );
 };

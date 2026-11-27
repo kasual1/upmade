@@ -38,7 +38,7 @@ Throws a `TypeError` when `name` is missing or empty.
 | cursorIcon | string | — | Icon shown before the name on the cursor label: SVG markup (`'<svg …>…</svg>'`) or an image URL (`http:`, `https:`, `data:image/`, or relative). When omitted, a circle in the agent's `color` is shown. See [Cursor Label](#cursor-label). |
 | speed | number | `1200` | Default speed of moves and actions in screen pixels per second. |
 | broadcast | boolean | `true` | Whether collaborators see the agent. See [Collaboration](#collaboration). |
-| status | string | — | Status message shown below the cursor label. |
+| status | string | — | What the agent is doing (e.g. `'Thinking…'`), shown in place of its name on the cursor label until cleared. |
 | visible | boolean | `true` | Whether the cursor is visible. |
 | position | UpmadeAgenticTarget | Center of the viewport | Where the cursor starts when the agent is added. An object target sticks the cursor to that object. An element target starts at the center of the object and sticks the cursor to the element once the page has reported it. If the object does not exist then, for example because it was deleted or the editor shows another document, the cursor starts at the center of the viewport. |
 
@@ -109,7 +109,7 @@ Presence methods change what the cursor shows. They take effect at once and neve
 
 ### setStatus
 
-Shows a status message below the cursor label. `null` or an empty string hides it.
+Shows what the agent is doing (e.g. `'Thinking…'`) in place of its name on the cursor label, with the default circle pulsing. `null` or an empty string shows the name again. A long status ends with an ellipsis at 240px (`--upmade-agentic-cursor-status-max-width`).
 
 ```ts
 setStatus(status: string | null): void

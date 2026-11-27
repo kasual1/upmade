@@ -67,7 +67,7 @@ export interface UpmadeAgenticCursorAppearance {
   readonly color: string;
   /** SVG markup or image URL shown before the name on the label, or `null` for the default: a circle in `color`. */
   readonly cursorIcon?: string | null;
-  /** Status message shown below the label, or `null` for none. */
+  /** What the agent is doing, shown in place of the name on the label, or `null` for none. */
   readonly status: string | null;
   readonly visible: boolean;
 }

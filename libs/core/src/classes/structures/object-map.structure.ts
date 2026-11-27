@@ -35,6 +35,9 @@ interface UpmadeAgentHistory {
 }
 
 /** Result of an agent undo or redo. */
+
+/** Longest status a user shares with collaborators (like an agent's status). */
+const USER_STATUS_MAX_LENGTH = 200;
 export interface UpmadeAgentHistoryResult {
   /** `'empty'`: nothing to undo/redo. `'conflict'`: the step was fully superseded by other changes and dropped. */
   status: 'done' | 'empty' | 'conflict';
@@ -263,6 +266,17 @@ export class UpmadeObjectMap<T extends UpmadeBaseObject<any>> {
       color: user.color || UpmadeUserColorHelper.generateColorFromName(displayName),
       ...(UpmadeViewportOverlayHelper.getCursorIconSrc(user.cursorIcon) ? { cursorIcon: user.cursorIcon } : {}),
     });
+  }
+
+  /**
+   * Shares what the local user is doing (e.g. `'typing…'`) with collaborators, who see it in place of the user's
+   * name on their cursor label (awareness field `status`). `null` or `''` removes it. Cut to 200 characters.
+   */
+  setLocalStatus(status: string | null): void {
+    if (!this._awareness || this._headless) {
+      return;
+    }
+    this._awareness.setLocalStateField('status', status ? status.slice(0, USER_STATUS_MAX_LENGTH) : null);
   }
 
   /**

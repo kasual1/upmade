@@ -97,6 +97,7 @@ export class UpmadeAwarenessCursors {
 
       const user = state.user as IUpmadeUser;
       const cursor = state.cursor as { x: number; y: number } | null;
+      const status = typeof state.status === 'string' && state.status ? state.status.slice(0, 200) : null;
       const activeObjectId = (state.activeObjectId as string) || null;
       const selectionBox = (state.selectionBox as { x: number; y: number; width: number; height: number }) || null;
 
@@ -110,6 +111,7 @@ export class UpmadeAwarenessCursors {
         clientId,
         user,
         cursor,
+        status,
         activeObjectId,
         selectionBox,
         lastUpdated: now,
@@ -184,7 +186,8 @@ export class UpmadeAwarenessCursors {
   private isStale(cursor: UpmadeRemoteCursorState): boolean {
     const restingFor = Date.now() - cursor.lastCursorMove;
     if (this.isIdleAtSelection(cursor, restingFor)) return true;
-    return restingFor > STALE_THRESHOLD_MS;
+    // A collaborator showing a status (e.g. "typing…") is active, though the pointer rests.
+    return restingFor > STALE_THRESHOLD_MS && !cursor.status;
   }
 
   private isIdleAtSelection(cursor: UpmadeRemoteCursorState, restingFor: number): boolean {
@@ -340,7 +343,12 @@ export class UpmadeAwarenessCursors {
               class="awareness-selection-label"
               style={{ transform: `translate(${anchor.x}px, ${anchor.y}px)` }}
             >
-              <CursorLabel text={this.getUserDisplayName(remoteCursor.user)} icon={remoteCursor.user.cursorIcon} color={remoteCursor.user.color || DEFAULT_CURSOR_COLOR} />
+              <CursorLabel
+                text={this.getUserDisplayName(remoteCursor.user)}
+                status={remoteCursor.status}
+                icon={remoteCursor.user.cursorIcon}
+                color={remoteCursor.user.color || DEFAULT_CURSOR_COLOR}
+              />
             </div>
           );
         })}
@@ -388,7 +396,7 @@ export class UpmadeAwarenessCursors {
         style={{ transform: `translate(${screenX}px, ${screenY}px)` }}
       >
         <CursorArrow color={color} />
-        {showLabel && <CursorLabel text={this.getUserDisplayName(cursor.user)} icon={cursor.user.cursorIcon} color={color} />}
+        {showLabel && <CursorLabel text={this.getUserDisplayName(cursor.user)} status={cursor.status} icon={cursor.user.cursorIcon} color={color} />}
       </div>
     );
   }

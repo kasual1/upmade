@@ -308,6 +308,7 @@ worldToScreen(x: number, y: number): Promise<{ x: number; y: number }>
 | workspaces | UpmadeWorkspace[] | Optional authoritative workspace catalog for this engine instance. |
 | syncConfig | UpmadeSyncConfig | Configuration for synchronization providers. |
 | user | IUpmadeUser | Current user for awareness broadcasting. |
+| userStatus | string | What the current user is doing, e.g. `'typing…'` or a message they typed. Collaborators see it in place of the user's name on the cursor label, like an agent's status (cut to 200 characters); unset or `''` shows the name. |
 | isLoading | boolean | External loading state merged with internal workspace loading state. |
 
 ### Events

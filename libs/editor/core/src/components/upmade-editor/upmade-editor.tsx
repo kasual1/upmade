@@ -131,6 +131,11 @@ export class UpmadeEditor {
     showAssetResolverInfo: false,
   };
   @Prop() user?: IUpmadeUser;
+  /**
+   * What the current user is doing, e.g. `'typing…'` or a message they typed. Collaborators see it in place of the
+   * user's name on the cursor label, like an agent's status; unset or `''` shows the name.
+   */
+  @Prop() userStatus?: string;
   @Prop() activeUsers?: IUpmadeUser[];
   /** Whether the avatar stack shows agents (local ones and those of collaborators) after the active users. */
   @Prop() isAgentAvatarsVisible: boolean = true;
@@ -2256,6 +2261,7 @@ export class UpmadeEditor {
             syncConfig={this.syncConfig}
             assetStorageConfig={this.assetStorageConfig}
             user={this.user}
+            userStatus={this.userStatus}
             chatSession={this.chatSession}
             scaleMax={this.scaleMax}
             lockDrawingScale={this.lockDrawingScale}

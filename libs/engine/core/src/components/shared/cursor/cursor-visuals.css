@@ -57,6 +57,48 @@
   padding-left: 8px;
 }
 
+/* A status shows in place of the name: it fades in, a long one ends with an ellipsis, and the default dot pulses. */
+.cursor-label-text {
+  min-width: 0;
+  animation: cursor-label-text-in 160ms ease-out;
+}
+
+.cursor-label.has-status .cursor-label-text {
+  max-width: var(--_cursor-label-status-max-width, 240px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cursor-label.has-status .cursor-label-dot {
+  animation: cursor-label-dot-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes cursor-label-text-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes cursor-label-dot-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor-label-text,
+  .cursor-label.has-status .cursor-label-dot {
+    animation: none;
+  }
+}
+
 .edge-indicator {
   position: absolute;
   top: -12px;

@@ -810,6 +810,19 @@ describe('UpmadeCore', () => {
     });
   });
 
+  describe('setUserStatus', () => {
+    it('keeps the status and shares it through the object map; empty clears it', () => {
+      (mockStore.objects as any).setLocalStatus = jest.fn();
+      core.setUserStatus('typing…');
+      expect(core.userStatus).toBe('typing…');
+      expect((mockStore.objects as any).setLocalStatus).toHaveBeenLastCalledWith('typing…');
+
+      core.setUserStatus('');
+      expect(core.userStatus).toBeNull();
+      expect((mockStore.objects as any).setLocalStatus).toHaveBeenLastCalledWith(null);
+    });
+  });
+
   describe('prepareObjectForInsert / insertPreparedObject', () => {
     it('gives a plain object a fresh ID, the core, the viewport scale, z-index and workspace', () => {
       mockStore.state.scale = 2;

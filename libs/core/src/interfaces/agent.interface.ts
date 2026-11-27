@@ -26,7 +26,7 @@ export interface UpmadeAgentOptions {
   speed?: number;
   /** Whether collaborators see the agent. Defaults to `true`. */
   broadcast?: boolean;
-  /** Status message shown below the cursor label (e.g. "Thinking…"). */
+  /** What the agent is doing (e.g. "Thinking…"), shown in place of its name on the cursor label. */
   status?: string;
   /** Whether the cursor is visible. Defaults to `true`. */
   visible?: boolean;

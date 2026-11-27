@@ -44,6 +44,7 @@ export const UpmadeEditor: StencilVueComponent<JSX.UpmadeEditor> = /*@__PURE__*/
   'viewportBoundaryBottom',
   'debugInfo',
   'user',
+  'userStatus',
   'activeUsers',
   'isAgentAvatarsVisible',
   'toolbarItems',

@@ -603,6 +603,10 @@ export namespace Components {
         "updateWorkspace": (workspace: UpmadeWorkspace) => Promise<void>;
         "user"?: IUpmadeUser;
         /**
+          * What the current user is doing, e.g. `'typing…'` or a message they typed. Collaborators see it in place of the user's name on the cursor label, like an agent's status; unset or `''` shows the name.
+         */
+        "userStatus"?: string;
+        /**
           * @default Infinity
          */
         "viewportBoundaryBottom": number;
@@ -2592,6 +2596,10 @@ declare namespace LocalJSX {
         "toolbarItems"?: UpmadeToolbarItem[];
         "user"?: IUpmadeUser;
         /**
+          * What the current user is doing, e.g. `'typing…'` or a message they typed. Collaborators see it in place of the user's name on the cursor label, like an agent's status; unset or `''` shows the name.
+         */
+        "userStatus"?: string;
+        /**
           * @default Infinity
          */
         "viewportBoundaryBottom"?: number;
@@ -3265,6 +3273,7 @@ declare namespace LocalJSX {
         "viewportBoundaryRight": number;
         "viewportBoundaryTop": number;
         "viewportBoundaryBottom": number;
+        "userStatus": string;
         "isAgentAvatarsVisible": boolean;
         "theme": ThemeName;
         "locale": LocaleCode;

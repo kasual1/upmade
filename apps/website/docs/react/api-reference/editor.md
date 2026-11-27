@@ -877,6 +877,7 @@ t(key: UpmadeTermKey, vars?: UpmadeTermVars): Promise<string>
 | Property | Type | Description |
 |----------|------|-------------|
 | user | IUpmadeUser | Current authenticated user. Collaborators see its `displayName` and `color` on the user's cursor, and its `cursorIcon` (SVG markup or an image URL; a circle in its `color` when omitted) before the name on the cursor label. |
+| userStatus | string | What the current user is doing, e.g. `'typing…'` or a message they typed. Collaborators see it in place of the user's name on the cursor label, like an agent's status (cut to 200 characters); unset or `''` shows the name. |
 | loginConfig | UpmadeLoginConfig | Login provider configuration. |
 
 ### Events

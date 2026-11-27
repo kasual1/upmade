@@ -216,6 +216,16 @@ export class UpmadeEngine implements UpmadeEngineHost {
   }
 
   /**
+   * What the current user is doing, e.g. `'typing…'` or a message they typed. Collaborators see it in place of the
+   * user's name on the cursor label, like an agent's status; unset or `''` shows the name.
+   */
+  @Prop() userStatus?: string;
+  @Watch('userStatus')
+  onUserStatusChange(newValue: string | undefined) {
+    this.core.setUserStatus(newValue);
+  }
+
+  /**
    * A chat session bound to this engine: its tools act on this canvas. With an agent, the agent is added here.
    * A session replaced by another one is unbound once its running prompt ends.
    */
@@ -2832,6 +2842,7 @@ export class UpmadeEngine implements UpmadeEngineHost {
     this.core.localizationManager.setLocale(this.core.localizationManager.resolveActiveLocale(this.locale));
 
     this.core.setUser(this.user);
+    this.core.setUserStatus(this.userStatus);
     this.validateScaleMax(this.scaleMax);
     this.validateScaleMin(this.scaleMin);
     this.core.store.state.lockDrawingScale = this.lockDrawingScale;
