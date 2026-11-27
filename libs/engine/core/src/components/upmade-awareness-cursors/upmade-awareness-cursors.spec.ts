@@ -593,7 +593,8 @@ describe('UpmadeAwarenessCursors', () => {
       const [label] = byClass(root, 'cursor-label');
       const [icon] = byClass(root, 'cursor-label-icon');
 
-      expect(label.$attrs$!.class).toContain('has-icon');
+      expect(label.$attrs$!.class).toContain('has-dot');
+      expect(label.$attrs$!.class).not.toContain('has-icon');
       expect(icon.$tag$).toBe('span');
       expect(icon.$attrs$!.class).toContain('cursor-label-dot');
       expect(icon.$attrs$!.style).toEqual({ backgroundColor: '#00ff00' });

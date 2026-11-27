@@ -26,7 +26,7 @@ export const CursorLabel: FunctionalComponent<CursorLabelProps> = ({ text, icon,
   const iconSrc = UpmadeViewportOverlayHelper.getCursorIconSrc(icon);
   const showDot = !iconSrc && !!color;
   return (
-    <span class={{ 'cursor-label': true, 'has-icon': !!iconSrc || showDot, ...classes }} style={style}>
+    <span class={{ 'cursor-label': true, 'has-icon': !!iconSrc, 'has-dot': showDot, ...classes }} style={style}>
       {iconSrc && <img class="cursor-label-icon" src={iconSrc} alt="" aria-hidden="true" draggable={false} />}
       {showDot && <span class="cursor-label-icon cursor-label-dot" style={{ backgroundColor: color }} aria-hidden="true"></span>}
       <span class="cursor-label-text">{text}</span>

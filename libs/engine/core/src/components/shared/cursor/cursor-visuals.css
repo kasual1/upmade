@@ -45,9 +45,15 @@
   pointer-events: none;
 }
 
-/* The default icon: a filled circle in the cursor's color. */
+/* The default icon: a small filled circle in the cursor's color, with the pill's usual padding before it. */
 .cursor-label-dot {
+  width: var(--_cursor-label-dot-size, 8px);
+  height: var(--_cursor-label-dot-size, 8px);
   border-radius: 50%;
+}
+
+.cursor-label.has-dot {
+  padding-left: 8px;
 }
 
 .edge-indicator {
