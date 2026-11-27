@@ -18,12 +18,16 @@
 
 ### Used by
 
+ - [upmade-agentic-cursors](../upmade-agentic-cursors)
+ - [upmade-awareness-cursors](../upmade-awareness-cursors)
  - [upmade-engine](../upmade-engine)
  - [upmade-object-titlebar-layer](../upmade-object-titlebar-layer)
 
 ### Graph
 ```mermaid
 graph TD;
+  upmade-agentic-cursors --> upmade-icon
+  upmade-awareness-cursors --> upmade-icon
   upmade-engine --> upmade-icon
   upmade-object-titlebar-layer --> upmade-icon
   style upmade-icon fill:#f9f,stroke:#333,stroke-width:4px

@@ -9,7 +9,7 @@ import type { Components } from '@upmade/engine/dist/components';
 import { defineCustomElement as defineUpmadeEngine } from '@upmade/engine/dist/components/upmade-engine.js';
 @ProxyCmp({
   defineCustomElementFn: defineUpmadeEngine,
-  inputs: ['activeWorkspaceId', 'assetStorageConfig', 'chatSession', 'cursorTarget', 'debugInfo', 'editorId', 'fallbackLocale', 'globalContextMenuItems', 'isPanningEnabled', 'isWatermarkVisible', 'isZoomingEnabled', 'locale', 'locales', 'lockDrawingScale', 'objectConfig', 'objectContextMenuItems', 'objectTitlebar', 'scaleMax', 'scaleMin', 'syncConfig', 'theme', 'themes', 'tools', 'user', 'userStatus', 'viewportBoundaryBottom', 'viewportBoundaryLeft', 'viewportBoundaryRight', 'viewportBoundaryTop', 'workspaces'],
+  inputs: ['activeWorkspaceId', 'assetStorageConfig', 'chatSession', 'cursorTarget', 'debugInfo', 'editorId', 'fallbackLocale', 'globalContextMenuItems', 'isPanningEnabled', 'isWatermarkVisible', 'isZoomingEnabled', 'locale', 'locales', 'lockDrawingScale', 'objectConfig', 'objectContextMenuItems', 'objectTitlebar', 'scaleMax', 'scaleMin', 'syncConfig', 'theme', 'themes', 'tools', 'user', 'userCursorActions', 'userStatus', 'viewportBoundaryBottom', 'viewportBoundaryLeft', 'viewportBoundaryRight', 'viewportBoundaryTop', 'workspaces'],
   methods: ['triggerSelectionChange', 'beginSceneBootstrap', 'endSceneBootstrap', 'registerTool', 'setActiveTool', 'disable', 'enable', 'delete', 'copy', 'cut', 'paste', 'bringForward', 'sendBackward', 'bringToFront', 'sendToBack', 'alignObjects', 'group', 'ungroup', 'undo', 'redo', 'hideContextMenu', 'closeObjectTitlebarMenu', 'selectObjectTitlebarMenuItem', 'openContextMenu', 'getObjectById', 'getAllObjects', 'findObjects', 'getObjectsTotalCount', 'addObject', 'addObjects', 'updateObject', 'removeObject', 'removeObjects', 'getSelectedObjects', 'getDisplayableShortcuts', 'selectObjects', 'selectAllObjectsInViewport', 'clearSelection', 'centerObjectInViewport', 'panToObject', 'backToContent', 'centerAllObjects', 'centerObjects', 'setViewport', 'panTo', 'zoomTo', 'zoomIn', 'zoomOut', 'getViewport', 'screenToWorld', 'worldToScreen', 'getObjectsInViewport', 'addAgent', 'removeAgent', 'getAgent', 'getAgents', 'getRemoteAgents', 'setObjectElementPicking', 'highlightObjectElements', 'clearObjectElementHighlights', 'queryObjectElements', 'getScreenshot', 'exportViewportAsPng', 'exportViewportAsSvg', 'getSelectedObjectSupportedExportFormats', 'canExportSelectedObjectAs', 'exportSelectedObject', 'exportAsJson', 'importFromJson', 'loadObjectsFromJson', 'downloadAsJson', 'importFromFile', 'cancelImportFromFile', 'setActiveWorkspace', 'createWorkspace', 'updateWorkspace', 'deleteWorkspace', 'getWorkspaces', 'getActiveWorkspace', 'getIsPublic', 'loadSharedWorkspace', 'reinitSync', 'saveSettings', 'loadSettings', 'registerLocales', 'configureLocales', 'setLocale', 'getLocale', 'getAvailableLocales', 'getAvailableLocaleOptions', 't', 'getResolvedTerms', 'getTool']
 })
 @Component({
@@ -17,8 +17,8 @@ import { defineCustomElement as defineUpmadeEngine } from '@upmade/engine/dist/c
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: '<ng-content></ng-content>',
   // eslint-disable-next-line @angular-eslint/no-inputs-metadata-property
-  inputs: ['activeWorkspaceId', 'assetStorageConfig', 'chatSession', 'cursorTarget', 'debugInfo', 'editorId', 'fallbackLocale', 'globalContextMenuItems', 'isPanningEnabled', 'isWatermarkVisible', 'isZoomingEnabled', 'locale', 'locales', 'lockDrawingScale', 'objectConfig', 'objectContextMenuItems', 'objectTitlebar', 'scaleMax', 'scaleMin', 'syncConfig', 'theme', 'themes', 'tools', 'user', 'userStatus', 'viewportBoundaryBottom', 'viewportBoundaryLeft', 'viewportBoundaryRight', 'viewportBoundaryTop', 'workspaces'],
-  outputs: ['isEngineReady', 'activeToolChange', 'workspacesChange', 'activeWorkspaceChange', 'longpress', 'objectsChange', 'objectsAdded', 'objectsRemoved', 'objectsUpdated', 'objectsSelectionChange', 'undoStateChange', 'objectsInViewportChange', 'viewportChange', 'awarenessChange', 'notificationsChange', 'contextMenuStateChange', 'isLoadingChange', 'agentsChange', 'objectTitlebarAction', 'objectTitlebarMenuStateChange', 'objectElementHover', 'objectElementClick', 'objectElementPick'],
+  inputs: ['activeWorkspaceId', 'assetStorageConfig', 'chatSession', 'cursorTarget', 'debugInfo', 'editorId', 'fallbackLocale', 'globalContextMenuItems', 'isPanningEnabled', 'isWatermarkVisible', 'isZoomingEnabled', 'locale', 'locales', 'lockDrawingScale', 'objectConfig', 'objectContextMenuItems', 'objectTitlebar', 'scaleMax', 'scaleMin', 'syncConfig', 'theme', 'themes', 'tools', 'user', 'userCursorActions', 'userStatus', 'viewportBoundaryBottom', 'viewportBoundaryLeft', 'viewportBoundaryRight', 'viewportBoundaryTop', 'workspaces'],
+  outputs: ['isEngineReady', 'activeToolChange', 'workspacesChange', 'activeWorkspaceChange', 'longpress', 'objectsChange', 'objectsAdded', 'objectsRemoved', 'objectsUpdated', 'objectsSelectionChange', 'undoStateChange', 'objectsInViewportChange', 'viewportChange', 'awarenessChange', 'notificationsChange', 'contextMenuStateChange', 'isLoadingChange', 'agentsChange', 'cursorLabelAction', 'objectTitlebarAction', 'objectTitlebarMenuStateChange', 'objectElementHover', 'objectElementClick', 'objectElementPick'],
 })
 export class UpmadeEngine {
   protected el: HTMLUpmadeEngineElement;
@@ -40,6 +40,7 @@ export class UpmadeEngine {
   @Output() contextMenuStateChange = new EventEmitter<UpmadeEngineCustomEvent<IUpmadeEngineUpmadeContextMenuState>>();
   @Output() isLoadingChange = new EventEmitter<UpmadeEngineCustomEvent<boolean>>();
   @Output() agentsChange = new EventEmitter<UpmadeEngineCustomEvent<IUpmadeEngineUpmadeAgentsChangeEvent>>();
+  @Output() cursorLabelAction = new EventEmitter<UpmadeEngineCustomEvent<IUpmadeEngineUpmadeCursorLabelActionEvent>>();
   @Output() objectTitlebarAction = new EventEmitter<UpmadeEngineCustomEvent<IUpmadeEngineUpmadeObjectTitlebarActionEvent>>();
   @Output() objectTitlebarMenuStateChange = new EventEmitter<UpmadeEngineCustomEvent<IUpmadeEngineUpmadeObjectTitlebarMenuState>>();
   @Output() objectElementHover = new EventEmitter<UpmadeEngineCustomEvent<IUpmadeEngineUpmadeObjectElementHoverEvent>>();
@@ -66,6 +67,7 @@ import type { UpmadeViewportState as IUpmadeEngineUpmadeViewportState } from '@u
 import type { UpmadeNotification as IUpmadeEngineUpmadeNotification } from '@upmade/engine/dist/components';
 import type { UpmadeContextMenuState as IUpmadeEngineUpmadeContextMenuState } from '@upmade/engine/dist/components';
 import type { UpmadeAgentsChangeEvent as IUpmadeEngineUpmadeAgentsChangeEvent } from '@upmade/engine/dist/components';
+import type { UpmadeCursorLabelActionEvent as IUpmadeEngineUpmadeCursorLabelActionEvent } from '@upmade/engine/dist/components';
 import type { UpmadeObjectTitlebarActionEvent as IUpmadeEngineUpmadeObjectTitlebarActionEvent } from '@upmade/engine/dist/components';
 import type { UpmadeObjectTitlebarMenuState as IUpmadeEngineUpmadeObjectTitlebarMenuState } from '@upmade/engine/dist/components';
 import type { UpmadeObjectElementHoverEvent as IUpmadeEngineUpmadeObjectElementHoverEvent } from '@upmade/engine/dist/components';
@@ -147,6 +149,11 @@ export declare interface UpmadeEngine extends Components.UpmadeEngine {
 collaborators (`isRemote: true`). Never emitted for plain cursor motion.
    */
   agentsChange: EventEmitter<UpmadeEngineCustomEvent<IUpmadeEngineUpmadeAgentsChangeEvent>>;
+  /**
+   * Emitted when a button on a cursor label is clicked (after the button's own `onClick`), e.g. the "X" that
+removes an agent. See `UpmadeAgent.cursorActions` and the `userCursorActions` prop.
+   */
+  cursorLabelAction: EventEmitter<UpmadeEngineCustomEvent<IUpmadeEngineUpmadeCursorLabelActionEvent>>;
   /**
    * Emitted when a button or a menu item in an object titlebar is clicked.
    */

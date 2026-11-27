@@ -1,3 +1,5 @@
+import { UPMADE_REMOVE_AGENT_CURSOR_ACTION } from '../../interfaces/cursor-label.interface';
+import { UPMADE_OVERLAY_CONTROL_ATTRIBUTE, isOverlayControlEvent, runCursorLabelAction } from '../../helpers/cursor-label-action.helper';
 import { UpmadeObjectMap } from '../structures/object-map.structure';
 import { UpmadeAgenticCursorManager } from '../managers/agentic-cursor.manager';
 import { UpmadeAgenticActionManager } from '../managers/agentic-action.manager';
@@ -228,6 +230,55 @@ describe('UpmadeAgent', () => {
 
       expect(agent.state).toMatchObject({ isAdded: true, status: 'Warming up', visible: false, position: { x: 10, y: 20 } });
       expect(core.agenticCursorManager.get(agent.id)).toMatchObject({ name: 'A', color: agent.color, status: 'Warming up' });
+    });
+  });
+
+  describe('cursor label actions', () => {
+    it('shows the remove action by default; clicking it removes the agent and emits cursorLabelAction', () => {
+      const agent = add(new UpmadeAgent({ id: 'a', name: 'A' }));
+      expect(agent.cursorActions).toEqual([UPMADE_REMOVE_AGENT_CURSOR_ACTION]);
+      expect(core.agenticCursorManager.get('a')!.cursorActions).toEqual([UPMADE_REMOVE_AGENT_CURSOR_ACTION]);
+
+      const emit = jest.fn();
+      (core.engine as any).emitCursorLabelAction = emit;
+      const event = { actionId: 'remove', cursorKind: 'agent' as const, agentId: 'a', anchorRect: {} as DOMRect };
+      runCursorLabelAction(core, agent.cursorActions[0], event);
+
+      expect(core.agentManager.get('a')).toBeNull();
+      expect(emit).toHaveBeenCalledWith(event);
+    });
+
+    it('calls onClick instead, and shows the configured actions', () => {
+      const onClick = jest.fn();
+      const pin = { id: 'pin', icon: 'heart', label: 'Pin', onClick };
+      const agent = add(new UpmadeAgent({ id: 'a', name: 'A', cursorActions: [pin, UPMADE_REMOVE_AGENT_CURSOR_ACTION] }));
+      expect(core.agenticCursorManager.get('a')!.cursorActions!.map(action => action.id)).toEqual(['pin', 'remove']);
+
+      const event = { actionId: 'pin', cursorKind: 'agent' as const, agentId: 'a', anchorRect: {} as DOMRect };
+      runCursorLabelAction(core, pin, event);
+      expect(onClick).toHaveBeenCalledWith(event);
+      expect(core.agentManager.get('a')).toBe(agent);
+
+      // An onClick on the remove action replaces the removal.
+      runCursorLabelAction(core, { ...UPMADE_REMOVE_AGENT_CURSOR_ACTION, onClick }, { ...event, actionId: 'remove' });
+      expect(core.agentManager.get('a')).toBe(agent);
+    });
+
+    it('shows no actions with an empty list, also when set later', () => {
+      const agent = add(new UpmadeAgent({ id: 'a', name: 'A', cursorActions: [] }));
+      expect(core.agenticCursorManager.get('a')!.cursorActions).toBeUndefined();
+
+      agent.cursorActions = [UPMADE_REMOVE_AGENT_CURSOR_ACTION];
+      expect(core.agenticCursorManager.get('a')!.cursorActions).toEqual([UPMADE_REMOVE_AGENT_CURSOR_ACTION]);
+      agent.cursorActions = null;
+      expect(core.agenticCursorManager.get('a')!.cursorActions).toBeUndefined();
+    });
+
+    it('recognizes events from overlay controls', () => {
+      const control = { hasAttribute: (name: string) => name === UPMADE_OVERLAY_CONTROL_ATTRIBUTE };
+      const other = { hasAttribute: () => false };
+      expect(isOverlayControlEvent({ composedPath: () => [other, control] as unknown as EventTarget[] })).toBe(true);
+      expect(isOverlayControlEvent({ composedPath: () => [other] as unknown as EventTarget[] })).toBe(false);
     });
   });
 

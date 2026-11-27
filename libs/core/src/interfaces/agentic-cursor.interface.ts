@@ -1,3 +1,4 @@
+import type { UpmadeCursorLabelAction } from './cursor-label.interface';
 import { UpmadeEasing } from './easing.interface';
 import { UpmadePoint } from './point.interface';
 import type { UpmadeAgenticActionType } from './agentic-action.interface';
@@ -70,6 +71,8 @@ export interface UpmadeAgenticCursorAppearance {
   /** What the agent is doing, shown in place of the name on the label, or `null` for none. */
   readonly status: string | null;
   readonly visible: boolean;
+  /** Buttons after the name or status on the label. */
+  readonly cursorActions?: readonly UpmadeCursorLabelAction[];
 }
 
 /** Options for `agent.moveTo()`. */
@@ -116,6 +119,8 @@ export interface UpmadeAgenticCursor {
   cursorIcon?: string;
   status?: string;
   visible: boolean;
+  /** Buttons after the name or status on the label (local agents only). */
+  cursorActions?: readonly UpmadeCursorLabelAction[];
   /** Current position in world coordinates. */
   position: UpmadePoint;
   /** The object the cursor sticks to, or `null` when it is free. */

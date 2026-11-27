@@ -5,10 +5,10 @@
  * It contains typing information for all components that exist in this project.
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
-import { ContextMenuItem, IUpmadeUser, LocaleCode, ObjectsAddedEvent, ObjectsInViewportChangeEvent, ObjectsRemovedEvent, ObjectsUpdatedEvent, ThemeName, UpmadeAgent, UpmadeAgentsChangeEvent, UpmadeAlignment, UpmadeAssetStorageConfig, UpmadeBaseObject, UpmadeBaseTool, UpmadeBrushToolConfig, UpmadeChatSession, UpmadeContextMenuState, UpmadeCore, UpmadeDebugInfo, UpmadeEngineState, UpmadeGroup, UpmadeIconName, UpmadeLineToolConfig, UpmadeLocale, UpmadeNotification, UpmadeObjectConfig, UpmadeObjectElementClickEvent, UpmadeObjectElementHighlight, UpmadeObjectElementHoverEvent, UpmadeObjectElementInfo, UpmadeObjectElementPickEvent, UpmadeObjectElementPickingOptions, UpmadeObjectExportFormat, UpmadeObjectTitlebarActionEvent, UpmadeObjectTitlebarConfig, UpmadeObjectTitlebarMenuState, UpmadeRemoteAgentPresence, UpmadeResolvedTitlebar, UpmadeSettingsConfig, UpmadeShapeToolConfig, UpmadeShortcut, UpmadeSyncConfig, UpmadeTermKey, UpmadeTermVars, UpmadeTextToolConfig, UpmadeTheme, UpmadeToolDefinition, UpmadeUndoState, UpmadeViewportState, UpmadeWorkspace } from "@upmade/core";
+import { ContextMenuItem, IUpmadeUser, LocaleCode, ObjectsAddedEvent, ObjectsInViewportChangeEvent, ObjectsRemovedEvent, ObjectsUpdatedEvent, ThemeName, UpmadeAgent, UpmadeAgentsChangeEvent, UpmadeAlignment, UpmadeAssetStorageConfig, UpmadeBaseObject, UpmadeBaseTool, UpmadeBrushToolConfig, UpmadeChatSession, UpmadeContextMenuState, UpmadeCore, UpmadeCursorLabelAction, UpmadeCursorLabelActionEvent, UpmadeDebugInfo, UpmadeEngineState, UpmadeGroup, UpmadeIconName, UpmadeLineToolConfig, UpmadeLocale, UpmadeNotification, UpmadeObjectConfig, UpmadeObjectElementClickEvent, UpmadeObjectElementHighlight, UpmadeObjectElementHoverEvent, UpmadeObjectElementInfo, UpmadeObjectElementPickEvent, UpmadeObjectElementPickingOptions, UpmadeObjectExportFormat, UpmadeObjectTitlebarActionEvent, UpmadeObjectTitlebarConfig, UpmadeObjectTitlebarMenuState, UpmadeRemoteAgentPresence, UpmadeResolvedTitlebar, UpmadeSettingsConfig, UpmadeShapeToolConfig, UpmadeShortcut, UpmadeSyncConfig, UpmadeTermKey, UpmadeTermVars, UpmadeTextToolConfig, UpmadeTheme, UpmadeToolDefinition, UpmadeUndoState, UpmadeViewportState, UpmadeWorkspace } from "@upmade/core";
 import { Element, Event } from "@stencil/core";
 import { UpmadeTitlebarElementClickHandler, UpmadeTitlebarTitleEditHandlers } from "./components/upmade-object-titlebar-layer/upmade-object-titlebar-layer";
-export { ContextMenuItem, IUpmadeUser, LocaleCode, ObjectsAddedEvent, ObjectsInViewportChangeEvent, ObjectsRemovedEvent, ObjectsUpdatedEvent, ThemeName, UpmadeAgent, UpmadeAgentsChangeEvent, UpmadeAlignment, UpmadeAssetStorageConfig, UpmadeBaseObject, UpmadeBaseTool, UpmadeBrushToolConfig, UpmadeChatSession, UpmadeContextMenuState, UpmadeCore, UpmadeDebugInfo, UpmadeEngineState, UpmadeGroup, UpmadeIconName, UpmadeLineToolConfig, UpmadeLocale, UpmadeNotification, UpmadeObjectConfig, UpmadeObjectElementClickEvent, UpmadeObjectElementHighlight, UpmadeObjectElementHoverEvent, UpmadeObjectElementInfo, UpmadeObjectElementPickEvent, UpmadeObjectElementPickingOptions, UpmadeObjectExportFormat, UpmadeObjectTitlebarActionEvent, UpmadeObjectTitlebarConfig, UpmadeObjectTitlebarMenuState, UpmadeRemoteAgentPresence, UpmadeResolvedTitlebar, UpmadeSettingsConfig, UpmadeShapeToolConfig, UpmadeShortcut, UpmadeSyncConfig, UpmadeTermKey, UpmadeTermVars, UpmadeTextToolConfig, UpmadeTheme, UpmadeToolDefinition, UpmadeUndoState, UpmadeViewportState, UpmadeWorkspace } from "@upmade/core";
+export { ContextMenuItem, IUpmadeUser, LocaleCode, ObjectsAddedEvent, ObjectsInViewportChangeEvent, ObjectsRemovedEvent, ObjectsUpdatedEvent, ThemeName, UpmadeAgent, UpmadeAgentsChangeEvent, UpmadeAlignment, UpmadeAssetStorageConfig, UpmadeBaseObject, UpmadeBaseTool, UpmadeBrushToolConfig, UpmadeChatSession, UpmadeContextMenuState, UpmadeCore, UpmadeCursorLabelAction, UpmadeCursorLabelActionEvent, UpmadeDebugInfo, UpmadeEngineState, UpmadeGroup, UpmadeIconName, UpmadeLineToolConfig, UpmadeLocale, UpmadeNotification, UpmadeObjectConfig, UpmadeObjectElementClickEvent, UpmadeObjectElementHighlight, UpmadeObjectElementHoverEvent, UpmadeObjectElementInfo, UpmadeObjectElementPickEvent, UpmadeObjectElementPickingOptions, UpmadeObjectExportFormat, UpmadeObjectTitlebarActionEvent, UpmadeObjectTitlebarConfig, UpmadeObjectTitlebarMenuState, UpmadeRemoteAgentPresence, UpmadeResolvedTitlebar, UpmadeSettingsConfig, UpmadeShapeToolConfig, UpmadeShortcut, UpmadeSyncConfig, UpmadeTermKey, UpmadeTermVars, UpmadeTextToolConfig, UpmadeTheme, UpmadeToolDefinition, UpmadeUndoState, UpmadeViewportState, UpmadeWorkspace } from "@upmade/core";
 export { Element, Event } from "@stencil/core";
 export { UpmadeTitlebarElementClickHandler, UpmadeTitlebarTitleEditHandlers } from "./components/upmade-object-titlebar-layer/upmade-object-titlebar-layer";
 export namespace Components {
@@ -41,6 +41,10 @@ export namespace Components {
           * @default 8
          */
         "edgeIndicatorPadding": number;
+        /**
+          * Buttons after the name or status on collaborators' cursor labels. None by default.
+         */
+        "labelActions"?: UpmadeCursorLabelAction[];
         /**
           * @default true
          */
@@ -607,6 +611,10 @@ export namespace Components {
          */
         "user"?: IUpmadeUser;
         /**
+          * Buttons after the name or status on collaborators' cursor labels, e.g. to follow a user. None by default. Clicks call the action's `onClick` and emit `cursorLabelAction`.
+         */
+        "userCursorActions"?: UpmadeCursorLabelAction[];
+        /**
           * What the current user is doing, e.g. `'typing…'` or a message they typed. Collaborators see it in place of the user's name on the cursor label, like an agent's status; unset or `''` shows the name.
          */
         "userStatus"?: string;
@@ -772,6 +780,7 @@ declare global {
         "contextMenuStateChange": UpmadeContextMenuState;
         "isLoadingChange": boolean;
         "agentsChange": UpmadeAgentsChangeEvent;
+        "cursorLabelAction": UpmadeCursorLabelActionEvent;
         "objectTitlebarAction": UpmadeObjectTitlebarActionEvent;
         "objectTitlebarMenuStateChange": UpmadeObjectTitlebarMenuState;
         "objectElementHover": UpmadeObjectElementHoverEvent;
@@ -864,6 +873,10 @@ declare namespace LocalJSX {
           * @default 8
          */
         "edgeIndicatorPadding"?: number;
+        /**
+          * Buttons after the name or status on collaborators' cursor labels. None by default.
+         */
+        "labelActions"?: UpmadeCursorLabelAction[];
         /**
           * @default true
          */
@@ -968,6 +981,10 @@ declare namespace LocalJSX {
          */
         "onContextMenuStateChange"?: (event: UpmadeEngineCustomEvent<UpmadeContextMenuState>) => void;
         /**
+          * Emitted when a button on a cursor label is clicked (after the button's own `onClick`), e.g. the "X" that removes an agent. See `UpmadeAgent.cursorActions` and the `userCursorActions` prop.
+         */
+        "onCursorLabelAction"?: (event: UpmadeEngineCustomEvent<UpmadeCursorLabelActionEvent>) => void;
+        /**
           * Emitted when the engine has fully initialized and is ready for interaction.
          */
         "onIsEngineReady"?: (event: UpmadeEngineCustomEvent<UpmadeEngineState>) => void;
@@ -1071,6 +1088,10 @@ declare namespace LocalJSX {
           * The current user for awareness broadcasting (name, id, cursor position).
          */
         "user"?: IUpmadeUser;
+        /**
+          * Buttons after the name or status on collaborators' cursor labels, e.g. to follow a user. None by default. Clicks call the action's `onClick` and emit `cursorLabelAction`.
+         */
+        "userCursorActions"?: UpmadeCursorLabelAction[];
         /**
           * What the current user is doing, e.g. `'typing…'` or a message they typed. Collaborators see it in place of the user's name on the cursor label, like an agent's status; unset or `''` shows the name.
          */

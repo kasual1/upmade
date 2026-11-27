@@ -38,6 +38,8 @@ import { ContextMenuItem } from "@upmade/core";
 import {
   UpmadeObjectConfig,
   UpmadeObjectTitlebarActionEvent,
+  UpmadeCursorLabelAction,
+  UpmadeCursorLabelActionEvent,
   UpmadeObjectElementClickEvent,
   UpmadeObjectElementHighlight,
   UpmadeObjectElementHoverEvent,
@@ -136,6 +138,11 @@ export class UpmadeEditor {
    * user's name on the cursor label, like an agent's status; unset or `''` shows the name.
    */
   @Prop() userStatus?: string;
+  /**
+   * Buttons after the name or status on collaborators' cursor labels, e.g. to follow a user. None by default.
+   * Clicks call the action's `onClick` and emit `cursorLabelAction`.
+   */
+  @Prop() userCursorActions?: UpmadeCursorLabelAction[];
   @Prop() activeUsers?: IUpmadeUser[];
   /** Whether the avatar stack shows agents (local ones and those of collaborators) after the active users. */
   @Prop() isAgentAvatarsVisible: boolean = true;
@@ -553,6 +560,12 @@ export class UpmadeEditor {
   /** Emitted when a button or a menu item in an object titlebar is clicked. */
   @Event()
   objectTitlebarAction!: EventEmitter<UpmadeObjectTitlebarActionEvent>;
+  /**
+   * Emitted when a button on a cursor label is clicked (after the button's own `onClick`), e.g. the "X" that
+   * removes an agent. See `UpmadeAgent.cursorActions` and the `userCursorActions` prop.
+   */
+  @Event()
+  cursorLabelAction!: EventEmitter<UpmadeCursorLabelActionEvent>;
   /**
    * Emitted when the pointer moves onto another element inside the content of an interactive (selected) object,
    * such as an iframe object, and with `element: null` when it leaves the content or the object stops being interactive.
@@ -1694,6 +1707,11 @@ export class UpmadeEditor {
     this.agentsChange.emit(event.detail);
   }
 
+  handleCursorLabelAction(event: CustomEvent<UpmadeCursorLabelActionEvent>) {
+    event.stopPropagation();
+    this.cursorLabelAction.emit(event.detail);
+  }
+
   handleObjectTitlebarAction(
     event: CustomEvent<UpmadeObjectTitlebarActionEvent>,
   ) {
@@ -2262,6 +2280,7 @@ export class UpmadeEditor {
             assetStorageConfig={this.assetStorageConfig}
             user={this.user}
             userStatus={this.userStatus}
+            userCursorActions={this.userCursorActions}
             chatSession={this.chatSession}
             scaleMax={this.scaleMax}
             lockDrawingScale={this.lockDrawingScale}
@@ -2313,6 +2332,7 @@ export class UpmadeEditor {
             onObjectTitlebarAction={(event) =>
               this.handleObjectTitlebarAction(event)
             }
+            onCursorLabelAction={(event) => this.handleCursorLabelAction(event)}
             onObjectTitlebarMenuStateChange={(event) =>
               this.handleObjectTitlebarMenuStateChange(event)
             }

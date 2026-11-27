@@ -1,3 +1,4 @@
+import type { UpmadeCursorLabelAction } from './cursor-label.interface';
 import type { UpmadePoint } from './point.interface';
 import type { UpmadeObjectElementState } from './object-element.interface';
 import type { UpmadeAgenticAttachment, UpmadeAgenticTarget } from './agentic-cursor.interface';
@@ -28,6 +29,11 @@ export interface UpmadeAgentOptions {
   broadcast?: boolean;
   /** What the agent is doing (e.g. "Thinking…"), shown in place of its name on the cursor label. */
   status?: string;
+  /**
+   * Buttons after the name or status on the cursor label. Defaults to `[UPMADE_REMOVE_AGENT_CURSOR_ACTION]`: an "X"
+   * that removes the agent. `[]` shows none. Only this editor shows them; collaborators don't.
+   */
+  cursorActions?: UpmadeCursorLabelAction[];
   /** Whether the cursor is visible. Defaults to `true`. */
   visible?: boolean;
   /** Where the cursor appears when the agent is added. Defaults to the center of the viewport. */

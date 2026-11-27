@@ -1,5 +1,11 @@
 import { FunctionalComponent, h } from '@stencil/core';
-import { UpmadeOverlayEdge, UpmadeViewportOverlayHelper } from '@upmade/core';
+import {
+  UPMADE_OVERLAY_CONTROL_ATTRIBUTE,
+  UpmadeCursorLabelAction,
+  UpmadeIconRegistry,
+  UpmadeOverlayEdge,
+  UpmadeViewportOverlayHelper,
+} from '@upmade/core';
 
 /** Arrow-shaped pointer used by remote and agentic cursors. */
 export const CursorArrow: FunctionalComponent<{ color: string }> = ({ color }) => (
@@ -17,6 +23,10 @@ interface CursorLabelProps {
   icon?: string | null;
   /** Color of the user or agent, for the default icon: a filled circle. No icon without one. */
   color?: string;
+  /** Buttons after the name or status. */
+  actions?: readonly UpmadeCursorLabelAction[];
+  /** Called when one of `actions` is clicked, with the clicked button. */
+  onAction?: (action: UpmadeCursorLabelAction, button: HTMLElement) => void;
   classes?: Record<string, boolean>;
   style?: Record<string, string>;
 }
@@ -26,13 +36,13 @@ interface CursorLabelProps {
  * cursor's color. While a status is set, it shows in place of the name (the dot pulses), then the name comes back.
  * A custom icon is drawn as an image (never as markup), so icons from collaborators cannot run scripts.
  */
-export const CursorLabel: FunctionalComponent<CursorLabelProps> = ({ text, status, icon, color, classes, style }) => {
+export const CursorLabel: FunctionalComponent<CursorLabelProps> = ({ text, status, icon, color, actions, onAction, classes, style }) => {
   const iconSrc = UpmadeViewportOverlayHelper.getCursorIconSrc(icon);
   const showDot = !iconSrc && !!color;
   const statusText = status || null;
   return (
     <span
-      class={{ 'cursor-label': true, 'has-icon': !!iconSrc, 'has-dot': showDot, 'has-status': !!statusText, ...classes }}
+      class={{ 'cursor-label': true, 'has-icon': !!iconSrc, 'has-dot': showDot, 'has-status': !!statusText, 'has-actions': !!actions?.length, ...classes }}
       style={style}
       title={statusText ? (text ? `${text}: ${statusText}` : statusText) : undefined}
     >
@@ -42,9 +52,44 @@ export const CursorLabel: FunctionalComponent<CursorLabelProps> = ({ text, statu
       <span key={statusText ? 'status' : 'name'} class="cursor-label-text">
         {statusText ?? text}
       </span>
+      {actions?.map(action => (
+        renderActionButton(action, onAction)
+      ))}
     </span>
   );
 };
+
+/**
+ * A button after the label text. The label itself never takes the pointer; its buttons do, and are marked as
+ * overlay controls so pressing them never starts a drag or a selection on the canvas.
+ */
+function renderActionButton(action: UpmadeCursorLabelAction, onAction?: (action: UpmadeCursorLabelAction, button: HTMLElement) => void) {
+  // A registered icon is drawn as markup (it is trusted and follows the text color); anything else as an image.
+  const isRegistered = UpmadeIconRegistry.has(action.icon);
+  const iconSrc = isRegistered ? null : UpmadeViewportOverlayHelper.getCursorIconSrc(action.icon);
+  return (
+    <button
+      key={`action-${action.id}`}
+      type="button"
+      class="cursor-label-action"
+      data-action-id={action.id}
+      title={action.label}
+      aria-label={action.label ?? action.id}
+      {...{ [UPMADE_OVERLAY_CONTROL_ATTRIBUTE]: '' }}
+      onPointerDown={(event: PointerEvent) => event.stopPropagation()}
+      onClick={(event: MouseEvent) => {
+        event.stopPropagation();
+        const button = event.currentTarget as HTMLElement;
+        // Pointer clicks should not leave focus on the button, or canvas shortcuts stop working.
+        if (event.detail > 0) button.blur();
+        onAction?.(action, button);
+      }}
+    >
+      {isRegistered && <upmade-icon name={action.icon} size={14}></upmade-icon>}
+      {iconSrc && <img class="cursor-label-action-icon" src={iconSrc} alt="" aria-hidden="true" draggable={false} />}
+    </button>
+  );
+}
 
 interface EdgeIndicatorProps {
   /** Stable vdom key for the indicator element. */

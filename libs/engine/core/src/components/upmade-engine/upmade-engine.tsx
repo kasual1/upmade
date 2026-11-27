@@ -94,6 +94,9 @@ import {
   UpmadeResolvedTitlebar,
   normalizeLegacyClassName,
   migrateLegacyStorageKeys,
+  UpmadeCursorLabelAction,
+  UpmadeCursorLabelActionEvent,
+  isOverlayControlEvent,
 } from '@upmade/core';
 import throttle from 'lodash/throttle';
 import { toPng, toSvg } from 'html-to-image';
@@ -220,6 +223,12 @@ export class UpmadeEngine implements UpmadeEngineHost {
    * user's name on the cursor label, like an agent's status; unset or `''` shows the name.
    */
   @Prop() userStatus?: string;
+
+  /**
+   * Buttons after the name or status on collaborators' cursor labels, e.g. to follow a user. None by default.
+   * Clicks call the action's `onClick` and emit `cursorLabelAction`.
+   */
+  @Prop() userCursorActions?: UpmadeCursorLabelAction[];
   @Watch('userStatus')
   onUserStatusChange(newValue: string | undefined) {
     this.core.setUserStatus(newValue);
@@ -470,6 +479,12 @@ export class UpmadeEngine implements UpmadeEngineHost {
    */
   @Event() agentsChange!: EventEmitter<UpmadeAgentsChangeEvent>;
 
+  /**
+   * Emitted when a button on a cursor label is clicked (after the button's own `onClick`), e.g. the "X" that
+   * removes an agent. See `UpmadeAgent.cursorActions` and the `userCursorActions` prop.
+   */
+  @Event() cursorLabelAction!: EventEmitter<UpmadeCursorLabelActionEvent>;
+
   /** Emitted when a button or a menu item in an object titlebar is clicked. */
   @Event() objectTitlebarAction!: EventEmitter<UpmadeObjectTitlebarActionEvent>;
 
@@ -578,8 +593,9 @@ export class UpmadeEngine implements UpmadeEngineHost {
       return;
     }
 
-    // Titlebar controls handle their own clicks and must not start drags or selections.
-    if (this.core.objectTitlebarManager.isControlEvent(ev)) {
+    // Titlebar controls and overlay controls (cursor label buttons) handle their own clicks and must not start
+    // drags or selections.
+    if (this.core.objectTitlebarManager.isControlEvent(ev) || isOverlayControlEvent(ev)) {
       return;
     }
 
@@ -3272,6 +3288,10 @@ export class UpmadeEngine implements UpmadeEngineHost {
     this.awarenessChange.emit(states);
   }
 
+  emitCursorLabelAction(detail: UpmadeCursorLabelActionEvent) {
+    this.cursorLabelAction.emit(detail);
+  }
+
   emitObjectTitlebarAction(detail: UpmadeObjectTitlebarActionEvent) {
     this.objectTitlebarAction.emit(detail);
   }
@@ -4717,7 +4737,7 @@ export class UpmadeEngine implements UpmadeEngineHost {
           })()}
         </div>
 
-        {this.core.store.objects?.hasAwareness && <upmade-awareness-cursors core={this.core}></upmade-awareness-cursors>}
+        {this.core.store.objects?.hasAwareness && <upmade-awareness-cursors core={this.core} labelActions={this.userCursorActions}></upmade-awareness-cursors>}
 
         <upmade-agentic-cursors core={this.core}></upmade-agentic-cursors>
 

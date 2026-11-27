@@ -57,6 +57,43 @@
   padding-left: 8px;
 }
 
+/* Buttons after the name or status, e.g. the "X" that removes an agent. Only they take the pointer. */
+.cursor-label.has-actions {
+  padding-right: 4px;
+}
+
+.cursor-label-action {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--_cursor-label-action-size, 18px);
+  height: var(--_cursor-label-action-size, 18px);
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--_cursor-label-action-color, #71717a);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.cursor-label-action:hover,
+.cursor-label-action:focus-visible {
+  background-color: var(--_cursor-label-action-hover-background-color, #f4f4f5);
+  color: var(--_cursor-label-text-color);
+  outline: none;
+}
+
+.cursor-label-action-icon {
+  display: block;
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+}
+
 /* A status shows in place of the name: it fades in, a long one ends with an ellipsis, and the default dot pulses. */
 .cursor-label-text {
   min-width: 0;

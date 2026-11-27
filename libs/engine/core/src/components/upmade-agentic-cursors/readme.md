@@ -34,9 +34,14 @@ the same frame as the object state it follows and never runs ahead of the object
 
  - [upmade-engine](../upmade-engine)
 
+### Depends on
+
+- [upmade-icon](../upmade-icon)
+
 ### Graph
 ```mermaid
 graph TD;
+  upmade-agentic-cursors --> upmade-icon
   upmade-engine --> upmade-agentic-cursors
   style upmade-agentic-cursors fill:#f9f,stroke:#333,stroke-width:4px
 ```

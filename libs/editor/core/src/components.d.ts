@@ -5,7 +5,7 @@
  * It contains typing information for all components that exist in this project.
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
-import { ActiveWorkspaceChangeEvent, ConfigurableTool, ContextMenuItem, EditorIsReadyEvent, IUpmadeDialogCloseEvent, IUpmadeIsPublicChangeEvent, IUpmadeMasterDetailItem, IUpmadeMasterDetailSelectEvent, IUpmadeMenuItem, IUpmadeMenuItemSelectEvent, IUpmadeMenuItemToggleChildMenuEvent, IUpmadeUser, LineArrowConfig, LocaleCode, LoginEvent, ObjectsAddedEvent, ObjectsRemovedEvent, ObjectsUpdatedEvent, ThemeAwareColor, ThemeName, ToolDisplayValues, UpmadeAgent, UpmadeAgentPresence, UpmadeAgentsChangeEvent, UpmadeAlignment, UpmadeAssetStorageConfig, UpmadeBaseObject, UpmadeBaseTool, UpmadeBrushToolConfig, UpmadeChatBoxChip, UpmadeChatSession, UpmadeDebugInfo, UpmadeDialogCloseReason, UpmadeFontMap, UpmadeGroup, UpmadeLineToolConfig, UpmadeLocale, UpmadeLoginConfig, UpmadeLoginProvider, UpmadeNotification, UpmadeObjectConfig, UpmadeObjectElementClickEvent, UpmadeObjectElementHighlight, UpmadeObjectElementHoverEvent, UpmadeObjectElementInfo, UpmadeObjectElementPickEvent, UpmadeObjectElementPickingOptions, UpmadeObjectExportFormat, UpmadeObjectTitlebarActionEvent, UpmadeObjectTitlebarConfig, UpmadeRemoteAgentPresence, UpmadeSettingsConfig, UpmadeShapeToolConfig, UpmadeShortcut, UpmadeSvgIconMap, UpmadeSyncConfig, UpmadeTermKey, UpmadeTermVars, UpmadeTextToolConfig, UpmadeTheme, UpmadeTitlebarMenuItem, UpmadeToolbarItem, UpmadeUndoState, UpmadeViewportState, UpmadeWorkspace } from "@upmade/core";
+import { ActiveWorkspaceChangeEvent, ConfigurableTool, ContextMenuItem, EditorIsReadyEvent, IUpmadeDialogCloseEvent, IUpmadeIsPublicChangeEvent, IUpmadeMasterDetailItem, IUpmadeMasterDetailSelectEvent, IUpmadeMenuItem, IUpmadeMenuItemSelectEvent, IUpmadeMenuItemToggleChildMenuEvent, IUpmadeUser, LineArrowConfig, LocaleCode, LoginEvent, ObjectsAddedEvent, ObjectsRemovedEvent, ObjectsUpdatedEvent, ThemeAwareColor, ThemeName, ToolDisplayValues, UpmadeAgent, UpmadeAgentPresence, UpmadeAgentsChangeEvent, UpmadeAlignment, UpmadeAssetStorageConfig, UpmadeBaseObject, UpmadeBaseTool, UpmadeBrushToolConfig, UpmadeChatBoxChip, UpmadeChatSession, UpmadeCursorLabelAction, UpmadeCursorLabelActionEvent, UpmadeDebugInfo, UpmadeDialogCloseReason, UpmadeFontMap, UpmadeGroup, UpmadeLineToolConfig, UpmadeLocale, UpmadeLoginConfig, UpmadeLoginProvider, UpmadeNotification, UpmadeObjectConfig, UpmadeObjectElementClickEvent, UpmadeObjectElementHighlight, UpmadeObjectElementHoverEvent, UpmadeObjectElementInfo, UpmadeObjectElementPickEvent, UpmadeObjectElementPickingOptions, UpmadeObjectExportFormat, UpmadeObjectTitlebarActionEvent, UpmadeObjectTitlebarConfig, UpmadeRemoteAgentPresence, UpmadeSettingsConfig, UpmadeShapeToolConfig, UpmadeShortcut, UpmadeSvgIconMap, UpmadeSyncConfig, UpmadeTermKey, UpmadeTermVars, UpmadeTextToolConfig, UpmadeTheme, UpmadeTitlebarMenuItem, UpmadeToolbarItem, UpmadeUndoState, UpmadeViewportState, UpmadeWorkspace } from "@upmade/core";
 import { BrushStyleOption } from "./components/upmade-brush-style/upmade-brush-style";
 import { UpmadeChatBoxMode } from "./components/upmade-chat-box/upmade-chat-box";
 import { DropdownOption } from "./components/upmade-dropdown/upmade-dropdown";
@@ -15,7 +15,7 @@ import { FontOption } from "./components/upmade-font-family/upmade-font-family";
 import { LineEndingType } from "./components/upmade-line-endings/upmade-line-endings";
 import { UpmadePillTab } from "./components/upmade-pill-tabs/upmade-pill-tabs";
 import { ShapeFillType } from "./components/upmade-shape-fill/upmade-shape-fill";
-export { ActiveWorkspaceChangeEvent, ConfigurableTool, ContextMenuItem, EditorIsReadyEvent, IUpmadeDialogCloseEvent, IUpmadeIsPublicChangeEvent, IUpmadeMasterDetailItem, IUpmadeMasterDetailSelectEvent, IUpmadeMenuItem, IUpmadeMenuItemSelectEvent, IUpmadeMenuItemToggleChildMenuEvent, IUpmadeUser, LineArrowConfig, LocaleCode, LoginEvent, ObjectsAddedEvent, ObjectsRemovedEvent, ObjectsUpdatedEvent, ThemeAwareColor, ThemeName, ToolDisplayValues, UpmadeAgent, UpmadeAgentPresence, UpmadeAgentsChangeEvent, UpmadeAlignment, UpmadeAssetStorageConfig, UpmadeBaseObject, UpmadeBaseTool, UpmadeBrushToolConfig, UpmadeChatBoxChip, UpmadeChatSession, UpmadeDebugInfo, UpmadeDialogCloseReason, UpmadeFontMap, UpmadeGroup, UpmadeLineToolConfig, UpmadeLocale, UpmadeLoginConfig, UpmadeLoginProvider, UpmadeNotification, UpmadeObjectConfig, UpmadeObjectElementClickEvent, UpmadeObjectElementHighlight, UpmadeObjectElementHoverEvent, UpmadeObjectElementInfo, UpmadeObjectElementPickEvent, UpmadeObjectElementPickingOptions, UpmadeObjectExportFormat, UpmadeObjectTitlebarActionEvent, UpmadeObjectTitlebarConfig, UpmadeRemoteAgentPresence, UpmadeSettingsConfig, UpmadeShapeToolConfig, UpmadeShortcut, UpmadeSvgIconMap, UpmadeSyncConfig, UpmadeTermKey, UpmadeTermVars, UpmadeTextToolConfig, UpmadeTheme, UpmadeTitlebarMenuItem, UpmadeToolbarItem, UpmadeUndoState, UpmadeViewportState, UpmadeWorkspace } from "@upmade/core";
+export { ActiveWorkspaceChangeEvent, ConfigurableTool, ContextMenuItem, EditorIsReadyEvent, IUpmadeDialogCloseEvent, IUpmadeIsPublicChangeEvent, IUpmadeMasterDetailItem, IUpmadeMasterDetailSelectEvent, IUpmadeMenuItem, IUpmadeMenuItemSelectEvent, IUpmadeMenuItemToggleChildMenuEvent, IUpmadeUser, LineArrowConfig, LocaleCode, LoginEvent, ObjectsAddedEvent, ObjectsRemovedEvent, ObjectsUpdatedEvent, ThemeAwareColor, ThemeName, ToolDisplayValues, UpmadeAgent, UpmadeAgentPresence, UpmadeAgentsChangeEvent, UpmadeAlignment, UpmadeAssetStorageConfig, UpmadeBaseObject, UpmadeBaseTool, UpmadeBrushToolConfig, UpmadeChatBoxChip, UpmadeChatSession, UpmadeCursorLabelAction, UpmadeCursorLabelActionEvent, UpmadeDebugInfo, UpmadeDialogCloseReason, UpmadeFontMap, UpmadeGroup, UpmadeLineToolConfig, UpmadeLocale, UpmadeLoginConfig, UpmadeLoginProvider, UpmadeNotification, UpmadeObjectConfig, UpmadeObjectElementClickEvent, UpmadeObjectElementHighlight, UpmadeObjectElementHoverEvent, UpmadeObjectElementInfo, UpmadeObjectElementPickEvent, UpmadeObjectElementPickingOptions, UpmadeObjectExportFormat, UpmadeObjectTitlebarActionEvent, UpmadeObjectTitlebarConfig, UpmadeRemoteAgentPresence, UpmadeSettingsConfig, UpmadeShapeToolConfig, UpmadeShortcut, UpmadeSvgIconMap, UpmadeSyncConfig, UpmadeTermKey, UpmadeTermVars, UpmadeTextToolConfig, UpmadeTheme, UpmadeTitlebarMenuItem, UpmadeToolbarItem, UpmadeUndoState, UpmadeViewportState, UpmadeWorkspace } from "@upmade/core";
 export { BrushStyleOption } from "./components/upmade-brush-style/upmade-brush-style";
 export { UpmadeChatBoxMode } from "./components/upmade-chat-box/upmade-chat-box";
 export { DropdownOption } from "./components/upmade-dropdown/upmade-dropdown";
@@ -602,6 +602,10 @@ export namespace Components {
         "updateObject": <T extends UpmadeBaseObject>(object: T, updatedProperties: Partial<T>) => Promise<T | null>;
         "updateWorkspace": (workspace: UpmadeWorkspace) => Promise<void>;
         "user"?: IUpmadeUser;
+        /**
+          * Buttons after the name or status on collaborators' cursor labels, e.g. to follow a user. None by default. Clicks call the action's `onClick` and emit `cursorLabelAction`.
+         */
+        "userCursorActions"?: UpmadeCursorLabelAction[];
         /**
           * What the current user is doing, e.g. `'typing…'` or a message they typed. Collaborators see it in place of the user's name on the cursor label, like an agent's status; unset or `''` shows the name.
          */
@@ -1507,6 +1511,7 @@ declare global {
         "chatChipRemove": UpmadeChatBoxChip;
         "agentsChange": UpmadeAgentsChangeEvent;
         "objectTitlebarAction": UpmadeObjectTitlebarActionEvent;
+        "cursorLabelAction": UpmadeCursorLabelActionEvent;
         "objectElementHover": UpmadeObjectElementHoverEvent;
         "objectElementClick": UpmadeObjectElementClickEvent;
         "objectElementPick": UpmadeObjectElementPickEvent;
@@ -2535,6 +2540,10 @@ declare namespace LocalJSX {
           * Emitted with the chat box text when the user submits it. With a `chatSession`, the prompt is sent to it unless a listener calls `preventDefault()`.
          */
         "onChatSubmit"?: (event: UpmadeEditorCustomEvent<string>) => void;
+        /**
+          * Emitted when a button on a cursor label is clicked (after the button's own `onClick`), e.g. the "X" that removes an agent. See `UpmadeAgent.cursorActions` and the `userCursorActions` prop.
+         */
+        "onCursorLabelAction"?: (event: UpmadeEditorCustomEvent<UpmadeCursorLabelActionEvent>) => void;
         "onIsPublicChange"?: (event: UpmadeEditorCustomEvent<IUpmadeIsPublicChangeEvent>) => void;
         "onIsReady"?: (event: UpmadeEditorCustomEvent<EditorIsReadyEvent>) => void;
         "onLocaleChange"?: (event: UpmadeEditorCustomEvent<LocaleCode>) => void;
@@ -2595,6 +2604,10 @@ declare namespace LocalJSX {
          */
         "toolbarItems"?: UpmadeToolbarItem[];
         "user"?: IUpmadeUser;
+        /**
+          * Buttons after the name or status on collaborators' cursor labels, e.g. to follow a user. None by default. Clicks call the action's `onClick` and emit `cursorLabelAction`.
+         */
+        "userCursorActions"?: UpmadeCursorLabelAction[];
         /**
           * What the current user is doing, e.g. `'typing…'` or a message they typed. Collaborators see it in place of the user's name on the cursor label, like an agent's status; unset or `''` shows the name.
          */

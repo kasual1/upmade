@@ -11,7 +11,7 @@ import React from 'react';
 import { createComponent } from '@stencil/react-output-target/runtime';
 import type { Components } from '@upmade/engine/dist/components';
 import { UpmadeEngine as UpmadeEngineElement, defineCustomElement as defineUpmadeEngine } from '@upmade/engine/dist/components/upmade-engine.js';
-import type { UpmadeEngineState, UpmadeBaseTool, UpmadeWorkspace, UpmadeBaseObject, ObjectsAddedEvent, ObjectsRemovedEvent, ObjectsUpdatedEvent, UpmadeUndoState, ObjectsInViewportChangeEvent, UpmadeViewportState, UpmadeNotification, UpmadeContextMenuState, UpmadeAgentsChangeEvent, UpmadeObjectTitlebarActionEvent, UpmadeObjectTitlebarMenuState, UpmadeObjectElementHoverEvent, UpmadeObjectElementClickEvent, UpmadeObjectElementPickEvent, UpmadeEngineCustomEvent } from '@upmade/engine';
+import type { UpmadeEngineState, UpmadeBaseTool, UpmadeWorkspace, UpmadeBaseObject, ObjectsAddedEvent, ObjectsRemovedEvent, ObjectsUpdatedEvent, UpmadeUndoState, ObjectsInViewportChangeEvent, UpmadeViewportState, UpmadeNotification, UpmadeContextMenuState, UpmadeAgentsChangeEvent, UpmadeCursorLabelActionEvent, UpmadeObjectTitlebarActionEvent, UpmadeObjectTitlebarMenuState, UpmadeObjectElementHoverEvent, UpmadeObjectElementClickEvent, UpmadeObjectElementPickEvent, UpmadeEngineCustomEvent } from '@upmade/engine';
 import type { StencilReactComponent, EventName } from '@stencil/react-output-target/runtime';
 
 export type UpmadeEngineEvents = {
@@ -33,6 +33,7 @@ export type UpmadeEngineEvents = {
   onContextMenuStateChange: EventName<UpmadeEngineCustomEvent<UpmadeContextMenuState>>,
   onIsLoadingChange: EventName<UpmadeEngineCustomEvent<boolean>>,
   onAgentsChange: EventName<UpmadeEngineCustomEvent<UpmadeAgentsChangeEvent>>,
+  onCursorLabelAction: EventName<UpmadeEngineCustomEvent<UpmadeCursorLabelActionEvent>>,
   onObjectTitlebarAction: EventName<UpmadeEngineCustomEvent<UpmadeObjectTitlebarActionEvent>>,
   onObjectTitlebarMenuStateChange: EventName<UpmadeEngineCustomEvent<UpmadeObjectTitlebarMenuState>>,
   onObjectElementHover: EventName<UpmadeEngineCustomEvent<UpmadeObjectElementHoverEvent>>,
@@ -64,6 +65,7 @@ export const UpmadeEngine: StencilReactComponent<UpmadeEngineElement, UpmadeEngi
       onContextMenuStateChange: 'contextMenuStateChange',
       onIsLoadingChange: 'isLoadingChange',
       onAgentsChange: 'agentsChange',
+      onCursorLabelAction: 'cursorLabelAction',
       onObjectTitlebarAction: 'objectTitlebarAction',
       onObjectTitlebarMenuStateChange: 'objectTitlebarMenuStateChange',
       onObjectElementHover: 'objectElementHover',

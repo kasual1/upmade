@@ -519,6 +519,44 @@ describe('UpmadeAgenticCursors', () => {
     });
   });
 
+  describe('label actions', () => {
+    const removeAction = { id: 'remove', icon: 'x', label: 'Remove agent' };
+
+    it('renders the buttons of a local agent after the name, marked as overlay controls', () => {
+      cursors = [createCursor({ cursorActions: [removeAction] })];
+      const [label] = byClass(component.render() as unknown as VNode, 'cursor-label');
+      const buttons = byClass(label, 'cursor-label-action');
+
+      expect(label.$attrs$!.class).toContain('has-actions');
+      expect(buttons).toHaveLength(1);
+      expect(buttons[0].$attrs$!['aria-label']).toBe('Remove agent');
+      expect(buttons[0].$attrs$!['data-upmade-overlay-control']).toBe('');
+      // Name first, then the buttons.
+      expect(label.$children$!.map(child => child.$attrs$?.class)).toEqual(['cursor-label-icon cursor-label-dot', 'cursor-label-text', 'cursor-label-action']);
+    });
+
+    it('removes the agent when the X is clicked and emits cursorLabelAction', () => {
+      const remove = jest.fn();
+      const emitCursorLabelAction = jest.fn();
+      Object.assign(component.core as any, { agentManager: { remove }, engine: { emitCursorLabelAction } });
+      cursors = [createCursor({ cursorActions: [removeAction] })];
+      const [button] = byClass(component.render() as unknown as VNode, 'cursor-label-action');
+      const element = { blur: jest.fn(), getBoundingClientRect: () => ({ x: 1 }) };
+
+      (button.$attrs$!.onClick as (event: unknown) => void)({ currentTarget: element, detail: 1, stopPropagation: jest.fn() });
+
+      expect(remove).toHaveBeenCalledWith('agent');
+      expect(emitCursorLabelAction).toHaveBeenCalledWith({ actionId: 'remove', cursorKind: 'agent', agentId: 'agent', anchorRect: { x: 1 } });
+    });
+
+    it("shows no buttons on collaborators' agents", () => {
+      cursors = [];
+      const remote = { ...createCursor({ cursorActions: [removeAction] }), key: 'r:7:agent', clientId: 7, isRemote: true };
+      (component.core as any).remoteAgentManager = { getAll: () => [remote], onChange: () => () => undefined, onFrame: () => () => undefined };
+      expect(byClass(component.render() as unknown as VNode, 'cursor-label-action')).toHaveLength(0);
+    });
+  });
+
   describe('status', () => {
     const labelOf = () => {
       const root = component.render() as unknown as VNode;

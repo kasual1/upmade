@@ -17,7 +17,7 @@ import { UpmadeShapeFill as UpmadeShapeFillElement, defineCustomElement as defin
 import { UpmadeShareDialog as UpmadeShareDialogElement, defineCustomElement as defineUpmadeShareDialog } from '@upmade/editor/dist/components/upmade-share-dialog.js';
 import { UpmadeSplitButton as UpmadeSplitButtonElement, defineCustomElement as defineUpmadeSplitButton } from '@upmade/editor/dist/components/upmade-split-button.js';
 import { UpmadeStrokeSize as UpmadeStrokeSizeElement, defineCustomElement as defineUpmadeStrokeSize } from '@upmade/editor/dist/components/upmade-stroke-size.js';
-import type { UpmadeChatBoxMode, UpmadeChatBoxChip, UpmadeChatBoxCustomEvent, EditorIsReadyEvent, ActiveWorkspaceChangeEvent, UpmadeBaseObject, ObjectsAddedEvent, ObjectsRemovedEvent, ObjectsUpdatedEvent, UpmadeUndoState, ThemeName, LocaleCode, UpmadeViewportState, LoginEvent, IUpmadeIsPublicChangeEvent, UpmadeAgentsChangeEvent, UpmadeObjectTitlebarActionEvent, UpmadeObjectElementHoverEvent, UpmadeObjectElementClickEvent, UpmadeObjectElementPickEvent, UpmadeEditorCustomEvent, UpmadeSettingsConfig, UpmadeSettingsCustomEvent, ShapeFillType, UpmadeShapeFillCustomEvent, UpmadeShareDialogCustomEvent, IUpmadeMenuItemSelectEvent, IUpmadeMenuItem, IUpmadeMenuItemToggleChildMenuEvent, UpmadeSplitButtonCustomEvent, UpmadeStrokeSizeCustomEvent } from '@upmade/editor';
+import type { UpmadeChatBoxMode, UpmadeChatBoxChip, UpmadeChatBoxCustomEvent, EditorIsReadyEvent, ActiveWorkspaceChangeEvent, UpmadeBaseObject, ObjectsAddedEvent, ObjectsRemovedEvent, ObjectsUpdatedEvent, UpmadeUndoState, ThemeName, LocaleCode, UpmadeViewportState, LoginEvent, IUpmadeIsPublicChangeEvent, UpmadeAgentsChangeEvent, UpmadeObjectTitlebarActionEvent, UpmadeCursorLabelActionEvent, UpmadeObjectElementHoverEvent, UpmadeObjectElementClickEvent, UpmadeObjectElementPickEvent, UpmadeEditorCustomEvent, UpmadeSettingsConfig, UpmadeSettingsCustomEvent, ShapeFillType, UpmadeShapeFillCustomEvent, UpmadeShareDialogCustomEvent, IUpmadeMenuItemSelectEvent, IUpmadeMenuItem, IUpmadeMenuItemToggleChildMenuEvent, UpmadeSplitButtonCustomEvent, UpmadeStrokeSizeCustomEvent } from '@upmade/editor';
 import type { StencilReactComponent, EventName } from '@stencil/react-output-target/runtime';
 
 export type UpmadeChatBoxEvents = {
@@ -62,6 +62,7 @@ export type UpmadeEditorEvents = {
   onChatChipRemove: EventName<UpmadeEditorCustomEvent<UpmadeChatBoxChip>>,
   onAgentsChange: EventName<UpmadeEditorCustomEvent<UpmadeAgentsChangeEvent>>,
   onObjectTitlebarAction: EventName<UpmadeEditorCustomEvent<UpmadeObjectTitlebarActionEvent>>,
+  onCursorLabelAction: EventName<UpmadeEditorCustomEvent<UpmadeCursorLabelActionEvent>>,
   onObjectElementHover: EventName<UpmadeEditorCustomEvent<UpmadeObjectElementHoverEvent>>,
   onObjectElementClick: EventName<UpmadeEditorCustomEvent<UpmadeObjectElementClickEvent>>,
   onObjectElementPick: EventName<UpmadeEditorCustomEvent<UpmadeObjectElementPickEvent>>
@@ -93,6 +94,7 @@ export const UpmadeEditor: StencilReactComponent<UpmadeEditorElement, UpmadeEdit
       onChatChipRemove: 'chatChipRemove',
       onAgentsChange: 'agentsChange',
       onObjectTitlebarAction: 'objectTitlebarAction',
+      onCursorLabelAction: 'cursorLabelAction',
       onObjectElementHover: 'objectElementHover',
       onObjectElementClick: 'objectElementClick',
       onObjectElementPick: 'objectElementPick'

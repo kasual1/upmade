@@ -738,6 +738,7 @@ getRemoteAgents(): Promise<UpmadeRemoteAgentPresence[]>
 
 | Event | Payload Type | Description |
 |-------|--------------|-------------|
+| cursorLabelAction | UpmadeCursorLabelActionEvent | Emitted when a button on a cursor label is clicked, after the button's `onClick`: the "X" that removes an agent (`actionId: 'remove'`), an agent's `cursorActions`, or `userCursorActions`. `detail` has `actionId`, `cursorKind` (`'agent'` or `'user'`), `agentId` or `userId` and `clientId`, and the button's `anchorRect`. |
 | objectTitlebarAction | UpmadeObjectTitlebarActionEvent | Emitted when a button in an object titlebar is clicked or a menu item of a titlebar menu is selected, in addition to calling the optional `action` callback of the button or menu item. |
 | objectTitlebarMenuStateChange | UpmadeObjectTitlebarMenuState | Emitted when a titlebar menu opens or closes. Contains the resolved menu items and the menu button as `anchor`, so that a host can render the menu. `<UpmadeEditor>` renders titlebar menus itself and does not re-emit this event. |
 

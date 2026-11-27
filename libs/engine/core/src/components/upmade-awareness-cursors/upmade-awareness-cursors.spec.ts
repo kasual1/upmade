@@ -600,6 +600,30 @@ describe('UpmadeAwarenessCursors', () => {
       expect(textOf(renderNodes().byKey('selection-label-2'))).toBe('Other');
     });
 
+    it("shows no buttons on collaborators' labels by default, and the configured ones with userCursorActions", () => {
+      const callback = setup([], {});
+      callback(new Map([[2, { user: { id: 'other', color: '#00ff00' }, cursor: { x: 400, y: 300 } }]]));
+      const buttonsOf = () => {
+        const cursor = renderNodes().byKey('cursor-2');
+        const label = (cursor.$children$ ?? []).find((child: any) => String(child.$attrs$?.class ?? '').includes('cursor-label'));
+        return (label.$children$ ?? []).filter((child: any) => String(child.$attrs$?.class ?? '') === 'cursor-label-action');
+      };
+      expect(buttonsOf()).toHaveLength(0);
+
+      const onClick = jest.fn();
+      (mockCore as any).engine = { emitCursorLabelAction: jest.fn() };
+      component.labelActions = [{ id: 'follow', icon: 'x', label: 'Follow', onClick }];
+      const [button] = buttonsOf();
+      (button.$attrs$.onClick as (event: unknown) => void)({
+        currentTarget: { blur: jest.fn(), getBoundingClientRect: () => ({ x: 2 }) },
+        detail: 1,
+        stopPropagation: jest.fn(),
+      });
+      const detail = { actionId: 'follow', cursorKind: 'user', userId: 'other', clientId: 2, anchorRect: { x: 2 } };
+      expect(onClick).toHaveBeenCalledWith(detail);
+      expect((mockCore as any).engine.emitCursorLabelAction).toHaveBeenCalledWith(detail);
+    });
+
     it('keeps a resting cursor with a status from going stale', () => {
       const callback = setup([], {});
       callback(new Map([[2, { user: { id: 'other', color: '#00ff00' }, cursor: { x: 400, y: 300 }, status: 'typing…' }]]));

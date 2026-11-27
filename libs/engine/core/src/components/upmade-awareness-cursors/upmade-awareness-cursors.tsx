@@ -6,6 +6,8 @@ import {
   UpmadePoint,
   UpmadeRemoteCursorState,
   UpmadeSelectionGroup,
+  UpmadeCursorLabelAction,
+  runCursorLabelAction,
   IUpmadeUser,
   UpmadeViewportOverlayHelper,
 } from '@upmade/core';
@@ -29,6 +31,8 @@ export class UpmadeAwarenessCursors {
   @Prop() core!: UpmadeCore;
   @Prop() showEdgeIndicators: boolean = true;
   @Prop() edgeIndicatorPadding: number = 8;
+  /** Buttons after the name or status on collaborators' cursor labels. None by default. */
+  @Prop() labelActions?: UpmadeCursorLabelAction[];
 
   @State() remoteCursors: Map<number, UpmadeRemoteCursorState> = new Map();
   @State() objectVersion: number = 0;
@@ -270,6 +274,17 @@ export class UpmadeAwarenessCursors {
     return UpmadeViewportOverlayHelper.isInViewport(this.core.store.state, screenX, screenY);
   }
 
+  /** A button on a collaborator's label was clicked. */
+  private handleAction(cursor: UpmadeRemoteCursorState, action: UpmadeCursorLabelAction, button: HTMLElement) {
+    runCursorLabelAction(this.core, action, {
+      actionId: action.id,
+      cursorKind: 'user',
+      userId: cursor.user.id,
+      clientId: cursor.clientId,
+      anchorRect: button.getBoundingClientRect(),
+    });
+  }
+
   private getUserDisplayName(user: IUpmadeUser): string {
     if (user.displayName) return user.displayName;
     if (user.firstName || user.lastName) {
@@ -348,6 +363,8 @@ export class UpmadeAwarenessCursors {
                 status={remoteCursor.status}
                 icon={remoteCursor.user.cursorIcon}
                 color={remoteCursor.user.color || DEFAULT_CURSOR_COLOR}
+                actions={this.labelActions}
+                onAction={(action, button) => this.handleAction(remoteCursor, action, button)}
               />
             </div>
           );
@@ -396,7 +413,16 @@ export class UpmadeAwarenessCursors {
         style={{ transform: `translate(${screenX}px, ${screenY}px)` }}
       >
         <CursorArrow color={color} />
-        {showLabel && <CursorLabel text={this.getUserDisplayName(cursor.user)} status={cursor.status} icon={cursor.user.cursorIcon} color={color} />}
+        {showLabel && (
+          <CursorLabel
+            text={this.getUserDisplayName(cursor.user)}
+            status={cursor.status}
+            icon={cursor.user.cursorIcon}
+            color={color}
+            actions={this.labelActions}
+            onAction={(action, button) => this.handleAction(cursor, action, button)}
+          />
+        )}
       </div>
     );
   }

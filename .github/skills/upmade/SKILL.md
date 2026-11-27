@@ -2,7 +2,7 @@
 name: upmade
 description: 'Integrate the Upmade infinite canvas (upmade-editor or upmade-engine) in Angular, React, or Vue. Use when installing @upmade/angular-editor, @upmade/react-editor, or @upmade/vue-editor; adding a whiteboard or drawing canvas; creating objects; configuring object behavior with objectConfig (titlebars, rotation, resizing); controlling the viewport; registering tools; configuring themes, object titlebars, workspaces, persistence, or collaboration; adding agents (UpmadeAgent) that code or an LLM drives; connecting the chat box to an LLM with UpmadeChatSession.'
 metadata:
-  upmade-version: '0.6.2'
+  upmade-version: '0.6.3'
 ---
 
 # Upmade

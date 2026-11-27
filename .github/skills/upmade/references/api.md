@@ -1,6 +1,6 @@
 # Upmade component API
 
-Source version: @upmade/engine and @upmade/editor 0.6.2.
+Source version: @upmade/engine and @upmade/editor 0.6.3.
 
 Generated from Stencil docs JSON. For framework bindings, use the matching setup and events references.
 
@@ -34,6 +34,8 @@ Generated from Stencil docs JSON. For framework bindings, use the matching setup
 | themes | UpmadeTheme[] |  | An array of available themes for the editor. |
 | tools | UpmadeToolDefinition[] |  | Tool definitions to register with this engine instance. |
 | user | IUpmadeUser |  | The current user for awareness broadcasting (name, id, cursor position). |
+| userCursorActions | UpmadeCursorLabelAction[] |  | Buttons after the name or status on collaborators' cursor labels, e.g. to follow a user. None by default. Clicks call the action's \`onClick\` and emit \`cursorLabelAction\`. |
+| userStatus | string |  | What the current user is doing, e.g. \`'typing…'\` or a message they typed. Collaborators see it in place of the user's name on the cursor label, like an agent's status; unset or \`''\` shows the name. |
 | viewportBoundaryBottom | number |  | Bottom boundary of the viewport in world coordinates. Objects beyond this Y position cannot be panned to. |
 | viewportBoundaryLeft | number |  | Left boundary of the viewport in world coordinates. Objects beyond this X position cannot be panned to. |
 | viewportBoundaryRight | number |  | Right boundary of the viewport in world coordinates. Objects beyond this X position cannot be panned to. |
@@ -147,6 +149,7 @@ Generated from Stencil docs JSON. For framework bindings, use the matching setup
 | agentsChange | UpmadeAgentsChangeEvent | Emitted when agents are added or removed, or when what the avatar stack shows of them changes (name, color, avatar, status, visibility, activity). Lists the local agents first, then the agents of collaborators (\`isRemote: true\`). Never emitted for plain cursor motion. |
 | awarenessChange | Map<number, Record<string, any>> | Emitted when the awareness state changes (remote user cursors, presence). |
 | contextMenuStateChange | UpmadeContextMenuState | Emitted when context-menu visibility, items, or position changes. |
+| cursorLabelAction | UpmadeCursorLabelActionEvent | Emitted when a button on a cursor label is clicked (after the button's own \`onClick\`), e.g. the "X" that removes an agent. See \`UpmadeAgent.cursorActions\` and the \`userCursorActions\` prop. |
 | isEngineReady | UpmadeEngineState | Emitted when the engine has fully initialized and is ready for interaction. |
 | isLoadingChange | boolean | Emitted while the selected workspace's objects are being initialized and synchronized. |
 | longpress | PointerEvent | Emitted on long-press (touch/pen). Useful for showing custom context menus on mobile. |
@@ -211,6 +214,8 @@ Generated from Stencil docs JSON. For framework bindings, use the matching setup
 | themes | UpmadeTheme[] |  |  |
 | toolbarItems | UpmadeToolbarItem[] |  |  |
 | user | IUpmadeUser |  |  |
+| userCursorActions | UpmadeCursorLabelAction[] |  | Buttons after the name or status on collaborators' cursor labels, e.g. to follow a user. None by default. Clicks call the action's \`onClick\` and emit \`cursorLabelAction\`. |
+| userStatus | string |  | What the current user is doing, e.g. \`'typing…'\` or a message they typed. Collaborators see it in place of the user's name on the cursor label, like an agent's status; unset or \`''\` shows the name. |
 | viewportBoundaryBottom | number |  |  |
 | viewportBoundaryLeft | number |  |  |
 | viewportBoundaryRight | number |  |  |
@@ -334,6 +339,7 @@ Generated from Stencil docs JSON. For framework bindings, use the matching setup
 | chatChipRemove | UpmadeChatBoxChip | Emitted with the chat box chip whose remove button the user activated. The chip stays until \`chatBoxChips\` no longer contains it. |
 | chatStop | void | Emitted when the user stops the current chat response. A \`chatSession\` is stopped too. |
 | chatSubmit | string | Emitted with the chat box text when the user submits it. With a \`chatSession\`, the prompt is sent to it unless a listener calls \`preventDefault()\`. |
+| cursorLabelAction | UpmadeCursorLabelActionEvent | Emitted when a button on a cursor label is clicked (after the button's own \`onClick\`), e.g. the "X" that removes an agent. See \`UpmadeAgent.cursorActions\` and the \`userCursorActions\` prop. |
 | isPublicChange | IUpmadeIsPublicChangeEvent |  |
 | isReady | EditorIsReadyEvent |  |
 | localeChange | "de" \| "en" \| "fr" \| string & {} |  |

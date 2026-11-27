@@ -2,6 +2,7 @@ import { Component, Host, Prop, State, h, writeTask } from '@stencil/core';
 import { UpmadeCore, UpmadeAgenticCursor, UpmadeLine, UpmadePoint, UpmadeViewportOverlayHelper } from '@upmade/core';
 import { CursorArrow, CursorLabel, EdgeIndicator } from '../shared/cursor/cursor-visuals';
 import { getSelectionTopLeft } from '../shared/cursor/selection-anchor';
+import { runCursorLabelAction, UpmadeCursorLabelAction } from '@upmade/core';
 
 /** A cursor to draw: a local agent (key = its ID) or a collaborator's agent (key = `r:<client>:<id>`). */
 type DrawnCursor = UpmadeAgenticCursor & { key: string; isRemote?: boolean };
@@ -302,6 +303,11 @@ export class UpmadeAgenticCursors {
     return topLeft ? UpmadeViewportOverlayHelper.worldToScreen(this.core.store.state, topLeft.x, topLeft.y) : null;
   }
 
+  /** A button on the label of a local agent was clicked: runs it (by default, the "X" removes the agent). */
+  private handleAction(cursor: DrawnCursor, action: UpmadeCursorLabelAction, button: HTMLElement) {
+    runCursorLabelAction(this.core, action, { actionId: action.id, cursorKind: 'agent', agentId: cursor.id, anchorRect: button.getBoundingClientRect() });
+  }
+
   private hasLabels(cursor: DrawnCursor): boolean {
     return !!(cursor.name || cursor.status);
   }
@@ -312,7 +318,14 @@ export class UpmadeAgenticCursors {
     return (
       <div class="agentic-cursor-labels">
         {/* One label: the status (e.g. "Thinking…") shows in place of the name while the agent works. */}
-        <CursorLabel text={cursor.name ?? ''} status={cursor.status} icon={cursor.cursorIcon} color={cursor.color} />
+        <CursorLabel
+          text={cursor.name ?? ''}
+          status={cursor.status}
+          icon={cursor.cursorIcon}
+          color={cursor.color}
+          actions={cursor.isRemote ? undefined : cursor.cursorActions}
+          onAction={(action, button) => this.handleAction(cursor, action, button)}
+        />
       </div>
     );
   }

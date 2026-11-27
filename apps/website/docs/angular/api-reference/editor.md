@@ -915,6 +915,7 @@ t(key: UpmadeTermKey, vars?: UpmadeTermVars): Promise<string>
 |----------|------|-------------|
 | user | IUpmadeUser | Current authenticated user for awareness/collaboration state. Collaborators see its `displayName` and `color` on the user's cursor, and its `cursorIcon` (SVG markup or an image URL; a circle in its `color` when omitted) before the name on the cursor label. |
 | userStatus | string | What the current user is doing, e.g. `'typing…'` or a message they typed. Collaborators see it in place of the user's name on the cursor label, like an agent's status (cut to 200 characters); unset or `''` shows the name. |
+| userCursorActions | UpmadeCursorLabelAction[] | Buttons after the name or status on collaborators' cursor labels, e.g. to follow a user. None by default. A click calls the action's `onClick` and emits `cursorLabelAction`. |
 | loginConfig | UpmadeLoginConfig | Login dialog provider configuration. |
 
 ### Events
@@ -1043,6 +1044,7 @@ getRemoteAgents(): Promise<UpmadeRemoteAgentPresence[]>
 
 | Event | Payload Type | Description |
 |-------|--------------|-------------|
+| cursorLabelAction | UpmadeCursorLabelActionEvent | Emitted when a button on a cursor label is clicked, after the button's `onClick`: the "X" that removes an agent (`actionId: 'remove'`), an agent's `cursorActions`, or `userCursorActions`. `detail` has `actionId`, `cursorKind` (`'agent'` or `'user'`), `agentId` or `userId` and `clientId`, and the button's `anchorRect`. |
 | objectTitlebarAction | UpmadeObjectTitlebarActionEvent | Emitted when a button in an object titlebar is clicked or a menu item of a titlebar menu is selected, in addition to calling the optional `action` callback of the button or menu item. |
 
 ### Methods

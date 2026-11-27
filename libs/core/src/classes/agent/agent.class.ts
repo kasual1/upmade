@@ -1,3 +1,5 @@
+import type { UpmadeCursorLabelAction } from '../../interfaces/cursor-label.interface';
+import { UPMADE_REMOVE_AGENT_CURSOR_ACTION } from '../../interfaces/cursor-label.interface';
 import type { UpmadeCore } from '../core/core.class';
 import type { IUpmadeUser } from '../../interfaces/user.interface';
 import type { UpmadePoint } from '../../interfaces/point.interface';
@@ -105,6 +107,7 @@ export class UpmadeAgent implements IUpmadeUser {
   private _color: string;
   private _avatarUrl?: string;
   private _cursorIcon: string | null;
+  private _cursorActions: UpmadeCursorLabelAction[];
   private _speed?: number;
   private _broadcast: boolean;
   private _status: string | null;
@@ -125,6 +128,7 @@ export class UpmadeAgent implements IUpmadeUser {
     this._color = options.color || UpmadeUserColorHelper.generateColorFromName(options.name);
     this._avatarUrl = options.avatarUrl;
     this._cursorIcon = options.cursorIcon || null;
+    this._cursorActions = options.cursorActions ? [...options.cursorActions] : [UPMADE_REMOVE_AGENT_CURSOR_ACTION];
     this._speed = options.speed;
     this._broadcast = options.broadcast ?? true;
     this._status = options.status || null;
@@ -182,6 +186,19 @@ export class UpmadeAgent implements IUpmadeUser {
     this._cursorIcon = icon || null;
     this._core?.agenticCursorManager.refresh(this.id);
     this.notifyChange();
+  }
+
+  /**
+   * Buttons after the name or status on the cursor label. Defaults to `[UPMADE_REMOVE_AGENT_CURSOR_ACTION]`: an "X"
+   * that removes the agent. `[]` shows none. Clicks call the action's `onClick` and emit the engine's `cursorLabelAction`.
+   */
+  get cursorActions(): readonly UpmadeCursorLabelAction[] {
+    return this._cursorActions;
+  }
+
+  set cursorActions(actions: readonly UpmadeCursorLabelAction[] | null | undefined) {
+    this._cursorActions = actions ? [...actions] : [];
+    this._core?.agenticCursorManager.refresh(this.id);
   }
 
   /** Same as `avatarUrl` (`IUpmadeUser`). */
@@ -626,6 +643,9 @@ export class UpmadeAgent implements IUpmadeUser {
         },
         get cursorIcon() {
           return agent._cursorIcon;
+        },
+        get cursorActions() {
+          return agent._cursorActions;
         },
         get status() {
           return agent._status;

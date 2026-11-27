@@ -4,6 +4,7 @@ import type { UpmadeObjectConfig } from './object-config.interface';
 import type { UpmadeObjectElementClickEvent, UpmadeObjectElementHoverEvent, UpmadeObjectElementPickEvent } from './object-element.interface';
 import type { UpmadeObjectTitlebarActionEvent, UpmadeObjectTitlebarConfig, UpmadeObjectTitlebarMenuState } from './object-titlebar.interface';
 import type { UpmadeObjectChangeSource } from './object-change-event.interface';
+import type { UpmadeCursorLabelActionEvent } from './cursor-label.interface';
 
 /**
  * The part of the `<upmade-engine>` component that {@link UpmadeCore} and its managers use.
@@ -26,6 +27,8 @@ export interface UpmadeEngineHost {
   addObject<T extends UpmadeBaseObject>(object: T): Promise<T | null>;
 
   emitObjectsChange(): void;
+  /** Emits `cursorLabelAction`: a button on a cursor label was clicked. */
+  emitCursorLabelAction?(detail: UpmadeCursorLabelActionEvent): void;
   emitObjectsAdded(objects: UpmadeBaseObject<any>[], source?: UpmadeObjectChangeSource): void;
   emitObjectsRemoved(objects: UpmadeBaseObject<any>[], source?: UpmadeObjectChangeSource): void;
   emitObjectsUpdated(objects: { object: UpmadeBaseObject<any>; changedProperties: string[] }[], source?: UpmadeObjectChangeSource): void;

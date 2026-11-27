@@ -45,6 +45,7 @@ export const UpmadeEditor: StencilVueComponent<JSX.UpmadeEditor> = /*@__PURE__*/
   'debugInfo',
   'user',
   'userStatus',
+  'userCursorActions',
   'activeUsers',
   'isAgentAvatarsVisible',
   'toolbarItems',
@@ -100,6 +101,7 @@ export const UpmadeEditor: StencilVueComponent<JSX.UpmadeEditor> = /*@__PURE__*/
   'chatChipRemove',
   'agentsChange',
   'objectTitlebarAction',
+  'cursorLabelAction',
   'objectElementHover',
   'objectElementClick',
   'objectElementPick'
@@ -124,6 +126,7 @@ export const UpmadeEditor: StencilVueComponent<JSX.UpmadeEditor> = /*@__PURE__*/
   'chatChipRemove',
   'agentsChange',
   'objectTitlebarAction',
+  'cursorLabelAction',
   'objectElementHover',
   'objectElementClick',
   'objectElementPick'

@@ -39,6 +39,7 @@ Throws a `TypeError` when `name` is missing or empty.
 | speed | number | `1200` | Default speed of moves and actions in screen pixels per second. |
 | broadcast | boolean | `true` | Whether collaborators see the agent. See [Collaboration](#collaboration). |
 | status | string | — | What the agent is doing (e.g. `'Thinking…'`), shown in place of its name on the cursor label until cleared. |
+| cursorActions | UpmadeCursorLabelAction[] | `[UPMADE_REMOVE_AGENT_CURSOR_ACTION]` | Buttons after the name or status on the cursor label. By default an "X" that removes the agent; `[]` shows none. See [Cursor Label](#cursor-label). |
 | visible | boolean | `true` | Whether the cursor is visible. |
 | position | UpmadeAgenticTarget | Center of the viewport | Where the cursor starts when the agent is added. An object target sticks the cursor to that object. An element target starts at the center of the object and sticks the cursor to the element once the page has reported it. If the object does not exist then, for example because it was deleted or the editor shows another document, the cursor starts at the center of the viewport. |
 
@@ -57,6 +58,7 @@ Throws a `TypeError` when `name` is missing or empty.
 | color | string | Any CSS color. Setting it recolors the cursor and the agent's selection. |
 | avatarUrl | string \| undefined | URL of the avatar image. |
 | cursorIcon | string \| null | Icon shown before the name on the cursor label. Setting it updates the label; `null` shows the default circle in the agent's color. |
+| cursorActions | readonly UpmadeCursorLabelAction[] | Buttons after the name or status on the cursor label. Setting it updates the label; `null` or `[]` shows none. |
 | profileImageUrl | string \| undefined | Read-only. Same as `avatarUrl`. |
 | speed | number \| undefined | Default speed of moves and actions in screen pixels per second. `undefined` uses `1200`. |
 | broadcast | boolean | Whether collaborators see the agent. Setting it takes effect at once: `false` removes the agent from the presence of collaborators, `true` shares it again. Objects that the agent changes sync either way. |
@@ -77,7 +79,25 @@ const agent = new UpmadeAgent({
 
 The icon is drawn as an image, 18px by default, so markup without an `xmlns` attribute works too, and scripts or event handlers in it never run. Collaborators see the icon as well; it is limited to 8192 characters. Users get the same label: set `cursorIcon` on the [`user`](./editor.md#user-management) (`IUpmadeUser`) to show an icon on their cursor in the editors of collaborators.
 
-Restyle the label with the CSS variables `--upmade-agentic-cursor-label-background-color`, `-text-color`, `-border-color`, `-border-radius`, `-box-shadow`, `-font-size`, and `-icon-size` (for collaborators' cursors: `--upmade-awareness-cursor-label-…`).
+#### Label buttons
+
+Buttons can follow the name or status on the label, set with `cursorActions`. By default an agent shows an "X" that removes it from the editor (`UPMADE_REMOVE_AGENT_CURSOR_ACTION`). Each action has an `id`, an `icon` (a registered icon name such as `'x'`, SVG markup, or an image URL), an optional `label` for the tooltip, and an optional `onClick`. A click calls `onClick`, then the editor emits `cursorLabelAction` with the action's `id` and the agent's ID. An `onClick` on the remove action replaces the removal.
+
+```ts
+const agent = new UpmadeAgent({
+  name: 'Agent',
+  cursorActions: [
+    { id: 'stop', icon: 'x', label: 'Stop', onClick: () => agent.cancel() },
+  ],
+});
+
+// Keep the X and add a button before it.
+agent.cursorActions = [{ id: 'chat', icon: '/icons/chat.svg', label: 'Open chat' }, UPMADE_REMOVE_AGENT_CURSOR_ACTION];
+```
+
+Only the editor the agent is added to shows its buttons; collaborators see its label without them. Pressing a button never starts a drag or a selection on the canvas. Collaborators' cursors can have buttons too, with the editor's `userCursorActions` prop (none by default).
+
+Restyle the label with the CSS variables `--upmade-agentic-cursor-label-background-color`, `-text-color`, `-border-color`, `-border-radius`, `-box-shadow`, `-font-size`, `-icon-size`, `-action-color`, and `-action-hover-background-color` (for collaborators' cursors: `--upmade-awareness-cursor-label-…`).
 
 ---
 

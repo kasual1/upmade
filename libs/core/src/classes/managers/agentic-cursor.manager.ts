@@ -721,6 +721,7 @@ export class UpmadeAgenticCursorManager {
       ...(entry.appearance.cursorIcon ? { cursorIcon: entry.appearance.cursorIcon } : {}),
       status: entry.appearance.status || undefined,
       visible: entry.appearance.visible,
+      ...(entry.appearance.cursorActions?.length ? { cursorActions: [...entry.appearance.cursorActions] } : {}),
       position: { ...entry.position },
       attachedTo: entry.attachedTo ? { ...entry.attachedTo, offset: { ...entry.attachedTo.offset } } : null,
       isMoving: entry.animation !== null,

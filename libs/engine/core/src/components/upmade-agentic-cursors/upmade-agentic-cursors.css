@@ -18,6 +18,11 @@
   );
   --_cursor-label-icon-size: var(--upmade-agentic-cursor-label-icon-size, var(--upmade-global-agentic-cursor-label-icon-size, 18px));
   --_cursor-label-dot-size: var(--upmade-agentic-cursor-label-dot-size, var(--upmade-global-agentic-cursor-label-dot-size, 8px));
+  --_cursor-label-action-color: var(--upmade-agentic-cursor-label-action-color, var(--upmade-global-agentic-cursor-label-action-color, #71717a));
+  --_cursor-label-action-hover-background-color: var(
+    --upmade-agentic-cursor-label-action-hover-background-color,
+    var(--upmade-global-agentic-cursor-label-action-hover-background-color, #f4f4f5)
+  );
   --_cursor-label-status-max-width: var(--upmade-agentic-cursor-status-max-width, var(--upmade-global-agentic-cursor-status-max-width, 240px));
   --_ripple-size: var(--upmade-agentic-cursor-ripple-size, var(--upmade-global-agentic-cursor-ripple-size, 28px));
 }
