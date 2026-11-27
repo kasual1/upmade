@@ -2,6 +2,13 @@
   "version": "0.0.1",
   "configurations": [
     {
+      "name": "editor-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--workspace", "libs/editor/core", "--", "--no-open"],
+      "port": 3333,
+      "autoPort": false
+    },
+    {
       "name": "website",
       "runtimeExecutable": "npm",
       "runtimeArgs": [

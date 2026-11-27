@@ -3,6 +3,8 @@ import { angularOutputTarget } from '@stencil/angular-output-target';
 import { reactOutputTarget } from '@stencil/react-output-target';
 import { vueOutputTarget } from '@stencil/vue-output-target';
 import { resolve } from 'path';
+import { readFileSync } from 'fs';
+import { parse as parseEnv } from 'dotenv';
 
 const INTERNAL_COMPONENTS = [
   'upmade-active-users',
@@ -52,11 +54,36 @@ const INTERNAL_COMPONENTS = [
 
 const isDev = process.argv.includes('--dev') || process.argv.includes('--serve');
 
+/**
+ * TEMP: a variable from the env files at the repository root (later files win), and only from there, never from the
+ * shell environment. Used by the dev-only Gemini chat (src/dev/); delete with it.
+ */
+function readRootEnv(name: string): string {
+  let value = '';
+  for (const file of ['.env', '.env.local']) {
+    try {
+      const parsed = parseEnv(readFileSync(resolve(__dirname, '../../..', file), 'utf8'));
+      if (name in parsed) value = parsed[name];
+    } catch {
+      // No such file.
+    }
+  }
+  return value;
+}
+
 export const config: Config = {
   namespace: 'upmade-editor',
   minifyJs: false,
   ...(isDev
     ? {
+        // TEMP: the dev page's chat talks to Gemini straight from the browser (src/dev/). The key is inlined into the
+        // dev bundle only (.stencil/www, gitignored); production builds have neither the script nor the key.
+        globalScript: 'src/dev/dev-chat.ts',
+        env: {
+          GEMINI_API_KEY: readRootEnv('GEMINI_API_KEY'),
+          GEMINI_MODEL: readRootEnv('GEMINI_MODEL'),
+          GEMINI_FALLBACK_MODELS: readRootEnv('GEMINI_FALLBACK_MODELS'),
+        },
         // Rebuild when `npm run dev -w libs/core` writes new output
         watchExternalDirs: [resolve(process.cwd(), '../../core/dist')],
       }
