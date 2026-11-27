@@ -39,6 +39,8 @@ import {
   UpmadeObjectConfig,
   UpmadeObjectTitlebarActionEvent,
   UpmadeCursorLabelAction,
+  IUpmadeMenuItemSelectEvent,
+  UPMADE_DEFAULT_CHAT_BOX_MENU_ITEMS,
   UpmadeCursorLabelActionEvent,
   UpmadeObjectElementClickEvent,
   UpmadeObjectElementHighlight,
@@ -482,6 +484,12 @@ export class UpmadeEditor {
   @Prop() isChatBoxVisible: boolean = false;
   /** Initial chat box mode. A collapsed chat box expands automatically when its text overflows one row. */
   @Prop() chatBoxMode: UpmadeChatBoxMode = "collapsed";
+  /**
+   * Items of the chat box's "+" menu, left of the input (one level). Defaults to "Add image" and "Add agent"
+   * (`UPMADE_DEFAULT_CHAT_BOX_MENU_ITEMS`), which only emit `chatBoxMenuItemSelect`: the app decides what they do.
+   * An item's `action` runs when it is picked. `[]` hides the "+".
+   */
+  @Prop() chatBoxMenuItems: IUpmadeMenuItem[] = [...UPMADE_DEFAULT_CHAT_BOX_MENU_ITEMS];
   /** Whether the chat box shows its progress ring and turns its send button into a stop button. */
   @Prop() isChatBoxLoading: boolean = false;
   /**
@@ -566,6 +574,12 @@ export class UpmadeEditor {
    */
   @Event()
   cursorLabelAction!: EventEmitter<UpmadeCursorLabelActionEvent>;
+  /**
+   * Emitted when an item of the chat box's "+" menu is picked, after its `action`. `detail.item.id` is `'image'`
+   * or `'agent'` for the default items.
+   */
+  @Event()
+  chatBoxMenuItemSelect!: EventEmitter<IUpmadeMenuItemSelectEvent>;
   /**
    * Emitted when the pointer moves onto another element inside the content of an interactive (selected) object,
    * such as an iframe object, and with `element: null` when it leaves the content or the object stops being interactive.
@@ -2376,6 +2390,11 @@ export class UpmadeEditor {
                 this.handleChatStop();
               }}
               onChatChipRemove={(event) => this.handleChatChipRemove(event)}
+              menuItems={this.chatBoxMenuItems}
+              onMenuItemSelect={(event) => {
+                event.stopPropagation();
+                this.chatBoxMenuItemSelect.emit(event.detail);
+              }}
             ></upmade-chat-box>
           )}
 

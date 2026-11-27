@@ -102,6 +102,9 @@ export const FR_LOCALE: UpmadeLocale = {
     'chatBox.stop': 'Arrêter',
     'chatBox.removeChip': 'Retirer',
     'chatBox.moreChips': 'de plus',
+    'chatBox.menu': 'Ajouter',
+    'chatBox.menu.image': 'Ajouter une image',
+    'chatBox.menu.agent': 'Ajouter un agent',
 
     // Utility panel
     'utility.undo': 'Annuler',

@@ -249,4 +249,57 @@ describe('upmade-chat-box', () => {
       expect(findNode(component.render(), byClass('chat-chip-remove')).props.disabled).toBe(false);
     });
   });
+
+  describe('"+" menu', () => {
+    const menuButton = (component: UpmadeChatBox) =>
+      findNode(component.render(), node => typeof node?.props?.class === 'object' && node.props.class['chat-menu-button']);
+    const menu = (component: UpmadeChatBox) => findNode(component.render(), node => node?.type === 'upmade-menu');
+
+    it('shows no "+" without items', () => {
+      const component = new UpmadeChatBox();
+      expect(menuButton(component)).toBeNull();
+    });
+
+    it('opens a one-level menu of the visible items, with translated labels', async () => {
+      const component = new UpmadeChatBox();
+      component.terms = { 'chatBox.menu': 'Add', 'chatBox.menu.image': 'Add image' };
+      component.menuItems = [
+        { id: 'image', label: 'chatBox.menu.image', icon: 'image', children: [{ id: 'nested', label: 'Nested' }] },
+        { id: 'hidden', label: 'Hidden', isVisible: async () => false },
+        { id: 'plain', label: 'Plain' },
+      ];
+      const button = menuButton(component);
+      expect(button.props['aria-label']).toBe('Add');
+      expect(button.props['aria-expanded']).toBe('false');
+
+      const anchor = {} as HTMLButtonElement;
+      button.props.ref(anchor);
+      await button.props.onClick({ stopPropagation: jest.fn() });
+
+      expect(component.menuAnchor).toBe(anchor);
+      expect(menu(component).props.items).toEqual([
+        { id: 'image', label: 'Add image', icon: 'image', children: undefined },
+        { id: 'plain', label: 'Plain', children: undefined },
+      ]);
+      expect(menuButton(component).props['aria-expanded']).toBe('true');
+    });
+
+    it('runs the picked item, emits menuItemSelect with the configured item, and closes', async () => {
+      const component = new UpmadeChatBox();
+      const action = jest.fn();
+      const item = { id: 'image', label: 'chatBox.menu.image', action };
+      component.menuItems = [item];
+      const emit = jest.fn();
+      Object.defineProperty(component, 'menuItemSelect', { value: { emit } });
+      const button = menuButton(component);
+      button.props.ref({} as HTMLButtonElement);
+      await button.props.onClick({ stopPropagation: jest.fn() });
+
+      menu(component).props.onItemSelect({ stopPropagation: jest.fn(), detail: { item: component.visibleMenuItems[0], parent: null } });
+
+      expect(action).toHaveBeenCalledWith(item, null);
+      expect(emit).toHaveBeenCalledWith({ item, parent: null });
+      expect(component.menuAnchor).toBeNull();
+    });
+  });
 });

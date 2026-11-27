@@ -1,3 +1,4 @@
+import type { IUpmadeMenuItem } from './menu-item.interface';
 import { UpmadeIconName } from '../classes/registries/icon-registry.class';
 
 /**
@@ -24,3 +25,23 @@ export interface UpmadeChatBoxChip {
   /** CSS selector of the element inside the object the chip refers to. A chat session tells the model about it. Not shown. */
   selector?: string;
 }
+
+/** Item of the chat box's "+" menu that adds an image. Shown by default; what it does is up to the app (`chatBoxMenuItemSelect`). */
+export const UPMADE_CHAT_BOX_MENU_IMAGE_ITEM: Readonly<IUpmadeMenuItem> = Object.freeze({
+  id: 'image',
+  label: 'chatBox.menu.image',
+  icon: 'image',
+});
+
+/** Item of the chat box's "+" menu that adds an agent. Shown by default; what it does is up to the app (`chatBoxMenuItemSelect`). */
+export const UPMADE_CHAT_BOX_MENU_AGENT_ITEM: Readonly<IUpmadeMenuItem> = Object.freeze({
+  id: 'agent',
+  label: 'chatBox.menu.agent',
+  icon: 'bot',
+});
+
+/** The default items of the chat box's "+" menu. */
+export const UPMADE_DEFAULT_CHAT_BOX_MENU_ITEMS: readonly Readonly<IUpmadeMenuItem>[] = Object.freeze([
+  UPMADE_CHAT_BOX_MENU_IMAGE_ITEM,
+  UPMADE_CHAT_BOX_MENU_AGENT_ITEM,
+]);

@@ -58,6 +58,7 @@ Type: `Promise<void>`
 
 ### Used by
 
+ - [upmade-chat-box](../upmade-chat-box)
  - [upmade-more-menu](../upmade-more-menu)
  - [upmade-split-button](../upmade-split-button)
  - [upmade-titlebar-menu](../upmade-titlebar-menu)
@@ -72,6 +73,7 @@ graph TD;
   upmade-menu --> upmade-menu-item
   upmade-menu-item --> upmade-icon
   upmade-menu-item --> upmade-portal
+  upmade-chat-box --> upmade-menu
   upmade-more-menu --> upmade-menu
   upmade-split-button --> upmade-menu
   upmade-titlebar-menu --> upmade-menu

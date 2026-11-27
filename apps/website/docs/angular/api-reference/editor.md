@@ -57,6 +57,7 @@ endSceneBootstrap(): Promise<void>
 | chatBoxChips | UpmadeChatBoxChip[] | Chips shown above the chat box, e.g. the selected object or the element the next prompt refers to. Up to three share one row, the rest show as "+N more". The editor never changes them: pass a new array, for example when `chatChipRemove` fires. |
 | chatSession | UpmadeChatSession | A [chat session](./chat-session.md) the chat box sends its prompts to, with `chatBoxChips` as what they refer to. While it runs, the chat box shows its progress and its stop button stops it. |
 | chatBoxMode | 'collapsed' \| 'expanded' | Initial chat box mode. A collapsed chat box expands automatically when its text overflows one row. |
+| chatBoxMenuItems | IUpmadeMenuItem[] | Items of the chat box's "+" menu, left of the input (one level; `children` are ignored). Defaults to "Add image" and "Add agent" (`UPMADE_DEFAULT_CHAT_BOX_MENU_ITEMS`, IDs `'image'` and `'agent'`), which only emit `chatBoxMenuItemSelect`. A picked item's `action` runs first; `isVisible` hides items; a label that is a term key is translated. `[]` hides the "+". |
 | cursorTarget | HTMLElement | Element used as cursor target. Defaults to editor container if omitted. |
 | customSvgIcons | string | Custom SVG icon definitions. |
 | globalContextMenuItems | ContextMenuItem[] | Context menu items shown on canvas background. |
@@ -1045,6 +1046,7 @@ getRemoteAgents(): Promise<UpmadeRemoteAgentPresence[]>
 | Event | Payload Type | Description |
 |-------|--------------|-------------|
 | cursorLabelAction | UpmadeCursorLabelActionEvent | Emitted when a button on a cursor label is clicked, after the button's `onClick`: the "X" that removes an agent (`actionId: 'remove'`), an agent's `cursorActions`, or `userCursorActions`. `detail` has `actionId`, `cursorKind` (`'agent'` or `'user'`), `agentId` or `userId` and `clientId`, and the button's `anchorRect`. |
+| chatBoxMenuItemSelect | IUpmadeMenuItemSelectEvent | Emitted when an item of the chat box's "+" menu is picked, after its `action`. `detail.item` is the item as configured, e.g. `id: 'image'` or `'agent'` for the defaults. |
 | objectTitlebarAction | UpmadeObjectTitlebarActionEvent | Emitted when a button in an object titlebar is clicked or a menu item of a titlebar menu is selected, in addition to calling the optional `action` callback of the button or menu item. |
 
 ### Methods

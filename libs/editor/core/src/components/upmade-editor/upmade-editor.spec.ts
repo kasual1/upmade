@@ -125,6 +125,15 @@ describe('UpmadeEditor', () => {
       expect(mockEngine.getAgents).toHaveBeenCalled();
     });
 
+    it('ships the chat box "+" menu with an image and an agent item', () => {
+      expect(component.chatBoxMenuItems.map(item => [item.id, item.label, item.icon])).toEqual([
+        ['image', 'chatBox.menu.image', 'image'],
+        ['agent', 'chatBox.menu.agent', 'bot'],
+      ]);
+      // The defaults only emit chatBoxMenuItemSelect: what they do is up to the app.
+      expect(component.chatBoxMenuItems.every(item => !item.action)).toBe(true);
+    });
+
     it('makes the chat box the home of agents while it shows', async () => {
       const chatBox = document.createElement('div');
       (component as any).setChatBoxElement(chatBox);

@@ -15,18 +15,19 @@ import { defineCustomElement as defineUpmadeSplitButton } from '@upmade/editor/d
 import { defineCustomElement as defineUpmadeStrokeSize } from '@upmade/editor/dist/components/upmade-stroke-size.js';
 @ProxyCmp({
   defineCustomElementFn: defineUpmadeChatBox,
-  inputs: ['chips', 'disabled', 'loading', 'mode', 'placeholder', 'terms', 'value']
+  inputs: ['chips', 'disabled', 'loading', 'menuItems', 'mode', 'placeholder', 'terms', 'value']
 })
 @Component({
   selector: 'upmade-chat-box',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: '<ng-content></ng-content>',
   // eslint-disable-next-line @angular-eslint/no-inputs-metadata-property
-  inputs: ['chips', 'disabled', 'loading', 'mode', 'placeholder', 'terms', 'value'],
-  outputs: ['chatSubmit', 'chatStop', 'modeChange', 'chatChipRemove'],
+  inputs: ['chips', 'disabled', 'loading', 'menuItems', 'mode', 'placeholder', 'terms', 'value'],
+  outputs: ['menuItemSelect', 'chatSubmit', 'chatStop', 'modeChange', 'chatChipRemove'],
 })
 export class UpmadeChatBox {
   protected el: HTMLUpmadeChatBoxElement;
+  @Output() menuItemSelect = new EventEmitter<UpmadeChatBoxCustomEvent<IUpmadeChatBoxIUpmadeMenuItemSelectEvent>>();
   @Output() chatSubmit = new EventEmitter<UpmadeChatBoxCustomEvent<string>>();
   @Output() chatStop = new EventEmitter<UpmadeChatBoxCustomEvent<void>>();
   @Output() modeChange = new EventEmitter<UpmadeChatBoxCustomEvent<IUpmadeChatBoxUpmadeChatBoxMode>>();
@@ -39,10 +40,15 @@ export class UpmadeChatBox {
 
 
 import type { UpmadeChatBoxCustomEvent } from '@upmade/editor/dist/components';
+import type { IUpmadeMenuItemSelectEvent as IUpmadeChatBoxIUpmadeMenuItemSelectEvent } from '@upmade/editor/dist/components';
 import type { UpmadeChatBoxMode as IUpmadeChatBoxUpmadeChatBoxMode } from '@upmade/editor/dist/components';
 import type { UpmadeChatBoxChip as IUpmadeChatBoxUpmadeChatBoxChip } from '@upmade/editor/dist/components';
 
 export declare interface UpmadeChatBox extends Components.UpmadeChatBox {
+  /**
+   * Emitted when an item of the "+" menu is picked, after its `action`.
+   */
+  menuItemSelect: EventEmitter<UpmadeChatBoxCustomEvent<IUpmadeChatBoxIUpmadeMenuItemSelectEvent>>;
   /**
    * Emitted with the current text when the user submits the chat box.
    */
@@ -64,7 +70,7 @@ export declare interface UpmadeChatBox extends Components.UpmadeChatBox {
 
 @ProxyCmp({
   defineCustomElementFn: defineUpmadeEditor,
-  inputs: ['activeUsers', 'activeWorkspaceId', 'assetStorageConfig', 'chatBoxChips', 'chatBoxMode', 'chatSession', 'cursorTarget', 'customFonts', 'customSvgIcons', 'debugInfo', 'editorId', 'fallbackLocale', 'globalContextMenuItems', 'isAgentAvatarsVisible', 'isChatBoxLoading', 'isChatBoxVisible', 'isMoreMenuVisible', 'isPanningEnabled', 'isToolbarVisible', 'isUtilityPanelVisible', 'isWatermarkVisible', 'isWorkspaceManagerVisible', 'isZoomPanelVisible', 'isZoomingEnabled', 'locale', 'locales', 'lockDrawingScale', 'loginConfig', 'moreMenuItems', 'objectConfig', 'objectContextMenuItems', 'objectTitlebar', 'scaleMax', 'scaleMin', 'syncConfig', 'theme', 'themes', 'toolbarItems', 'user', 'userCursorActions', 'userStatus', 'viewportBoundaryBottom', 'viewportBoundaryLeft', 'viewportBoundaryRight', 'viewportBoundaryTop', 'workspaces'],
+  inputs: ['activeUsers', 'activeWorkspaceId', 'assetStorageConfig', 'chatBoxChips', 'chatBoxMenuItems', 'chatBoxMode', 'chatSession', 'cursorTarget', 'customFonts', 'customSvgIcons', 'debugInfo', 'editorId', 'fallbackLocale', 'globalContextMenuItems', 'isAgentAvatarsVisible', 'isChatBoxLoading', 'isChatBoxVisible', 'isMoreMenuVisible', 'isPanningEnabled', 'isToolbarVisible', 'isUtilityPanelVisible', 'isWatermarkVisible', 'isWorkspaceManagerVisible', 'isZoomPanelVisible', 'isZoomingEnabled', 'locale', 'locales', 'lockDrawingScale', 'loginConfig', 'moreMenuItems', 'objectConfig', 'objectContextMenuItems', 'objectTitlebar', 'scaleMax', 'scaleMin', 'syncConfig', 'theme', 'themes', 'toolbarItems', 'user', 'userCursorActions', 'userStatus', 'viewportBoundaryBottom', 'viewportBoundaryLeft', 'viewportBoundaryRight', 'viewportBoundaryTop', 'workspaces'],
   methods: ['getObjectById', 'addObject', 'addObjects', 'updateObject', 'removeObject', 'removeObjects', 'getSelectedObjects', 'selectObjects', 'selectAllObjectsInViewport', 'clearSelection', 'centerObjectInViewport', 'panToObject', 'backToContent', 'centerAllObjects', 'centerObjects', 'setViewport', 'panTo', 'zoomTo', 'zoomIn', 'zoomOut', 'getViewport', 'screenToWorld', 'worldToScreen', 'setActiveWorkspace', 'createWorkspace', 'updateWorkspace', 'deleteWorkspace', 'getWorkspaces', 'getActiveWorkspace', 'loadSharedWorkspace', 'reinitSync', 'registerTool', 'setActiveTool', 'disable', 'enable', 'copy', 'cut', 'paste', 'delete', 'bringForward', 'sendBackward', 'bringToFront', 'sendToBack', 'alignObjects', 'group', 'ungroup', 'undo', 'redo', 'getScreenshot', 'exportViewportAsPng', 'exportViewportAsSvg', 'getSelectedObjectSupportedExportFormats', 'canExportSelectedObjectAs', 'exportSelectedObject', 'exportAsJson', 'importFromJson', 'downloadAsJson', 'importFromFile', 'loadObjectsFromJson', 'getObjectsTotalCount', 'getAllObjects', 'findObjects', 'getObjectsInViewport', 'addAgent', 'removeAgent', 'getAgent', 'getAgents', 'getRemoteAgents', 'setObjectElementPicking', 'highlightObjectElements', 'clearObjectElementHighlights', 'queryObjectElements', 'hideContextMenu', 'openContextMenu', 'openWorkspaceManagerMenu', 'closeWorkspaceManagerMenu', 'openMoreMenu', 'closeMoreMenu', 'openUserDialog', 'closeUserDialog', 'openExportDialog', 'closeExportDialog', 'openImportDialog', 'closeImportDialog', 'openSettingsDialog', 'closeSettingsDialog', 'openShareDialog', 'closeShareDialog', 'triggerSelectionChange', 'beginSceneBootstrap', 'endSceneBootstrap', 'getDisplayableShortcuts', 'openLoginDialog', 'closeLoginDialog', 'setLoginLoading', 'setLocale', 'getLocale', 'getAvailableLocales', 'registerLocales', 'registerFonts', 't', 'triggerNotification']
 })
 @Component({
@@ -72,8 +78,8 @@ export declare interface UpmadeChatBox extends Components.UpmadeChatBox {
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: '<ng-content></ng-content>',
   // eslint-disable-next-line @angular-eslint/no-inputs-metadata-property
-  inputs: ['activeUsers', 'activeWorkspaceId', 'assetStorageConfig', 'chatBoxChips', 'chatBoxMode', 'chatSession', 'cursorTarget', 'customFonts', 'customSvgIcons', 'debugInfo', 'editorId', 'fallbackLocale', 'globalContextMenuItems', 'isAgentAvatarsVisible', 'isChatBoxLoading', 'isChatBoxVisible', 'isMoreMenuVisible', 'isPanningEnabled', 'isToolbarVisible', 'isUtilityPanelVisible', 'isWatermarkVisible', 'isWorkspaceManagerVisible', 'isZoomPanelVisible', 'isZoomingEnabled', 'locale', 'locales', 'lockDrawingScale', 'loginConfig', 'moreMenuItems', 'objectConfig', 'objectContextMenuItems', 'objectTitlebar', 'scaleMax', 'scaleMin', 'syncConfig', 'theme', 'themes', 'toolbarItems', 'user', 'userCursorActions', 'userStatus', 'viewportBoundaryBottom', 'viewportBoundaryLeft', 'viewportBoundaryRight', 'viewportBoundaryTop', 'workspaces'],
-  outputs: ['isReady', 'activeWorkspaceChange', 'objectsChange', 'objectsAdded', 'objectsRemoved', 'objectsUpdated', 'objectsSelectionChange', 'undoStateChange', 'themeChange', 'localeChange', 'viewportChange', 'logout', 'login', 'isPublicChange', 'awarenessChange', 'chatSubmit', 'chatStop', 'chatChipRemove', 'agentsChange', 'objectTitlebarAction', 'cursorLabelAction', 'objectElementHover', 'objectElementClick', 'objectElementPick'],
+  inputs: ['activeUsers', 'activeWorkspaceId', 'assetStorageConfig', 'chatBoxChips', 'chatBoxMenuItems', 'chatBoxMode', 'chatSession', 'cursorTarget', 'customFonts', 'customSvgIcons', 'debugInfo', 'editorId', 'fallbackLocale', 'globalContextMenuItems', 'isAgentAvatarsVisible', 'isChatBoxLoading', 'isChatBoxVisible', 'isMoreMenuVisible', 'isPanningEnabled', 'isToolbarVisible', 'isUtilityPanelVisible', 'isWatermarkVisible', 'isWorkspaceManagerVisible', 'isZoomPanelVisible', 'isZoomingEnabled', 'locale', 'locales', 'lockDrawingScale', 'loginConfig', 'moreMenuItems', 'objectConfig', 'objectContextMenuItems', 'objectTitlebar', 'scaleMax', 'scaleMin', 'syncConfig', 'theme', 'themes', 'toolbarItems', 'user', 'userCursorActions', 'userStatus', 'viewportBoundaryBottom', 'viewportBoundaryLeft', 'viewportBoundaryRight', 'viewportBoundaryTop', 'workspaces'],
+  outputs: ['isReady', 'activeWorkspaceChange', 'objectsChange', 'objectsAdded', 'objectsRemoved', 'objectsUpdated', 'objectsSelectionChange', 'undoStateChange', 'themeChange', 'localeChange', 'viewportChange', 'logout', 'login', 'isPublicChange', 'awarenessChange', 'chatSubmit', 'chatStop', 'chatChipRemove', 'agentsChange', 'objectTitlebarAction', 'cursorLabelAction', 'chatBoxMenuItemSelect', 'objectElementHover', 'objectElementClick', 'objectElementPick'],
 })
 export class UpmadeEditor {
   protected el: HTMLUpmadeEditorElement;
@@ -98,6 +104,7 @@ export class UpmadeEditor {
   @Output() agentsChange = new EventEmitter<UpmadeEditorCustomEvent<IUpmadeEditorUpmadeAgentsChangeEvent>>();
   @Output() objectTitlebarAction = new EventEmitter<UpmadeEditorCustomEvent<IUpmadeEditorUpmadeObjectTitlebarActionEvent>>();
   @Output() cursorLabelAction = new EventEmitter<UpmadeEditorCustomEvent<IUpmadeEditorUpmadeCursorLabelActionEvent>>();
+  @Output() chatBoxMenuItemSelect = new EventEmitter<UpmadeEditorCustomEvent<IUpmadeEditorIUpmadeMenuItemSelectEvent>>();
   @Output() objectElementHover = new EventEmitter<UpmadeEditorCustomEvent<IUpmadeEditorUpmadeObjectElementHoverEvent>>();
   @Output() objectElementClick = new EventEmitter<UpmadeEditorCustomEvent<IUpmadeEditorUpmadeObjectElementClickEvent>>();
   @Output() objectElementPick = new EventEmitter<UpmadeEditorCustomEvent<IUpmadeEditorUpmadeObjectElementPickEvent>>();
@@ -125,6 +132,7 @@ import type { UpmadeChatBoxChip as IUpmadeEditorUpmadeChatBoxChip } from '@upmad
 import type { UpmadeAgentsChangeEvent as IUpmadeEditorUpmadeAgentsChangeEvent } from '@upmade/editor/dist/components';
 import type { UpmadeObjectTitlebarActionEvent as IUpmadeEditorUpmadeObjectTitlebarActionEvent } from '@upmade/editor/dist/components';
 import type { UpmadeCursorLabelActionEvent as IUpmadeEditorUpmadeCursorLabelActionEvent } from '@upmade/editor/dist/components';
+import type { IUpmadeMenuItemSelectEvent as IUpmadeEditorIUpmadeMenuItemSelectEvent } from '@upmade/editor/dist/components';
 import type { UpmadeObjectElementHoverEvent as IUpmadeEditorUpmadeObjectElementHoverEvent } from '@upmade/editor/dist/components';
 import type { UpmadeObjectElementClickEvent as IUpmadeEditorUpmadeObjectElementClickEvent } from '@upmade/editor/dist/components';
 import type { UpmadeObjectElementPickEvent as IUpmadeEditorUpmadeObjectElementPickEvent } from '@upmade/editor/dist/components';
@@ -193,6 +201,11 @@ unless a listener calls `preventDefault()`.
 removes an agent. See `UpmadeAgent.cursorActions` and the `userCursorActions` prop.
    */
   cursorLabelAction: EventEmitter<UpmadeEditorCustomEvent<IUpmadeEditorUpmadeCursorLabelActionEvent>>;
+  /**
+   * Emitted when an item of the chat box's "+" menu is picked, after its `action`. `detail.item.id` is `'image'`
+or `'agent'` for the default items.
+   */
+  chatBoxMenuItemSelect: EventEmitter<UpmadeEditorCustomEvent<IUpmadeEditorIUpmadeMenuItemSelectEvent>>;
   /**
    * Emitted when the pointer moves onto another element inside the content of an interactive (selected) object,
 such as an iframe object, and with `element: null` when it leaves the content or the object stops being interactive.

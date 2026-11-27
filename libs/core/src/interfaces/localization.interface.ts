@@ -109,6 +109,9 @@ export interface UpmadeTerms {
   'chatBox.stop': string;
   'chatBox.removeChip': string;
   'chatBox.moreChips': string;
+  'chatBox.menu': string;
+  'chatBox.menu.image': string;
+  'chatBox.menu.agent': string;
 
   // Utility panel
   'utility.undo': string;

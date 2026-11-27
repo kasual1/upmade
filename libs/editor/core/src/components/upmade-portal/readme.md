@@ -33,6 +33,7 @@
 
 ### Used by
 
+ - [upmade-chat-box](../upmade-chat-box)
  - [upmade-editor](../upmade-editor)
  - [upmade-menu-item](../upmade-menu-item)
  - [upmade-more-menu](../upmade-more-menu)
@@ -41,6 +42,7 @@
 ### Graph
 ```mermaid
 graph TD;
+  upmade-chat-box --> upmade-portal
   upmade-editor --> upmade-portal
   upmade-menu-item --> upmade-portal
   upmade-more-menu --> upmade-portal

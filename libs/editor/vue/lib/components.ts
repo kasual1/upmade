@@ -22,11 +22,14 @@ export const UpmadeChatBox: StencilVueComponent<JSX.UpmadeChatBox> = /*@__PURE__
   'loading',
   'terms',
   'chips',
+  'menuItems',
+  'menuItemSelect',
   'chatSubmit',
   'chatStop',
   'modeChange',
   'chatChipRemove'
 ], [
+  'menuItemSelect',
   'chatSubmit',
   'chatStop',
   'modeChange',
@@ -66,6 +69,7 @@ export const UpmadeEditor: StencilVueComponent<JSX.UpmadeEditor> = /*@__PURE__*/
   'isToolbarVisible',
   'isChatBoxVisible',
   'chatBoxMode',
+  'chatBoxMenuItems',
   'isChatBoxLoading',
   'chatBoxChips',
   'chatSession',
@@ -102,6 +106,7 @@ export const UpmadeEditor: StencilVueComponent<JSX.UpmadeEditor> = /*@__PURE__*/
   'agentsChange',
   'objectTitlebarAction',
   'cursorLabelAction',
+  'chatBoxMenuItemSelect',
   'objectElementHover',
   'objectElementClick',
   'objectElementPick'
@@ -127,6 +132,7 @@ export const UpmadeEditor: StencilVueComponent<JSX.UpmadeEditor> = /*@__PURE__*/
   'agentsChange',
   'objectTitlebarAction',
   'cursorLabelAction',
+  'chatBoxMenuItemSelect',
   'objectElementHover',
   'objectElementClick',
   'objectElementPick'

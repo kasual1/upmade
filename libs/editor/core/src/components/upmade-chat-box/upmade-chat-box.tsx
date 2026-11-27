@@ -1,5 +1,5 @@
 import { Component, Element, Event, EventEmitter, h, Host, Listen, Prop, State, Watch } from '@stencil/core';
-import { UpmadeChatBoxChip, UpmadeTermKey } from '@upmade/core';
+import { IUpmadeMenuItem, IUpmadeMenuItemSelectEvent, UpmadeChatBoxChip, UpmadeTermKey } from '@upmade/core';
 
 export type UpmadeChatBoxMode = 'collapsed' | 'expanded';
 
@@ -45,6 +45,16 @@ export class UpmadeChatBox {
    */
   @Prop() chips: UpmadeChatBoxChip[] = [];
 
+  /**
+   * Items of the "+" menu left of the input, one level (children are ignored). The "+" is hidden without items.
+   * A picked item's `action` runs, then `menuItemSelect` is emitted. `isVisible` (also a function) hides items;
+   * a label that is a term key is translated.
+   */
+  @Prop() menuItems: IUpmadeMenuItem[] = [];
+
+  /** Emitted when an item of the "+" menu is picked, after its `action`. */
+  @Event() menuItemSelect!: EventEmitter<IUpmadeMenuItemSelectEvent>;
+
   /** Emitted with the current text when the user submits the chat box. */
   @Event() chatSubmit!: EventEmitter<string>;
 
@@ -77,6 +87,14 @@ export class UpmadeChatBox {
   @Element() host!: HTMLUpmadeChatBoxElement;
 
   @State() isFocused = false;
+
+  /** The "+" button while its menu is open (the portal's anchor), else `null`. */
+  @State() menuAnchor: HTMLElement | null = null;
+
+  /** The "+" menu's items as shown: hidden ones left out, labels translated. Resolved when the menu opens. */
+  @State() visibleMenuItems: IUpmadeMenuItem[] = [];
+
+  private menuButtonRef?: HTMLButtonElement;
 
   @State() isScrollable = false;
 
@@ -482,6 +500,85 @@ export class UpmadeChatBox {
     this.submit();
   };
 
+  // ─── "+" menu ───────────────────────────────────────────────────────────────
+
+  private toggleMenu = async (event: MouseEvent) => {
+    event.stopPropagation();
+    if (this.menuAnchor) {
+      this.closeMenu();
+      return;
+    }
+    // Other open menus of the editor close, as with the "⋮" menu.
+    window.dispatchEvent(new CustomEvent('upmade-dismiss-menus'));
+    const button = this.menuButtonRef;
+    this.visibleMenuItems = await this.resolveMenuItems();
+    if (this.visibleMenuItems.length > 0) {
+      this.menuAnchor = button ?? null;
+    }
+  };
+
+  private closeMenu = () => {
+    this.menuAnchor = null;
+  };
+
+  private async resolveMenuItems(): Promise<IUpmadeMenuItem[]> {
+    const items = await Promise.all(
+      (this.menuItems ?? []).map(async (item): Promise<IUpmadeMenuItem | null> => {
+        let isVisible: boolean;
+        try {
+          isVisible = (typeof item.isVisible === 'function' ? await item.isVisible() : item.isVisible) !== false;
+        } catch {
+          isVisible = false;
+        }
+        // Copies: the menu may change its items (e.g. its open state), never the configured ones. One level only.
+        return isVisible ? { ...item, label: this.terms[item.label as UpmadeTermKey] ?? item.label, children: undefined } : null;
+      }),
+    );
+    return items.filter((item): item is IUpmadeMenuItem => !!item);
+  }
+
+  private handleMenuItemSelect = (event: CustomEvent<IUpmadeMenuItemSelectEvent>) => {
+    event.stopPropagation();
+    // The menu shows translated copies: hand out the item as configured.
+    const item = this.menuItems.find(candidate => candidate.id === event.detail.item.id) ?? event.detail.item;
+    if (!item.isDisabled) {
+      try {
+        item.action?.(item, null);
+      } catch (error) {
+        console.error('[Upmade] A chat box menu action failed:', error);
+      }
+      this.menuItemSelect.emit({ item, parent: null });
+    }
+    this.closeMenu();
+  };
+
+  private renderMenu() {
+    if (!this.menuItems?.length) {
+      return null;
+    }
+    const label = this.terms['chatBox.menu'] ?? 'Add';
+    const isOpen = !!this.menuAnchor;
+    return [
+      <button
+        ref={el => (this.menuButtonRef = el)}
+        class={{ 'chat-menu-button': true, 'is-open': isOpen }}
+        type="button"
+        aria-label={label}
+        title={label}
+        aria-haspopup="menu"
+        aria-expanded={String(isOpen)}
+        disabled={this.disabled}
+        onClick={this.toggleMenu}
+      >
+        <upmade-icon name="plus" size={16} aria-hidden="true"></upmade-icon>
+      </button>,
+      // Opens above the button when there is no room below; closes on Escape and outside clicks.
+      <upmade-portal anchor={this.menuAnchor} offsetY={8} onClose={this.closeMenu}>
+        <upmade-menu items={this.visibleMenuItems} onItemSelect={this.handleMenuItemSelect} onClose={this.closeMenu}></upmade-menu>
+      </upmade-portal>,
+    ];
+  }
+
   render() {
     const submitLabel = this.terms['chatBox.submit'] ?? 'Send';
     const buttonLabel = this.loading ? this.terms['chatBox.stop'] ?? 'Stop' : submitLabel;
@@ -498,7 +595,8 @@ export class UpmadeChatBox {
               <rect class="chat-progress-ring" x="1" y="1" pathLength="100" />
             </svg>
           )}
-          <div class={{ 'chat-input-container': true, collapsed: this.mode === 'collapsed', 'has-preview': showPreview }}>
+          <div class={{ 'chat-input-container': true, collapsed: this.mode === 'collapsed', 'has-preview': showPreview, 'has-menu': this.menuItems?.length > 0 }}>
+            {this.renderMenu()}
             <textarea
               ref={el => (this.textareaRef = el)}
               class={{ 'chat-input': true, scrollable: this.isScrollable }}

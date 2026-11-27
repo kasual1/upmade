@@ -128,6 +128,11 @@ export namespace Components {
          */
         "loading": boolean;
         /**
+          * Items of the "+" menu left of the input, one level (children are ignored). The "+" is hidden without items. A picked item's `action` runs, then `menuItemSelect` is emitted. `isVisible` (also a function) hides items; a label that is a term key is translated.
+          * @default []
+         */
+        "menuItems": IUpmadeMenuItem[];
+        /**
           * Display mode. `collapsed` shows a single row and switches to `expanded` automatically while focused once the text no longer fits on one line, collapsing again when focus is lost.
           * @default 'collapsed'
          */
@@ -310,6 +315,11 @@ export namespace Components {
           * @default []
          */
         "chatBoxChips": UpmadeChatBoxChip[];
+        /**
+          * Items of the chat box's "+" menu, left of the input (one level). Defaults to "Add image" and "Add agent" (`UPMADE_DEFAULT_CHAT_BOX_MENU_ITEMS`), which only emit `chatBoxMenuItemSelect`: the app decides what they do. An item's `action` runs when it is picked. `[]` hides the "+".
+          * @default [...UPMADE_DEFAULT_CHAT_BOX_MENU_ITEMS]
+         */
+        "chatBoxMenuItems": IUpmadeMenuItem[];
         /**
           * Initial chat box mode. A collapsed chat box expands automatically when its text overflows one row.
           * @default "collapsed"
@@ -1373,6 +1383,7 @@ declare global {
         new (): HTMLUpmadeButtonElement;
     };
     interface HTMLUpmadeChatBoxElementEventMap {
+        "menuItemSelect": IUpmadeMenuItemSelectEvent;
         "chatSubmit": string;
         "chatStop": void;
         "modeChange": UpmadeChatBoxMode;
@@ -1513,6 +1524,7 @@ declare global {
         "agentsChange": UpmadeAgentsChangeEvent;
         "objectTitlebarAction": UpmadeObjectTitlebarActionEvent;
         "cursorLabelAction": UpmadeCursorLabelActionEvent;
+        "chatBoxMenuItemSelect": IUpmadeMenuItemSelectEvent;
         "objectElementHover": UpmadeObjectElementHoverEvent;
         "objectElementClick": UpmadeObjectElementClickEvent;
         "objectElementPick": UpmadeObjectElementPickEvent;
@@ -2212,6 +2224,11 @@ declare namespace LocalJSX {
          */
         "loading"?: boolean;
         /**
+          * Items of the "+" menu left of the input, one level (children are ignored). The "+" is hidden without items. A picked item's `action` runs, then `menuItemSelect` is emitted. `isVisible` (also a function) hides items; a label that is a term key is translated.
+          * @default []
+         */
+        "menuItems"?: IUpmadeMenuItem[];
+        /**
           * Display mode. `collapsed` shows a single row and switches to `expanded` automatically while focused once the text no longer fits on one line, collapsing again when focus is lost.
           * @default 'collapsed'
          */
@@ -2228,6 +2245,10 @@ declare namespace LocalJSX {
           * Emitted with the current text when the user submits the chat box.
          */
         "onChatSubmit"?: (event: UpmadeChatBoxCustomEvent<string>) => void;
+        /**
+          * Emitted when an item of the "+" menu is picked, after its `action`.
+         */
+        "onMenuItemSelect"?: (event: UpmadeChatBoxCustomEvent<IUpmadeMenuItemSelectEvent>) => void;
         /**
           * Emitted when the mode changes, including automatic expansion.
          */
@@ -2405,6 +2426,11 @@ declare namespace LocalJSX {
          */
         "chatBoxChips"?: UpmadeChatBoxChip[];
         /**
+          * Items of the chat box's "+" menu, left of the input (one level). Defaults to "Add image" and "Add agent" (`UPMADE_DEFAULT_CHAT_BOX_MENU_ITEMS`), which only emit `chatBoxMenuItemSelect`: the app decides what they do. An item's `action` runs when it is picked. `[]` hides the "+".
+          * @default [...UPMADE_DEFAULT_CHAT_BOX_MENU_ITEMS]
+         */
+        "chatBoxMenuItems"?: IUpmadeMenuItem[];
+        /**
           * Initial chat box mode. A collapsed chat box expands automatically when its text overflows one row.
           * @default "collapsed"
          */
@@ -2529,6 +2555,10 @@ declare namespace LocalJSX {
          */
         "onAgentsChange"?: (event: UpmadeEditorCustomEvent<UpmadeAgentsChangeEvent>) => void;
         "onAwarenessChange"?: (event: UpmadeEditorCustomEvent<Map<number, Record<string, any>>>) => void;
+        /**
+          * Emitted when an item of the chat box's "+" menu is picked, after its `action`. `detail.item.id` is `'image'` or `'agent'` for the default items.
+         */
+        "onChatBoxMenuItemSelect"?: (event: UpmadeEditorCustomEvent<IUpmadeMenuItemSelectEvent>) => void;
         /**
           * Emitted with the chat box chip whose remove button the user activated. The chip stays until `chatBoxChips` no longer contains it.
          */

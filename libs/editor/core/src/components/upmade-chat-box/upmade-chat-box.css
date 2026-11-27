@@ -274,11 +274,52 @@
   cursor: not-allowed;
 }
 
+/* The "+" menu button: mirrors the submit button on the left, without its fill. */
+.chat-menu-button {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background-color: transparent;
+  color: var(--upmade-chat-box-menu-button-color, #52525b);
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.chat-menu-button:hover:not(:disabled),
+.chat-menu-button.is-open {
+  background-color: var(--upmade-chat-box-menu-button-hover-background-color, hsl(0, 0%, 0%, 6%));
+}
+
+.chat-menu-button:focus-visible {
+  outline: 2px solid var(--upmade-chat-box-button-background-color, #4A7DFF);
+  outline-offset: 2px;
+}
+
+.chat-menu-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* Collapsed mode: a single row with the submit button inline. */
 .collapsed .chat-input {
   height: calc(1.4em + 28px);
   padding: 14px 48px 14px 14px;
   overflow: hidden;
+}
+
+/* With the "+" menu, the single row starts after it. */
+.collapsed.has-menu .chat-input,
+.collapsed.has-menu .chat-preview {
+  padding-left: 48px;
 }
 
 /* Long text in an unfocused collapsed box stays on one line instead of peeking into the padding. */
