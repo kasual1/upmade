@@ -13,7 +13,7 @@ selection of one object, its rotation handle. While an agent has objects selecte
 and its labels sit above the top-left corner of the selection; they return to the arrow on deselect. Everything is keyed by the cursor key, so the same agent ID
 in two tabs never collides.
 
-Structural changes (added/removed cursors, name, color, status, selections) re-render through
+Structural changes (added/removed cursors, name, color, icon, status, selections) re-render through
 Stencil. Per-frame movement of on-screen cursors, outlines and handles is written directly to the
 elements, in Stencil's write phase: the engine renders objects there too, so an outline is drawn in
 the same frame as the object state it follows and never runs ahead of the object.

@@ -1,5 +1,5 @@
 import { FunctionalComponent, h } from '@stencil/core';
-import { UpmadeOverlayEdge } from '@upmade/core';
+import { UpmadeOverlayEdge, UpmadeViewportOverlayHelper } from '@upmade/core';
 
 /** Arrow-shaped pointer used by remote and agentic cursors. */
 export const CursorArrow: FunctionalComponent<{ color: string }> = ({ color }) => (
@@ -8,12 +8,27 @@ export const CursorArrow: FunctionalComponent<{ color: string }> = ({ color }) =
   </svg>
 );
 
-/** Name label rendered next to a cursor arrow. */
-export const CursorLabel: FunctionalComponent<{ color: string; text: string }> = ({ color, text }) => (
-  <span class="cursor-label" style={{ backgroundColor: color }}>
-    {text}
-  </span>
-);
+interface CursorLabelProps {
+  text: string;
+  /** SVG markup or image URL shown before the text. No icon when omitted or not usable. */
+  icon?: string | null;
+  classes?: Record<string, boolean>;
+  style?: Record<string, string>;
+}
+
+/**
+ * Name label rendered next to a cursor arrow: a white pill with an optional icon before the name. The icon is
+ * drawn as an image (never as markup), so icons from collaborators cannot run scripts.
+ */
+export const CursorLabel: FunctionalComponent<CursorLabelProps> = ({ text, icon, classes, style }) => {
+  const iconSrc = UpmadeViewportOverlayHelper.getCursorIconSrc(icon);
+  return (
+    <span class={{ 'cursor-label': true, 'has-icon': !!iconSrc, ...classes }} style={style}>
+      {iconSrc && <img class="cursor-label-icon" src={iconSrc} alt="" aria-hidden="true" draggable={false} />}
+      <span class="cursor-label-text">{text}</span>
+    </span>
+  );
+};
 
 interface EdgeIndicatorProps {
   /** Stable vdom key for the indicator element. */
@@ -25,26 +40,29 @@ interface EdgeIndicatorProps {
   edge: UpmadeOverlayEdge;
   color: string;
   label: string;
+  /** Icon of the cursor's label, shown before the initials. */
+  icon?: string | null;
   classes?: Record<string, boolean>;
 }
 
-const EDGE_LABEL_OFFSET = 20;
+/** Distance from the indicator's center to the near side of its label. */
+const EDGE_LABEL_OFFSET = 12;
 
 /** Indicator pinned to the viewport edge, pointing towards an off-screen cursor. */
-export const EdgeIndicator: FunctionalComponent<EdgeIndicatorProps> = ({ indicatorKey, x, y, angle, edge, color, label, classes }) => {
+export const EdgeIndicator: FunctionalComponent<EdgeIndicatorProps> = ({ indicatorKey, x, y, angle, edge, color, label, icon, classes }) => {
   const arrowDeg = (angle * 180) / Math.PI + 90;
 
-  // Position the label on the side facing into the viewport
-  let labelX = 0;
-  let labelY = 0;
+  // The label is centered on the indicator: move it into the viewport by half its own size plus the offset, so a
+  // wider label (an icon, two initials) never covers the arrow.
+  let labelTransform = 'none';
   if (edge === 'left') {
-    labelX = EDGE_LABEL_OFFSET;
+    labelTransform = `translateX(calc(50% + ${EDGE_LABEL_OFFSET}px))`;
   } else if (edge === 'right') {
-    labelX = -EDGE_LABEL_OFFSET;
+    labelTransform = `translateX(calc(-50% - ${EDGE_LABEL_OFFSET}px))`;
   } else if (edge === 'top') {
-    labelY = EDGE_LABEL_OFFSET;
+    labelTransform = `translateY(calc(50% + ${EDGE_LABEL_OFFSET}px))`;
   } else if (edge === 'bottom') {
-    labelY = -EDGE_LABEL_OFFSET;
+    labelTransform = `translateY(calc(-50% - ${EDGE_LABEL_OFFSET}px))`;
   }
 
   return (
@@ -52,15 +70,7 @@ export const EdgeIndicator: FunctionalComponent<EdgeIndicatorProps> = ({ indicat
       <svg class={{ 'edge-arrow': true, ...classes }} width="16" height="16" viewBox="0 0 16 16" style={{ transform: `rotate(${arrowDeg}deg)` }}>
         <path d="M8 1L14 13H2L8 1Z" fill={color} stroke="#ffffff" stroke-width="1.5" stroke-linejoin="round" />
       </svg>
-      <span
-        class="edge-label"
-        style={{
-          backgroundColor: color,
-          transform: `translate(${labelX}px, ${labelY}px)`,
-        }}
-      >
-        {label}
-      </span>
+      <CursorLabel text={label} icon={icon} classes={{ 'edge-label': true }} style={{ transform: labelTransform }} />
     </div>
   );
 };

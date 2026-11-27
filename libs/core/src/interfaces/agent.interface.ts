@@ -17,6 +17,11 @@ export interface UpmadeAgentOptions {
   color?: string;
   /** URL of an avatar image. Initials of the name are shown when omitted. */
   avatarUrl?: string;
+  /**
+   * Icon shown before the name on the cursor label: SVG markup or an image URL (http(s), `data:image/` or
+   * relative). No icon when omitted. Shared with collaborators, so keep it small (at most 8192 characters).
+   */
+  cursorIcon?: string;
   /** Default speed of moves and actions in screen pixels per second (1200 when omitted). */
   speed?: number;
   /** Whether collaborators see the agent. Defaults to `true`. */
@@ -305,6 +310,8 @@ export interface UpmadeAwarenessAgent {
   name: string;
   color: string;
   avatarUrl?: string;
+  /** SVG markup or image URL shown on the cursor label. */
+  cursorIcon?: string;
   status: string | null;
   visible: boolean;
   activeAction: string | null;

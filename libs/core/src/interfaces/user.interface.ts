@@ -26,6 +26,13 @@ export interface IUpmadeUser {
   /** User's preferred color (for avatar background when showing initials) */
   color?: string;
 
+  /**
+   * Icon shown before the name on the user's cursor label, as collaborators see it: SVG markup or an image URL
+   * (http(s), `data:image/` or relative). No icon when omitted. Shared with collaborators, so keep it small
+   * (at most 8192 characters).
+   */
+  cursorIcon?: string;
+
   /** Whether the user is a guest (not authenticated) */
   isGuest?: boolean;
 

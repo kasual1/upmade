@@ -419,6 +419,47 @@ describe('UpmadeAgenticCursors', () => {
     });
   });
 
+  describe('cursor label', () => {
+    const iconsOf = (root: VNode) => byClass(root, 'cursor-label-icon');
+
+    it('shows only the name when the cursor has no icon', () => {
+      cursors = [createCursor()];
+      const root = component.render() as unknown as VNode;
+      const [label] = byClass(root, 'cursor-label');
+
+      expect(label.$attrs$!.class).not.toContain('has-icon');
+      expect(iconsOf(root)).toHaveLength(0);
+      expect(byClass(root, 'cursor-label-text')[0].$children$?.[0]).toMatchObject({ $text$: 'Agent' });
+    });
+
+    it('draws an SVG icon as an image before the name', () => {
+      cursors = [createCursor({ cursorIcon: '<svg viewBox="0 0 1 1"><rect width="1" height="1"/></svg>' })];
+      const root = component.render() as unknown as VNode;
+      const [label] = byClass(root, 'cursor-label');
+      const [icon] = iconsOf(root);
+
+      expect(label.$attrs$!.class).toContain('has-icon');
+      expect(icon.$tag$).toBe('img');
+      expect(icon.$attrs$!.src).toMatch(/^data:image\/svg\+xml;charset=utf-8,/);
+      expect(label.$children$!.map(child => child.$attrs$?.class)).toEqual(['cursor-label-icon', 'cursor-label-text']);
+    });
+
+    it('shows the icon before the initials of an edge indicator', () => {
+      state.translateX = -5000;
+      cursors = [createCursor({ cursorIcon: '/icons/agent.svg' })];
+      const root = component.render() as unknown as VNode;
+      const [label] = byClass(root, 'edge-label');
+
+      expect(iconsOf(label)[0].$attrs$!.src).toBe('/icons/agent.svg');
+      expect(byClass(label, 'cursor-label-text')[0].$children$?.[0]).toMatchObject({ $text$: 'A' });
+    });
+
+    it('leaves out icons it cannot draw safely', () => {
+      cursors = [createCursor({ cursorIcon: 'javascript:alert(1)' })];
+      expect(iconsOf(component.render() as unknown as VNode)).toHaveLength(0);
+    });
+  });
+
   it('keeps the status element when the status text changes, so it does not animate in again', () => {
     cursors = [createCursor({ status: 'One' })];
     const first = byClass(component.render() as unknown as VNode, 'agentic-cursor-status')[0];

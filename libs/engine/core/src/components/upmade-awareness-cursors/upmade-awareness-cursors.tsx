@@ -341,7 +341,7 @@ export class UpmadeAwarenessCursors {
         style={{ transform: `translate(${screenX}px, ${screenY}px)` }}
       >
         <CursorArrow color={color} />
-        <CursorLabel color={color} text={this.getUserDisplayName(cursor.user)} />
+        <CursorLabel text={this.getUserDisplayName(cursor.user)} icon={cursor.user.cursorIcon} />
       </div>
     );
   }
@@ -366,6 +366,7 @@ export class UpmadeAwarenessCursors {
         edge={clamped.edge}
         color={color}
         label={UpmadeViewportOverlayHelper.getInitials(displayName)}
+        icon={cursor.user.cursorIcon}
         classes={{ stale, 'tracking-object': trackingObject }}
       />
     );

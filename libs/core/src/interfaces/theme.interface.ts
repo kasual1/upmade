@@ -13,7 +13,13 @@ export interface UpmadeTheme {
   /** Global variables */
   global?: {
     agenticCursorFontFamily?: string;
+    agenticCursorLabelBackgroundColor?: string;
+    agenticCursorLabelBorderColor?: string;
+    agenticCursorLabelBorderRadius?: string;
+    agenticCursorLabelBoxShadow?: string;
     agenticCursorLabelFontSize?: string;
+    /** Size of the icon before the name on agents' cursor labels; 18px if unset */
+    agenticCursorLabelIconSize?: string;
     agenticCursorLabelTextColor?: string;
     agenticCursorRippleSize?: string;
     agenticCursorSelectionBorderWidth?: string;
@@ -69,7 +75,13 @@ export interface UpmadeTheme {
 
   /** Awareness variables */
   awareness?: {
+    cursorLabelBackgroundColor?: string;
+    cursorLabelBorderColor?: string;
+    cursorLabelBorderRadius?: string;
+    cursorLabelBoxShadow?: string;
     cursorLabelFontSize?: string;
+    /** Size of the icon before the name on collaborators' cursor labels; 18px if unset */
+    cursorLabelIconSize?: string;
     cursorLabelTextColor?: string;
     cursorTransitionDuration?: string;
     fontFamily?: string;

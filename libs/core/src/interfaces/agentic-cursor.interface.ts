@@ -65,6 +65,8 @@ export interface UpmadeAgenticCursorAppearance {
   readonly name: string;
   /** Any CSS color. */
   readonly color: string;
+  /** SVG markup or image URL shown before the name on the label, or `null` for none. */
+  readonly cursorIcon?: string | null;
   /** Status message shown below the label, or `null` for none. */
   readonly status: string | null;
   readonly visible: boolean;
@@ -110,6 +112,8 @@ export interface UpmadeAgenticCursor {
   id: string;
   name?: string;
   color: string;
+  /** SVG markup or image URL shown before the name on the label. */
+  cursorIcon?: string;
   status?: string;
   visible: boolean;
   /** Current position in world coordinates. */
