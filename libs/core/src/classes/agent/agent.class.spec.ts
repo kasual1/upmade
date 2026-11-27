@@ -979,7 +979,8 @@ describe('UpmadeAgent', () => {
       expect(line).toMatchObject({ completed: true, objects: [{ type: 'line', from: start.objectIds[0], to: end.objectIds[0] }] });
 
       const snapshot = await call(agent, 'observe_canvas', {});
-      expect(snapshot.agent).toMatchObject({ id: 'claude', selection: [] });
+      // The connector it created last is its selection.
+      expect(snapshot.agent).toMatchObject({ id: 'claude', selection: [line.objectIds[0]] });
       expect(snapshot.totalObjects).toBe(3);
       expect(snapshot.objects.map((object: any) => object.type)).toEqual(['shape', 'shape', 'line']);
       expect(snapshot.objects[1]).toMatchObject({ text: 'End', style: { fillColor: '#dcfce7' } });

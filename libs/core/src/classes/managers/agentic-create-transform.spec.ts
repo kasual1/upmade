@@ -428,12 +428,12 @@ describe('agentic create and transform actions', () => {
       expect((map.findById(lineId) as UpmadeLine).endAnchor?.objectId).toBe(b.id);
     });
 
-    it('replaces copied originals in its selection', async () => {
+    it('selects the copies it creates', async () => {
       const a = addShape(0, 0, 100, 50);
       const b = addShape(200, 0, 100, 50);
       await perform({ type: 'select', objectIds: [a.id, b.id] });
       const result = await perform({ type: 'copyObjects', objectIds: [a.id] });
-      expect(actions.getSelection('agent')).toEqual([result.objectIds![0], b.id]);
+      expect(actions.getSelection('agent')).toEqual([result.objectIds![0]]);
     });
   });
 
@@ -465,13 +465,14 @@ describe('agentic create and transform actions', () => {
       await expect(perform({ type: 'groupObjects', objectIds: [a.id, b.id] })).resolves.toMatchObject({ reason: 'invalid-target', objectIds: [b.id] });
     });
 
-    it('replaces grouped objects in its selection by the group', async () => {
+    it('selects the group it creates', async () => {
       const a = addShape(0, 0, 50, 50);
       const b = addShape(100, 0, 50, 50);
       const c = addShape(200, 0, 50, 50);
       await perform({ type: 'select', objectIds: [a.id, b.id, c.id] });
       const [groupId] = (await perform({ type: 'groupObjects', objectIds: [a.id, b.id] })).objectIds!;
-      expect(actions.getSelection('agent')).toEqual([groupId, c.id]);
+      // The new group becomes the selection.
+      expect(actions.getSelection('agent')).toEqual([groupId]);
     });
 
     it('dissolves groups as the agent, keeps the children, and undoes it in one step', async () => {
@@ -1263,5 +1264,82 @@ describe('agentic create and transform actions', () => {
       expect(current.html).toBe('<b>old</b>');
     });
   });
-});
+  describe('selection rule', () => {
+    const selection = () => actions.getSelection('agent');
 
+    it('selects a created object in place of the previous selection', async () => {
+      const rect = (await perform({ type: 'createShape', x: 0, y: 0, width: 100, height: 50 })).objectIds![0];
+      expect(selection()).toEqual([rect]);
+
+      const circle = (await perform({ type: 'createShape', x: 200, y: 0, width: 50, height: 50, shapeType: 'ellipse' })).objectIds![0];
+      expect(selection()).toEqual([circle]);
+    });
+
+    it('clears the selection as soon as a creating action starts', async () => {
+      const a = addShape(0, 0, 100, 50);
+      await perform({ type: 'select', objectIds: [a.id] });
+      const promise = actions.perform('agent', { type: 'createShape', x: 300, y: 300, width: 100, height: 100 });
+      await flushMicrotasks();
+      expect(selection()).toEqual([]);
+      expect(cursors.get('agent')!.selectedObjectIds).not.toContain(a.id);
+      await settle(promise);
+    });
+
+    it('keeps the selection for actions on selected objects', async () => {
+      const a = addShape(0, 0, 100, 50);
+      const b = addShape(200, 0, 100, 50);
+      await perform({ type: 'select', objectIds: [a.id, b.id] });
+
+      await perform({ type: 'moveObject', objectId: a.id, to: { x: 400, y: 400 } });
+      await perform({ type: 'setStyle', objectIds: [b.id], style: { fillColor: '#2563eb' } });
+      await perform({ type: 'click', target: { objectId: a.id } });
+      expect(selection()).toEqual([a.id, b.id]);
+
+      // A click on a point of a selected object.
+      await perform({ type: 'click', target: { x: 250, y: 25 } });
+      expect(selection()).toEqual([a.id, b.id]);
+    });
+
+    it('clears the selection for actions on other objects and clicks on empty canvas', async () => {
+      const a = addShape(0, 0, 100, 50);
+      const b = addShape(200, 0, 100, 50);
+      await perform({ type: 'select', objectIds: [a.id] });
+      await perform({ type: 'moveObject', objectId: b.id, to: { x: 400, y: 400 } });
+      expect(selection()).toEqual([]);
+
+      await perform({ type: 'select', objectIds: [a.id] });
+      await perform({ type: 'click', target: { x: 1500, y: 1500 } });
+      expect(selection()).toEqual([]);
+    });
+
+    it('keeps the selection when moving the selected object next to another one', async () => {
+      const a = addShape(0, 0, 100, 50);
+      const b = addShape(200, 0, 100, 50);
+      await perform({ type: 'select', objectIds: [a.id] });
+      await perform({ type: 'moveObject', objectId: a.id, to: { objectId: b.id, anchor: 'right' } });
+      expect(selection()).toEqual([a.id]);
+    });
+
+    it('restores the selection when the action that cleared it keeps nothing', async () => {
+      const a = addShape(0, 0, 100, 50);
+      await perform({ type: 'select', objectIds: [a.id] });
+      const controller = new AbortController();
+      const promise = actions.perform('agent', { type: 'createShape', x: 300, y: 300, width: 400, height: 400 }, { signal: controller.signal });
+      await flushMicrotasks();
+      expect(selection()).toEqual([]);
+      controller.abort();
+      await expect(settle(promise)).resolves.toEqual({ completed: false, reason: 'aborted' });
+      expect(selection()).toEqual([a.id]);
+    });
+
+    it('leaves the selection alone on undo', async () => {
+      const a = addShape(0, 0, 100, 50);
+      const created = (await perform({ type: 'createShape', x: 300, y: 0, width: 50, height: 50 })).objectIds![0];
+      await perform({ type: 'select', objectIds: [a.id] });
+      await perform({ type: 'undo' });
+      // The undo removed the created shape; the selection stays on a.
+      expect(map.findById(created)).toBeUndefined();
+      expect(selection()).toEqual([a.id]);
+    });
+  });
+});

@@ -107,6 +107,11 @@ export class UpmadeAgenticActionRun {
   applyingHistory = false;
   /** An abort that arrived while `applyingHistory` was set. */
   heldAbort: { reason: UpmadeAgenticActionFailureReason; objectIds?: string[] } | null = null;
+  /**
+   * Agents: the explicit selection the action cleared when it started because it works outside it; restored if
+   * the action ends without keeping changes. `null` when the action left the selection alone.
+   */
+  clearedSelection: string[] | null = null;
   /** Whether the action changed anything. */
   hasMutated = false;
   /** Whether the outcome is decided. */

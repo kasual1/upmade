@@ -335,7 +335,10 @@ export class UpmadeAgent implements IUpmadeUser {
     return this.perform({ type: 'interactWithElement', target, interaction }, options);
   }
 
-  /** Selects top-level objects for the agent. Never changes the user's selection. */
+  /**
+   * Selects top-level objects for the agent. Never changes the user's selection. The selection lasts while the agent
+   * works on it: an action on anything outside it clears it, and objects an action creates become the selection.
+   */
   select(objectIds: string[], options: { additive?: boolean } & UpmadeAgenticActionOptions = {}): Promise<UpmadeAgenticActionResult> {
     const { additive, ...actionOptions } = options;
     return this.perform({ type: 'select', objectIds, ...(additive !== undefined ? { additive } : {}) }, actionOptions);

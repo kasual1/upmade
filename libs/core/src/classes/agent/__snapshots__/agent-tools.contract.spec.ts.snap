@@ -204,7 +204,7 @@ exports[`agent tools contract as agent offers the same tools with default 1`] = 
     "name": "interact_with_element",
   },
   {
-    "description": "Makes top-level objects your selection, shown in your color. Never changes the user's selection.",
+    "description": "Makes top-level objects your selection, shown in your color. Never changes the user's selection. Your selection lasts while you work on it: acting on objects outside it clears it, and objects you create become your selection.",
     "inputSchema": {
       "additionalProperties": false,
       "properties": {
@@ -1536,7 +1536,7 @@ exports[`agent tools contract as agent offers the same tools with iframes 1`] = 
     "name": "interact_with_element",
   },
   {
-    "description": "Makes top-level objects your selection, shown in your color. Never changes the user's selection.",
+    "description": "Makes top-level objects your selection, shown in your color. Never changes the user's selection. Your selection lasts while you work on it: acting on objects outside it clears it, and objects you create become your selection.",
     "inputSchema": {
       "additionalProperties": false,
       "properties": {
@@ -3001,7 +3001,7 @@ exports[`agent tools contract as agent offers the same tools with image urls 1`]
     "name": "interact_with_element",
   },
   {
-    "description": "Makes top-level objects your selection, shown in your color. Never changes the user's selection.",
+    "description": "Makes top-level objects your selection, shown in your color. Never changes the user's selection. Your selection lasts while you work on it: acting on objects outside it clears it, and objects you create become your selection.",
     "inputSchema": {
       "additionalProperties": false,
       "properties": {
@@ -4337,7 +4337,7 @@ exports[`agent tools contract as agent offers the same tools with no images 1`] 
     "name": "interact_with_element",
   },
   {
-    "description": "Makes top-level objects your selection, shown in your color. Never changes the user's selection.",
+    "description": "Makes top-level objects your selection, shown in your color. Never changes the user's selection. Your selection lasts while you work on it: acting on objects outside it clears it, and objects you create become your selection.",
     "inputSchema": {
       "additionalProperties": false,
       "properties": {
@@ -5790,7 +5790,7 @@ exports[`agent tools contract as agent offers the same tools with prefix 1`] = `
     "name": "k_interact_with_element",
   },
   {
-    "description": "Makes top-level objects your selection, shown in your color. Never changes the user's selection.",
+    "description": "Makes top-level objects your selection, shown in your color. Never changes the user's selection. Your selection lasts while you work on it: acting on objects outside it clears it, and objects you create become your selection.",
     "inputSchema": {
       "additionalProperties": false,
       "properties": {

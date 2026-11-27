@@ -26,11 +26,17 @@ import {
   detectObjectConflict,
   expandWithRelatives,
   isSelectionObject,
+  isTopLevel,
 } from '../../helpers/agentic-conflict.helper';
 import { UpmadeEventHelper } from '../../helpers/event.helper';
+import { isElementTarget, isObjectTarget } from '../../helpers/agentic-geometry.helper';
+import { hitTestTopMost } from '../executors/click.executor';
 
 type AnyObject = UpmadeBaseObject<any>;
 type ObjectMap = UpmadeObjectMap<AnyObject>;
+
+/** Actions that manage an agent's selection themselves, so the selection rule leaves it alone. */
+const SELECTION_RULE_EXEMPT_ACTIONS: ReadonlySet<string> = new Set(['select', 'clearSelection', 'undo', 'redo']);
 
 interface AgenticSelection {
   /** Top-level IDs, as shown. */
@@ -313,6 +319,8 @@ export class UpmadeAgenticActionManager implements UpmadeAgenticRunHost {
     const reason = outcome.kind === 'abort' ? outcome.reason : null;
     const keep = outcome.kind === 'commit' || (reason !== null && KEEP_REASONS.has(reason));
     let events: ReturnType<UpmadeAgenticActionManager['deriveEvents']> | null = null;
+    /** Objects the kept action added to the canvas. */
+    const createdIds = new Set<string>();
 
     try {
       if (run.hasMutated && run.origin && map && map.isReady) {
@@ -323,6 +331,9 @@ export class UpmadeAgenticActionManager implements UpmadeAgenticRunHost {
         if (keep) {
           map.stopAgentCapturing(run.cursorId);
           const recording = run.origin.takeRecording();
+          recording.forEach((existedBefore, id) => {
+            if (!existedBefore) createdIds.add(id);
+          });
           if (map.getAgentUndoStackLength(run.cursorId) > run.undoLengthAtStart) {
             map.tagLastAgentStackItem(run.cursorId, Array.from(recording.keys()).filter(id => !run.selectionObjectIds.has(id)));
             if (run.actorKind === 'user') {
@@ -359,6 +370,13 @@ export class UpmadeAgenticActionManager implements UpmadeAgenticRunHost {
     }
 
     run.runSettleHooks();
+    if (outcome.kind === 'commit') {
+      this.selectCreatedObjects(run, map, outcome.objectIds, createdIds);
+    } else if (run.clearedSelection && !(keep && run.hasMutated) && this.getSelection(run.cursorId).length === 0) {
+      // Nothing happened: the selection the action cleared comes back (without objects deleted meanwhile).
+      const existing = map ? run.clearedSelection.filter(id => !!map.findById(id)) : [];
+      if (existing.length > 0) this.setSelection(run.cursorId, existing);
+    }
     if (outcome.kind === 'commit' && run.finalAttachment) {
       cursors.attach(run.cursorId, run.finalAttachment);
     }
@@ -549,6 +567,7 @@ export class UpmadeAgenticActionManager implements UpmadeAgenticRunHost {
         const object = map.findById(id);
         if (object) run.knownInstances.set(id, object);
       });
+      this.deselectIfWorkingElsewhere(run, preparation);
       this.showSelection(run.cursorId);
 
       const objectIds = await run.executor.execute(run, run.action);
@@ -744,6 +763,52 @@ export class UpmadeAgenticActionManager implements UpmadeAgenticRunHost {
     const running = this._running.get(cursorId);
     const shown = running && !running.settled && running.executing ? [...explicit, ...running.displayIds] : [...explicit];
     this._core.agenticCursorManager.setSelectedObjectIds(cursorId, Array.from(new Set(shown)));
+  }
+
+  // ─── Selection rule ─────────────────────────────────────────────────────────
+  //
+  // An agent's selection lasts as long as the agent works on it, like a person's:
+  // - an action on objects that are all in the selection keeps it (move, resize, style, type into it, click it);
+  // - an action on anything else, or one that creates objects (on empty canvas), clears it when it starts, like a
+  //   click elsewhere; if the action then keeps nothing, the selection comes back;
+  // - an action that creates objects selects them once it completes (copies, a new group, a drawn shape or line);
+  // - `select`, `clearSelection`, `undo` and `redo` manage the selection themselves; moving the cursor never changes it.
+  // Actors working as the user don't follow the rule: their selection is the user's own.
+
+  /** Clears the agent's selection when the action starting now works outside it. */
+  private deselectIfWorkingElsewhere(run: UpmadeAgenticActionRun, preparation: UpmadeAgenticPreparation): void {
+    if (run.actorKind !== 'agent' || SELECTION_RULE_EXEMPT_ACTIONS.has(run.action.type)) return;
+    const selection = this._selections.get(run.cursorId);
+    if (!selection) return;
+    const touched = this.getTouchedObjectIds(run, preparation);
+    if (touched.length > 0 && touched.every(id => selection.expanded.has(id))) return;
+    run.clearedSelection = [...selection.ids];
+    this.setSelection(run.cursorId, []);
+  }
+
+  /** The objects an action works on, for the selection rule. */
+  private getTouchedObjectIds(run: UpmadeAgenticActionRun, preparation: UpmadeAgenticPreparation): string[] {
+    if (preparation.targetIds.length > 0) return preparation.targetIds;
+    if (preparation.checkLevel !== 'existence') return [];
+    // A click or element interaction only names the object it uses as a reference; a click on a point uses
+    // the object under it, if any (on empty canvas, nothing).
+    const action = run.action;
+    if (action.type === 'click' && !isElementTarget(action.target) && !isObjectTarget(action.target) && run.map) {
+      const hit = hitTestTopMost(run.map, action.target);
+      return hit ? [hit.id] : [];
+    }
+    return preparation.referenceIds;
+  }
+
+  /** Makes the top-level objects a completed agent action created its selection. */
+  private selectCreatedObjects(run: UpmadeAgenticActionRun, map: ObjectMap | null, objectIds: string[], createdIds: Set<string>): void {
+    if (run.actorKind !== 'agent' || SELECTION_RULE_EXEMPT_ACTIONS.has(run.action.type) || !map || createdIds.size === 0) return;
+    const created = objectIds.filter(id => {
+      if (!createdIds.has(id)) return false;
+      const object = map.findById(id);
+      return !!object && !isSelectionObject(object) && isTopLevel(map, id);
+    });
+    if (created.length > 0) this.setSelection(run.cursorId, created);
   }
 
   /** Drops deleted objects from explicit selections. */

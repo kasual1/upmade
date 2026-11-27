@@ -252,7 +252,9 @@ export const AGENT_TOOL_SPECS: { [K in UpmadeAgenticActionType]: UpmadeAgentTool
   },
   select: {
     name: 'select',
-    description: "Makes top-level objects your selection, shown in your color. Never changes the user's selection.",
+    description:
+      "Makes top-level objects your selection, shown in your color. Never changes the user's selection. " +
+      'Your selection lasts while you work on it: acting on objects outside it clears it, and objects you create become your selection.',
     params: { objectIds: req(ids), additive: opt(bool('Add to your selection instead of replacing it.')) },
     actors: AGENT_ONLY,
     describeObjects: false,
