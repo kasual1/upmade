@@ -10,9 +10,9 @@
 /* A white pill next to the arrow: an icon (by default a circle in the cursor's color), then the name. */
 .cursor-label {
   position: absolute;
-  /* Just below and right of the arrow: 10px and 11px from its tip, which sits 4.17px and 2.5px inside the arrow's box. */
-  left: 14.17px;
-  top: 13.5px;
+  /* Just below and right of the arrow: 12px and 12px from its tip, which sits 4.17px and 2.5px inside the arrow's box. */
+  left: 16.17px;
+  top: 14.5px;
   display: inline-flex;
   align-items: center;
   gap: 6px;
