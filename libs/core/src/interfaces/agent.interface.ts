@@ -19,7 +19,7 @@ export interface UpmadeAgentOptions {
   avatarUrl?: string;
   /**
    * Icon shown before the name on the cursor label: SVG markup or an image URL (http(s), `data:image/` or
-   * relative). No icon when omitted. Shared with collaborators, so keep it small (at most 8192 characters).
+   * relative). When omitted, a circle in the agent's `color` is shown. Shared with collaborators, so keep it small (at most 8192 characters).
    */
   cursorIcon?: string;
   /** Default speed of moves and actions in screen pixels per second (1200 when omitted). */

@@ -300,7 +300,7 @@ export class UpmadeAgenticCursors {
     if (!this.hasLabels(cursor)) return null;
     return (
       <div class="agentic-cursor-labels">
-        {cursor.name && <CursorLabel text={cursor.name} icon={cursor.cursorIcon} />}
+        {cursor.name && <CursorLabel text={cursor.name} icon={cursor.cursorIcon} color={cursor.color} />}
         {/* One element for every status: a new text doesn't replay the entry animation. */}
         {cursor.status && (
           <span key="status" class="agentic-cursor-status" title={cursor.status}>

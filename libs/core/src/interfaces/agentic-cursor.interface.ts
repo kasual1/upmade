@@ -65,7 +65,7 @@ export interface UpmadeAgenticCursorAppearance {
   readonly name: string;
   /** Any CSS color. */
   readonly color: string;
-  /** SVG markup or image URL shown before the name on the label, or `null` for none. */
+  /** SVG markup or image URL shown before the name on the label, or `null` for the default: a circle in `color`. */
   readonly cursorIcon?: string | null;
   /** Status message shown below the label, or `null` for none. */
   readonly status: string | null;

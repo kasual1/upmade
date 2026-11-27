@@ -35,7 +35,7 @@ Throws a `TypeError` when `name` is missing or empty.
 | name | string | — | Required. Name shown in the cursor label. |
 | color | string | Derived from the name | Any CSS color for the cursor arrow and the agent's selection. |
 | avatarUrl | string | — | URL of an avatar image, shown in the avatar stack and reported in `agentsChange`. Initials of the name are shown when omitted. |
-| cursorIcon | string | — | Icon shown before the name on the cursor label: SVG markup (`'<svg …>…</svg>'`) or an image URL (`http:`, `https:`, `data:image/`, or relative). No icon when omitted. See [Cursor Label](#cursor-label). |
+| cursorIcon | string | — | Icon shown before the name on the cursor label: SVG markup (`'<svg …>…</svg>'`) or an image URL (`http:`, `https:`, `data:image/`, or relative). When omitted, a circle in the agent's `color` is shown. See [Cursor Label](#cursor-label). |
 | speed | number | `1200` | Default speed of moves and actions in screen pixels per second. |
 | broadcast | boolean | `true` | Whether collaborators see the agent. See [Collaboration](#collaboration). |
 | status | string | — | Status message shown below the cursor label. |
@@ -56,7 +56,7 @@ Throws a `TypeError` when `name` is missing or empty.
 | displayName | string | Read-only. Same as `name`, so an agent can be used where an `IUpmadeUser` is expected. |
 | color | string | Any CSS color. Setting it recolors the cursor and the agent's selection. |
 | avatarUrl | string \| undefined | URL of the avatar image. |
-| cursorIcon | string \| null | Icon shown before the name on the cursor label. Setting it updates the label; `null` removes the icon. |
+| cursorIcon | string \| null | Icon shown before the name on the cursor label. Setting it updates the label; `null` shows the default circle in the agent's color. |
 | profileImageUrl | string \| undefined | Read-only. Same as `avatarUrl`. |
 | speed | number \| undefined | Default speed of moves and actions in screen pixels per second. `undefined` uses `1200`. |
 | broadcast | boolean | Whether collaborators see the agent. Setting it takes effect at once: `false` removes the agent from the presence of collaborators, `true` shares it again. Objects that the agent changes sync either way. |
@@ -65,7 +65,7 @@ Throws a `TypeError` when `name` is missing or empty.
 
 ### Cursor Label
 
-The cursor label is a white, rounded pill next to the cursor arrow, with the agent's name. Pass `cursorIcon` to show an icon before the name, for example the agent's logo:
+The cursor label is a white, rounded pill next to the cursor arrow, with the agent's name after a circle in the agent's `color`. Pass `cursorIcon` to show another icon in place of the circle, for example the agent's logo:
 
 ```ts
 const agent = new UpmadeAgent({

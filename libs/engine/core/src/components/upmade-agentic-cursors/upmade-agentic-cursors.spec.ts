@@ -429,14 +429,24 @@ describe('UpmadeAgenticCursors', () => {
   describe('cursor label', () => {
     const iconsOf = (root: VNode) => byClass(root, 'cursor-label-icon');
 
-    it('shows only the name when the cursor has no icon', () => {
+    it('shows a circle in the agent\'s color before the name when the cursor has no icon', () => {
       cursors = [createCursor()];
       const root = component.render() as unknown as VNode;
       const [label] = byClass(root, 'cursor-label');
+      const [icon] = iconsOf(root);
 
-      expect(label.$attrs$!.class).not.toContain('has-icon');
-      expect(iconsOf(root)).toHaveLength(0);
+      expect(label.$attrs$!.class).toContain('has-icon');
+      expect(icon.$tag$).toBe('span');
+      expect(icon.$attrs$!.class).toContain('cursor-label-dot');
+      expect(icon.$attrs$!.style).toEqual({ backgroundColor: '#7C3AED' });
+      expect(label.$children$!.map(child => child.$attrs$?.class)).toEqual(['cursor-label-icon cursor-label-dot', 'cursor-label-text']);
       expect(byClass(root, 'cursor-label-text')[0].$children$?.[0]).toMatchObject({ $text$: 'Agent' });
+    });
+
+    it('shows the circle on the edge indicator of an off-screen agent without an icon', () => {
+      cursors = [createCursor({ position: { x: 5000, y: 10 } })];
+      const [label] = byClass(component.render() as unknown as VNode, 'edge-label');
+      expect(byClass(label, 'cursor-label-dot')[0].$attrs$!.style).toEqual({ backgroundColor: '#7C3AED' });
     });
 
     it('draws an SVG icon as an image before the name', () => {
@@ -461,9 +471,12 @@ describe('UpmadeAgenticCursors', () => {
       expect(byClass(label, 'cursor-label-text')[0].$children$?.[0]).toMatchObject({ $text$: 'A' });
     });
 
-    it('leaves out icons it cannot draw safely', () => {
+    it('shows the circle instead of icons it cannot draw safely', () => {
       cursors = [createCursor({ cursorIcon: 'javascript:alert(1)' })];
-      expect(iconsOf(component.render() as unknown as VNode)).toHaveLength(0);
+      const icons = iconsOf(component.render() as unknown as VNode);
+      expect(icons).toHaveLength(1);
+      expect(icons[0].$tag$).toBe('span');
+      expect(icons[0].$attrs$!.class).toContain('cursor-label-dot');
     });
   });
 

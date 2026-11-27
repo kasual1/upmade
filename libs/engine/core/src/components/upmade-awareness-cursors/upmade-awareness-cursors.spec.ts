@@ -588,12 +588,15 @@ describe('UpmadeAwarenessCursors', () => {
       return component.render() as unknown as VNode;
     };
 
-    it('shows the name in a label without an icon by default', () => {
+    it("shows a circle in the user's color before the name by default", () => {
       const root = renderUser({ displayName: 'Ada' });
       const [label] = byClass(root, 'cursor-label');
+      const [icon] = byClass(root, 'cursor-label-icon');
 
-      expect(label.$attrs$!.class).not.toContain('has-icon');
-      expect(byClass(root, 'cursor-label-icon')).toHaveLength(0);
+      expect(label.$attrs$!.class).toContain('has-icon');
+      expect(icon.$tag$).toBe('span');
+      expect(icon.$attrs$!.class).toContain('cursor-label-dot');
+      expect(icon.$attrs$!.style).toEqual({ backgroundColor: '#00ff00' });
       expect(byClass(root, 'cursor-label-text')[0].$children$?.[0]).toMatchObject({ $text$: 'Ada' });
     });
 
@@ -605,9 +608,12 @@ describe('UpmadeAwarenessCursors', () => {
       expect(decodeURIComponent(icon.$attrs$!.src)).toBe('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1"/>');
     });
 
-    it('ignores an icon a collaborator sends that cannot be drawn safely', () => {
+    it('shows the circle instead of an icon a collaborator sends that cannot be drawn safely', () => {
       const root = renderUser({ displayName: 'Ada', cursorIcon: '<img src=x onerror="alert(1)">' });
-      expect(byClass(root, 'cursor-label-icon')).toHaveLength(0);
+      const icons = byClass(root, 'cursor-label-icon');
+      expect(icons).toHaveLength(1);
+      expect(icons[0].$tag$).toBe('span');
+      expect(icons[0].$attrs$!.class).toContain('cursor-label-dot');
     });
 
     it('shows the icon on the edge indicator of an off-screen user', () => {

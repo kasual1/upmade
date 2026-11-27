@@ -172,7 +172,7 @@ export class UpmadeAgent implements IUpmadeUser {
   }
 
   /**
-   * Icon shown before the name on the cursor label: SVG markup or an image URL. `null` (the default) shows no icon.
+   * Icon shown before the name on the cursor label: SVG markup or an image URL. `null` (the default) shows a circle in the agent's color.
    */
   get cursorIcon(): string | null {
     return this._cursorIcon;

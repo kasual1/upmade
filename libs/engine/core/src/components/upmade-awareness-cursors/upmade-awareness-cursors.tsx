@@ -15,6 +15,8 @@ import { getSelectionTopLeft } from '../shared/cursor/selection-anchor';
 const STALE_THRESHOLD_MS = 10_000;
 const REMOVE_THRESHOLD_MS = 30_000;
 const CLEANUP_INTERVAL_MS = 3_000;
+/** Color of a collaborator whose user state has none. */
+const DEFAULT_CURSOR_COLOR = '#6B7280';
 
 @Component({
   tag: 'upmade-awareness-cursors',
@@ -251,7 +253,7 @@ export class UpmadeAwarenessCursors {
         {cursors.map(remoteCursor => {
           if (!remoteCursor.cursor) return null;
 
-          const color = remoteCursor.user.color || '#6B7280';
+          const color = remoteCursor.user.color || DEFAULT_CURSOR_COLOR;
           // While the collaborator has objects selected, the label sits above the selection instead
           const showLabel = !this.getSelectionAnchor(remoteCursor);
 
@@ -297,14 +299,14 @@ export class UpmadeAwarenessCursors {
               class="awareness-selection-label"
               style={{ transform: `translate(${anchor.x}px, ${anchor.y}px)` }}
             >
-              <CursorLabel text={this.getUserDisplayName(remoteCursor.user)} icon={remoteCursor.user.cursorIcon} />
+              <CursorLabel text={this.getUserDisplayName(remoteCursor.user)} icon={remoteCursor.user.cursorIcon} color={remoteCursor.user.color || DEFAULT_CURSOR_COLOR} />
             </div>
           );
         })}
         {cursors.map(remoteCursor => {
           if (!remoteCursor.selectionBox) return null;
 
-          const color = remoteCursor.user.color || '#6B7280';
+          const color = remoteCursor.user.color || DEFAULT_CURSOR_COLOR;
           const box = remoteCursor.selectionBox;
           const topLeft = this.worldToScreen(box.x, box.y);
           const { scale } = this.core.store.state;
@@ -345,7 +347,7 @@ export class UpmadeAwarenessCursors {
         style={{ transform: `translate(${screenX}px, ${screenY}px)` }}
       >
         <CursorArrow color={color} />
-        {showLabel && <CursorLabel text={this.getUserDisplayName(cursor.user)} icon={cursor.user.cursorIcon} />}
+        {showLabel && <CursorLabel text={this.getUserDisplayName(cursor.user)} icon={cursor.user.cursorIcon} color={color} />}
       </div>
     );
   }
